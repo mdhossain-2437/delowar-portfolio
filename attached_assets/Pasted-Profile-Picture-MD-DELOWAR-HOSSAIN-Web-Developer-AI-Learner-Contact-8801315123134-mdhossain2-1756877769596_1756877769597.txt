@@ -1,0 +1,90 @@
+Profile Picture
+MD DELOWAR HOSSAIN
+Web Developer | AI Learner
+Contact
++8801315123134
+mdhossain2437@gmail.com
+Panchbibi, Joypurhat, Bangladesh
+linkedin.com/in/mdhossain2437
+github.com/mdhossain-2437
+Skills
+Proficient: HTML, CSS, JavaScript (ES6), React, Tailwind CSS, Git/GitHub, Firebase, JWT
+
+Familiar: Python, TypeScript, Next.js, Bootstrap, REST APIs
+
+Exploring: TensorFlow, LangChain, LLM Agents, AI/ML Fundamentals
+
+Education
+B.A. in Political Science
+
+Joypurhat Govt. College
+
+Expected 2029
+
+Professional Mission
+"To simplify programming for everyone and help others learn software development through creativity, open-source, and intuitive tools. My goal is to build intelligent developer agents that empower engineers and learners alike."
+
+CAREER OBJECTIVE
+To build innovative and intelligent tools that solve real-world problems and empower people—especially developers and learners. I’m looking for a role that challenges my logic, expands my technical depth, and gives me the freedom to create things that matter. I want to work at the intersection of web development, AI, and purposeful design.
+
+PROFESSIONAL PROFILE
+A highly motivated and solution-oriented developer with a passion for learning and building digital products. Skilled in modern frontend development with growing expertise in AI tools and frameworks. Thrives in collaborative environments and adapts quickly to new technologies.
+
+CORE COMPETENCIES
+React & Tailwind UI
+AI/ML Fundamentals
+Problem Solving
+Clean UI/UX
+PROJECT SHOWCASE
+WebDevWarrior
+Role: Full Stack Developer
+
+A learning platform built with MERN stack that includes user authentication, course enrollments, admin dashboard, and dynamic routing. Created for new developers with a clean UI and powerful backend logic.
+
+React
+Node.js
+MongoDB
+Tailwind
+Kothopokothon -Messenger
+Role: Frontend Developer
+
+A secure, real-time WhatsApp-style chat app featuring E2E encryption, voice/video calling, media sharing, and an admin control panel. Designed with a dark UI using shadcn/ui and Firebase backend.
+
+React
+Firebase
+shadcn/ui
+WebRTC
+Recipe Book App
+Role: Full Stack Developer
+
+Users can browse, create, update, and delete recipes. Features include Google/email login, liking/wishlist, cuisine filtering, and protected routes. Backend API built using Express.
+
+React
+Firebase
+MongoDB
+Node.js
+Event Explorer
+Role: Frontend Developer
+
+Developed a sleek event discovery app with Firebase login, seat reservation, feedback system, profile editing, and animations using AOS. Built for assignment-based deployment.
+
+React
+Tailwind
+Firebase
+AOS
+Tic Tac Toe Pro
+Role: Simple Game Logic Developer
+
+Built a polished, interactive game using React + TypeScript with responsive design, animations, and multiple game modes. Part of a larger multi-game platform in development.
+
+React
+TypeScript
+Framer Motion
+The Compiled Thought Theme
+Role: Theme Designer
+
+Custom VS Code theme created for deep thinkers and devs who prefer elegant minimalism. Dimmed white background with soft syntax highlights. Focused, distraction-free coding vibe.
+
+VS Code
+Theme JSON
+Design
