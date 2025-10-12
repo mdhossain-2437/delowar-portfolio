@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "./styles/hero.css";
 
 :root {
   --background: hsl(222, 84%, 5%);
@@ -28,8 +30,8 @@
   --gradient-secondary: hsl(240, 87%, 20%);
   --gradient-tertiary: hsl(197, 71%, 25%);
   --gradient-quaternary: hsl(142, 72%, 29%);
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   --radius: 8px;
 }
 
@@ -72,15 +74,34 @@
 
 @layer components {
   .gradient-bg {
-    background: linear-gradient(135deg, var(--gradient-primary) 0%, var(--gradient-secondary) 25%, var(--gradient-tertiary) 50%, var(--gradient-quaternary) 75%, var(--gradient-primary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--gradient-primary) 0%,
+      var(--gradient-secondary) 25%,
+      var(--gradient-tertiary) 50%,
+      var(--gradient-quaternary) 75%,
+      var(--gradient-primary) 100%
+    );
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
   }
 
   .hero-gradient {
-    background: radial-gradient(circle at 20% 50%, hsla(270, 95%, 75%, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, hsla(197, 71%, 73%, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, hsla(142, 72%, 60%, 0.1) 0%, transparent 50%);
+    background: radial-gradient(
+        circle at 20% 50%,
+        hsla(270, 95%, 75%, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        hsla(197, 71%, 73%, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 80%,
+        hsla(142, 72%, 60%, 0.1) 0%,
+        transparent 50%
+      );
   }
 
   .glass-card {
@@ -108,7 +129,7 @@
   }
 
   .nav-link::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 0;
     height: 2px;
@@ -160,7 +181,8 @@
     overflow: hidden;
     border-right: 2px solid;
     white-space: nowrap;
-    animation: typing 3.5s steps(40, end) 1s both, blink-caret 0.75s step-end infinite 1s;
+    animation: typing 3.5s steps(40, end) 1s both,
+      blink-caret 0.75s step-end infinite 1s;
   }
 
   .section-reveal {
@@ -176,37 +198,74 @@
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes blink-caret {
-  from, to { border-color: transparent; }
-  50% { border-color: currentColor; }
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: currentColor;
+  }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
-  0% { opacity: 0; transform: translateY(40px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
