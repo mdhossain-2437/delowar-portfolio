@@ -11,7 +11,7 @@ export default defineConfig({
     process.env.REPL_ID !== undefined
       ? [
           await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
+            m.cartographer()
           ),
         ]
       : []),
@@ -19,6 +19,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
+      "@mediapipe/tasks-vision": path.resolve(
+        import.meta.dirname,
+        "client",
+        "src",
+        "shims",
+        "mediapipe-stub.js"
+      ),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
@@ -27,6 +34,21 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("node_modules")) {
+            if (id.includes("three") || id.includes("@react-three"))
+              return "three-vendor";
+            if (id.includes("@mediapipe")) return "mediapipe-vendor";
+            if (id.includes("react") || id.includes("react-dom"))
+              return "react-vendor";
+            return "vendor";
+          }
+        },
+      },
+    },
   },
   server: {
     fs: {

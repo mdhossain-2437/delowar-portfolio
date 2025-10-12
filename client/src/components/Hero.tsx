@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
-import HeroModel from "./3d/HeroModel";
+const CanvasHero = lazy(() => import("./3d/CanvasHero"));
 import { useInView } from "react-intersection-observer";
 
 export default function Hero() {
@@ -29,15 +28,9 @@ export default function Hero() {
     >
       {/* 3D Background */}
       <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{ position: [0, 0, 8], fov: 75 }}
-          gl={{ alpha: true, antialias: true }}
-          dpr={[1, 2]}
-        >
-          <Suspense fallback={null}>
-            <HeroModel />
-          </Suspense>
-        </Canvas>
+        <Suspense fallback={null}>
+          <CanvasHero />
+        </Suspense>
       </div>
 
       {/* Gradient Overlay */}
