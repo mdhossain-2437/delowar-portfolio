@@ -229,7 +229,7 @@ export const projects: Project[] = [
           "Received positive feedback for intuitive UI and clear learning paths",
           "Featured in local coding community newsletters"
         ],
-        feedback: "The platform makes learning web development less overwhelming. I love the progress tracking and being able to showcase my projects!" - Sarah, Student
+        feedback: '"The platform makes learning web development less overwhelming. I love the progress tracking and being able to showcase my projects!" - Sarah, Student'
       },
       futureImprovements: [
         "Add real-time chat for student collaboration",
@@ -410,7 +410,7 @@ export const projects: Project[] = [
           "High user retention rate (75% weekly active users)",
           "Positive reviews highlighting ease of use and security"
         ],
-        feedback: "Finally, a messaging app that doesn't make me choose between security and usability. Kothopokothon has both!" - Raj, User
+        feedback: '"Finally, a messaging app that doesn\'t make me choose between security and usability. Kothopokothon has both!" - Raj, User'
       },
       futureImprovements: [
         "Add disappearing messages feature",
@@ -950,7 +950,7 @@ export const projects: Project[] = [
         {
           name: "Color Theory",
           description: "Principles for accessible, harmonious color selection",
-          category: "design"
+          category: "tools"
         },
         {
           name: "TextMate Scopes",
@@ -1043,7 +1043,7 @@ export const projects: Project[] = [
           "Community contributions for improvements",
           "Inspired similar minimal theme designs"
         ],
-        feedback: "Finally, a light theme that doesn't burn my eyes! Perfect for daytime coding." - Developer on VS Code Marketplace
+        feedback: '"Finally, a light theme that doesn\'t burn my eyes! Perfect for daytime coding." - Developer on VS Code Marketplace'
       },
       futureImprovements: [
         "Create darker variant for mixed lighting",
