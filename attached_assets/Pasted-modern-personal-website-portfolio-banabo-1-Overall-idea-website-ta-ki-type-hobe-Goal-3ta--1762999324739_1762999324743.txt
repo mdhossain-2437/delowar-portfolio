@@ -1,0 +1,472 @@
+modern personal website + portfolio banabo.
+
+1. Overall idea – website ta ki type hobe?
+
+Goal 3ta:
+
+Branding – ke tumi, ki tech use koro, ki type problem solve koro.
+
+Portfolio – tumi je project gula korecho, production link / GitHub / case study.
+
+Lead & network – lok jon jate easily contact korte pare (job, freelance, collab).
+
+Design vibe:
+
+Clean & minimal
+
+Dark/Light mode toggle
+
+Full responsive (mobile-first)
+
+Smooth scroll + soft animation (framer-motion type)
+
+2. Main Routes (Pages) – ki ki page thakbe?
+
+suggested routes:
+
+/ – Home / Landing
+
+/about – About Me
+
+/projects – Projects / Portfolio
+
+/projects/[slug] – Single Project Case Study
+
+/skills – Skills & Stack (chaile Home e merge korle o hoy)
+
+/blog – Blog / Articles
+
+/blog/[slug] – Single Blog Post
+
+/playground – Labs / Experiments / Open Source
+
+/contact – Contact / Hire Me
+
+/resume – Resume (PDF + online view)
+
+/dashboard (private) – Admin panel / content manage
+
+/auth/login / /auth/admin – Admin login (jodi CMS nijer banao)
+
+Sob gula lagbe na, but eta ekta full-fledged structure.
+
+3. Home Page (/) – ki ki section thakbe?
+
+Home generally one-page summary hobe, baki page gula detail.
+
+Sections:
+
+Hero Section (Top)
+
+Big title: “Hi, I’m Delowar, Full Stack Developer”
+
+Short subtitle: ki kaj koro (React, Node, Next.js, etc.)
+
+CTA button:
+
+“View Projects”
+
+“Download Resume”
+
+Profile pic / avatar + small background pattern
+
+Quick links: GitHub, LinkedIn, X, Email icons
+
+Short About (Teaser)
+
+3–4 line e tumi ke, kon country, kon type client / company er sathe kaj korecho.
+
+“More about me →” button (link to /about)
+
+Highlighted Skills
+
+Tech stack icons: JavaScript, TypeScript, React, Next.js, Node, Express, MongoDB, Tailwind, etc.
+
+Split:
+
+Frontend
+
+Backend
+
+Tools & Others (Git, Docker, CI/CD, etc.)
+
+Maybe small tag line: “Currently learning: Remix / Rust / Go (etc)”
+
+Featured Projects
+
+3–6 ta best project card
+
+Each card e:
+
+Project name
+
+Short description (what problem it solves)
+
+Tech stack (small badges)
+
+Buttons: “Live Demo”, “GitHub”, “Case Study”
+
+“All Projects →” link to /projects
+
+Experience / Timeline (optional on home, detail on /about)
+
+Company / Freelance work
+
+Year + role + 1–2 bullet
+
+Testimonials (jodi thake)
+
+Client / colleague er feedback
+
+Name, role, company, short text
+
+Blog Preview
+
+Latest 3–4 blog post
+
+Title, date, tags
+
+“See all posts →” to /blog
+
+Contact CTA
+
+Short text: “Have an idea? Let’s talk”
+
+Button: “Contact me” (scroll to form or /contact)
+
+Footer
+
+Copyright
+
+Social links
+
+Small note: “Built with Next.js & Tailwind CSS” vogue vibe e.
+
+4. About Page (/about)
+
+Ekhane tumi onek beshi human hobe.
+
+Sections:
+
+Story
+
+Kivabe coding start korle
+
+Kon area te focus (web, mobile, backend, AI etc.)
+
+Values
+
+Clean code, testing, performance, communication, etc.
+
+Experience
+
+Timeline format:
+
+Year – Role – Company – Responsibilities (2–3 bullet)
+
+Education & Certifications
+
+Outside of work
+
+Hobbies, open source, community, etc.
+
+Now section
+
+“Right now I am working on … / exploring …”
+
+5. Projects Page (/projects)
+
+Eta portfolio website er main page.
+
+Filters & layout:
+
+Filter by type:
+
+All / Web Apps / Open Source / Client Work / Experiments
+
+Cards Grid layout
+
+Each project card:
+
+Thumbnail / screenshot
+
+Name
+
+1–2 line description
+
+Tech badges
+
+Status badge: (Live, In Progress, Open Source)
+
+Links:
+
+Live demo
+
+GitHub
+
+“Read case study” → /projects/[slug]
+
+6. Single Project Case Study (/projects/[slug])
+
+Jodi tumi real serious portfolio chao, eta must.
+
+Sections:
+
+Overview
+
+Problem statement
+
+Your role (solo dev / team member)
+
+Tech stack list
+
+Screenshots / Demo GIF
+
+Features
+
+Bullet list: authentication, admin dashboard, payment integration, etc.
+
+Architecture (optional but nice)
+
+Short diagram or text:
+
+Frontend: Next.js, Tailwind
+
+Backend: Node, Express
+
+DB: MongoDB
+
+Deployment: Vercel / Railway / etc.
+
+Challenges & Solutions
+
+2–3 main challenge
+
+Kivabe solve korle
+
+Result
+
+Metrics, user count, performance improvement etc. (jodi thake)
+
+Links
+
+Live / Repo / Back to projects
+
+Eta hiring manager der onek impact kore, karon tumi problem-solving dekhachcho.
+
+7. Skills Page (/skills)
+
+Jodi alada page rakho:
+
+Language
+
+JavaScript, TypeScript, Python, etc.
+
+Frontend
+
+React, Next.js, Redux, Tailwind, etc.
+
+Backend
+
+Node, Express, NestJS, etc.
+
+Database
+
+MongoDB, PostgreSQL, Redis, etc.
+
+DevOps / Tools
+
+Docker, GitHub Actions, CI/CD, etc.
+
+Soft Skills
+
+Communication, teamwork, mentoring, etc.
+
+Progress bar diye show korte paro, but bar-bar “95% React” type cringe avoid korle bhalo 😄
+
+8. Blog Page (/blog & /blog/[slug])
+
+/blog:
+
+Search bar
+
+Tag by topics:
+
+JavaScript, React, DevOps, Career, etc.
+
+List view:
+
+Title
+
+Date
+
+Reading time
+
+Short excerpt
+
+Single post:
+
+Markdown style content
+
+TOC (table of contents) sidebar
+
+Author info (you)
+
+Related posts section
+
+Share buttons
+
+Blog tomake expert banay in recruiter/clients eyes.
+
+9. Playground / Labs (/playground)
+
+Besh unique ekta route hote pare, ja onno developer der theke alada korbe.
+
+Ideas:
+
+Small mini projects:
+
+CSS animation demo
+
+Canvas / WebGL experiments
+
+Code sandbox style widget
+
+Open source contribution list
+
+Reusable components (Button, Modal, etc.)
+
+10. Contact Page (/contact)
+
+Sections:
+
+Friendly intro text
+
+Contact form:
+
+Name
+
+Email
+
+Reason (Job / Freelance / Collab / Other)
+
+Message
+
+Optional:
+
+Attach file (jodi CV / brief dite chai)
+
+Right side:
+
+Email link
+
+Location (city, timezone)
+
+Social links
+
+Form submit korle:
+
+Success message
+
+Maybe email notification to tomake
+
+11. Resume Page (/resume)
+
+On-page resume preview (nice layout)
+
+“Download PDF” button
+
+Print-friendly CSS
+
+12. Admin / Portal Part (Optional, but Dev vibe onek baray)
+
+Jodi tumi nijer site ke ekdom real app banate chao:
+
+Admin Login (/auth/login)
+
+Simple form
+
+JWT / NextAuth / Clerk etc.
+
+Admin Dashboard (/dashboard)
+
+CRUD for:
+
+Projects
+
+Blog posts
+
+Tags
+
+Testimonials
+
+“Create new project” form
+
+“Publish / Unpublish” toggle
+
+API routes
+
+/api/projects
+
+/api/blog
+
+etc.
+
+Eta dekhale hiring manager bujhbe tumi full stack.
+
+13. Extra useful features
+
+Dark / Light Mode (localStorage or prefers-color-scheme)
+
+Language switch (EN + Bangla) jodi chai
+
+SEO optimized:
+
+next-seo / meta tags, OG image
+
+Analytics:
+
+Google Analytics / Plausible
+
+Performance:
+
+Lazy load images
+
+Image optimization
+
+Accessibility:
+
+Proper alt text
+
+Keyboard navigation
+
+14. Tech stack suggestion (jodi React ecosystem use koro)
+
+Framework: Next.js
+
+Styles: Tailwind CSS
+
+Animation: Framer Motion
+
+Content: Markdown + MDX (blog, case study)
+
+DB (if needed): PostgreSQL / MongoDB
+
+Deployment: Vercel
+
+Folder structure (short idea):
+
+app/
+  page.tsx              -> Home
+  about/page.tsx
+  projects/page.tsx
+  projects/[slug]/page.tsx
+  blog/page.tsx
+  blog/[slug]/page.tsx
+  contact/page.tsx
+  resume/page.tsx
+  dashboard/page.tsx    -> Admin
+  api/
+    contact/route.ts
+    projects/route.ts
+    blog/route.ts

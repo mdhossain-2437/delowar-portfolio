@@ -2,12 +2,9 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, PerspectiveCamera } from "@react-three/drei";
 
-import { MathUtils } from "three";
-import type { Group, Mesh } from "three";
-
 export default function HeroModel() {
-  const groupRef = useRef<Group>(null);
-  const sphereRef = useRef<Mesh>(null);
+  const groupRef = useRef<any>(null);
+  const sphereRef = useRef<any>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();

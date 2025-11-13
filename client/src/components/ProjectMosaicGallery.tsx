@@ -43,6 +43,7 @@ export default function ProjectMosaicGallery() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.02 }}
+                data-testid={`mosaic-tile-${image.title.toLowerCase().replace(/[^a-z]/g, '')}`}
               >
                 <img
                   src={image.src}
