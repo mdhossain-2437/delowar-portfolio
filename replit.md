@@ -1,6 +1,6 @@
 # Overview
 
-This is a modern portfolio website for Delowar Hossain, a web developer and AI learner. The project is built as a full-stack web application using React for the frontend and Express.js for the backend, with a PostgreSQL database for data persistence. The portfolio showcases skills, projects, and professional experience with a clean, modern dark theme design featuring gradient effects and smooth animations.
+This is a comprehensive personal website platform for Delowar Hossain, featuring three integrated modules: (1) **Public Portfolio** - showcasing projects, blog, timeline, achievements, and tech stack; (2) **Private Workspace** - managing tasks, notes, code snippets, learning tracker, time tracking, habits, and calendar; (3) **Business Hub** - handling clients, proposals, invoices, and finance. Built as a full-stack application with React/TypeScript frontend, Express.js backend, PostgreSQL database, and comprehensive authentication system.
 
 # User Preferences
 
@@ -19,14 +19,45 @@ Preferred communication style: Simple, everyday language.
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Storage**: In-memory storage implementation with interface for easy database migration
-- **API Design**: RESTful API structure with `/api` prefix for all endpoints
+- **Authentication**: Passport.js with local strategy and bcrypt password hashing
+- **Storage**: Mock storage layer (development) - interfaces ready for database connection
+- **API Design**: RESTful API with modular routers (auth, content, workspace, business)
+- **Session Management**: Express-session with connect-pg-simple for persistence
+
+## Enhanced Page Structure
+### Public Portfolio
+- **Home**: Hero with 3D elements, skills showcase, featured projects
+- **Projects**: Filterable portfolio with category tags and search
+- **Blog**: Rich text blog posts with categories and tags
+- **Timeline**: Career journey with education, work experience, milestones
+- **Achievements**: Statistics, badges, certifications, metrics dashboard
+- **Stack**: Comprehensive tech stack - devices, tools, IDE setup, workflow
+- **Skills**: Interactive skill categorization with proficiency levels
+- **Contact**: Email integration for inquiries and networking
+
+### Private Workspace
+- **Tasks**: Kanban-style task board (To Do, In Progress, Done)
+- **Notes**: Rich text note-taking with categories
+- **Snippets**: Code snippet library with syntax highlighting
+- **Learning**: Learning tracker for courses and skills progress
+- **Time Tracker**: Project time logging and analytics
+- **Habits**: Habit tracking with streaks and goals
+- **Calendar**: Event scheduling and reminders
+
+### Business Hub
+- **Clients**: Client management with contact details and projects
+- **Proposals**: Proposal creation and status tracking
+- **Invoices**: Invoice generation with payment tracking
+- **Finance**: Revenue analytics and expense management
 
 ## Component Structure
-- **Layout Components**: Navigation, Hero, About, Skills, Projects, Experience, Contact, Footer
-- **UI Components**: Comprehensive shadcn/ui component library with custom theming
+- **Layout Components**: Header/Navigation, MainLayout, Footer
+- **Public Pages**: Home, About, Projects, Blog, Timeline, Achievements, Stack
+- **Workspace Pages**: Tasks, Notes, Snippets, Learning, Time, Habits, Calendar
+- **Business Pages**: Clients, Proposals, Invoices, Finance Dashboard
+- **UI Components**: Comprehensive shadcn/ui library (Cards, Badges, Tabs, Forms, etc.)
 - **Custom Hooks**: Typing animations, scroll reveal effects, mobile detection
-- **Shared Types**: Common TypeScript interfaces in shared directory
+- **Shared Types**: Full type definitions in shared/schema.ts (30+ table schemas)
 
 ## Development Environment
 - **Development Server**: Vite dev server with hot module replacement
