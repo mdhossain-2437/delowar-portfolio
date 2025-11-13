@@ -625,3 +625,25 @@ export const insertIncomeEntrySchema = createInsertSchema(incomeEntries).omit({
 
 export type InsertIncomeEntry = z.infer<typeof insertIncomeEntrySchema>;
 export type IncomeEntry = typeof incomeEntries.$inferSelect;
+
+// ==================== TESTIMONIALS ====================
+
+export const testimonials = pgTable("testimonials", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  company: text("company"),
+  avatar: text("avatar"),
+  content: text("content").notNull(),
+  rating: integer("rating").notNull().default(5), // 1-5
+  featured: boolean("featured").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type Testimonial = typeof testimonials.$inferSelect;
