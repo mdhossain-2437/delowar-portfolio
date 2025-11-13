@@ -25,7 +25,11 @@ export default function Header() {
     { path: "/projects", label: "Projects" },
     { path: "/skills", label: "Skills" },
     { path: "/blog", label: "Blog" },
+    { path: "/timeline", label: "Timeline" },
+    { path: "/achievements", label: "Achievements" },
+    { path: "/stack", label: "Stack" },
     { path: "/playground", label: "Playground" },
+    { path: "/workspace/tasks", label: "Tasks" },
     { path: "/contact", label: "Contact" },
     { path: "/resume", label: "Resume" },
   ];

@@ -17,6 +17,10 @@ import ResumePage from "@/pages/ResumePage";
 import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import TimelinePage from "@/pages/TimelinePage";
+import AchievementsPage from "@/pages/AchievementsPage";
+import StackPage from "@/pages/StackPage";
+import WorkspaceTasksPage from "@/pages/WorkspaceTasksPage";
 
 function Router() {
   return (
@@ -88,6 +92,30 @@ function Router() {
       <Route path="/auth/login">
         <MainLayout>
           <LoginPage />
+        </MainLayout>
+      </Route>
+      
+      <Route path="/timeline">
+        <MainLayout>
+          <TimelinePage />
+        </MainLayout>
+      </Route>
+      
+      <Route path="/achievements">
+        <MainLayout>
+          <AchievementsPage />
+        </MainLayout>
+      </Route>
+      
+      <Route path="/stack">
+        <MainLayout>
+          <StackPage />
+        </MainLayout>
+      </Route>
+      
+      <Route path="/workspace/tasks">
+        <MainLayout>
+          <WorkspaceTasksPage />
         </MainLayout>
       </Route>
       
