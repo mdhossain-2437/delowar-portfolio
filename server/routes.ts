@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./mockStorage";
+import { storage } from "./dbStorage";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
@@ -793,6 +793,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const entry = await storage.insertPlaygroundEntry(req.body);
       res.json(entry);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== SEED ROUTE ====================
+
+  app.post("/api/seed", isAdmin, async (req, res) => {
+    try {
+      await storage.seedDatabase();
+      res.json({ success: true, message: "Database seeded successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

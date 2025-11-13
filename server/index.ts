@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./dbStorage";
 
 const app = express();
 app.use(express.json());
@@ -38,6 +39,18 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+
+  // Auto-seed database if empty
+  try {
+    const adminUser = await storage.getUserByUsername("admin");
+    if (!adminUser) {
+      log("Database is empty, seeding with initial data...");
+      await storage.seedDatabase();
+      log("✅ Database seeded successfully");
+    }
+  } catch (error) {
+    log("⚠️ Error checking/seeding database:", error);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
