@@ -73,6 +73,16 @@
   height: 100% !important;
 }
 
+.hero-canvas-fallback {
+  background: radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.4), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(129, 140, 248, 0.35), transparent 60%),
+    linear-gradient(130deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.1) 60%, transparent 90%);
+  filter: saturate(1.1);
+  opacity: 0.8;
+  mix-blend-mode: screen;
+  animation: heroFallbackPulse 16s ease-in-out infinite;
+}
+
 .hero-gradient .max-w-7xl {
   position: relative;
   z-index: 3;
@@ -90,5 +100,28 @@
   100% {
     transform: scale(1) translateY(0);
     opacity: 0.45;
+  }
+}
+
+@keyframes heroFallbackPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb-1,
+  .hero-orb-2,
+  .hero-canvas-fallback {
+    animation: none;
   }
 }

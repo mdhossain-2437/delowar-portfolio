@@ -56,7 +56,14 @@ import {
   type IncomeEntry, type InsertIncomeEntry,
 } from "@shared/schema";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error(
+    "DATABASE_URL is not set. Provision the Neon serverless instance and set the environment variable before starting the server.",
+  );
+}
+
+const pool = new Pool({ connectionString });
 const db = drizzle(pool);
 
 export class DbStorage {

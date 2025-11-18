@@ -5,6 +5,7 @@ import { MousePointerClick, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { projects } from "@/lib/projectsData";
 import { Fade } from "react-awesome-reveal";
+import { useShouldRenderHeroCanvas } from "@/hooks/useShouldRenderHeroCanvas";
 
 const CanvasHero = lazy(() => import("./3d/CanvasHero"));
 
@@ -29,6 +30,7 @@ export default function Hero() {
   );
   const [roleIndex, setRoleIndex] = useState(0);
   const currentRole = heroRoles[roleIndex];
+  const shouldRenderCanvas = useShouldRenderHeroCanvas();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -58,11 +60,18 @@ export default function Hero() {
       <div className="hero-orb hero-orb-1" />
       <div className="hero-orb hero-orb-2" />
       <div className="hero-noise" />
-      <div className="hero-canvas pointer-events-none">
-        <Suspense fallback={null}>
-          <CanvasHero />
-        </Suspense>
-      </div>
+      {shouldRenderCanvas ? (
+        <div className="hero-canvas pointer-events-none" aria-hidden="true">
+          <Suspense fallback={null}>
+            <CanvasHero />
+          </Suspense>
+        </div>
+      ) : (
+        <div
+          className="hero-canvas hero-canvas-fallback"
+          aria-hidden="true"
+        />
+      )}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">

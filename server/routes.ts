@@ -10,6 +10,12 @@ import type { User } from "@shared/schema";
 
 // ==================== AUTH MIDDLEWARE ====================
 
+const parseBooleanQuery = (value: unknown) =>
+  typeof value === "string" ? value === "true" : undefined;
+
+const parseStringQuery = (value: unknown) =>
+  typeof value === "string" && value.length > 0 ? value : undefined;
+
 function isAuthenticated(req: any, res: any, next: any) {
   if (req.isAuthenticated()) {
     return next();
@@ -146,9 +152,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { category, featured, status } = req.query;
       const projects = await storage.getProjects({
-        category: category as string,
-        featured: featured === "true",
-        status: status as string,
+        category: parseStringQuery(category),
+        featured: parseBooleanQuery(featured),
+        status: parseStringQuery(status),
       });
       res.json(projects);
     } catch (error: any) {
@@ -201,9 +207,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { tag, search, featured } = req.query;
       const posts = await storage.getBlogPosts({
-        tag: tag as string,
-        search: search as string,
-        featured: featured === "true",
+        tag: parseStringQuery(tag),
+        search: parseStringQuery(search),
+        featured: parseBooleanQuery(featured),
       });
       res.json(posts);
     } catch (error: any) {
@@ -303,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { featured } = req.query;
       const testimonials = await storage.getTestimonials({
-        featured: featured === "true",
+        featured: parseBooleanQuery(featured),
       });
       res.json(testimonials);
     } catch (error: any) {
