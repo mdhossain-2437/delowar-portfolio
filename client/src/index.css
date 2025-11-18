@@ -245,6 +245,28 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* 8pt Spacing System */
+  .spacing-xs { padding: 0.5rem; }
+  .spacing-sm { padding: 1rem; }
+  .spacing-md { padding: 1.5rem; }
+  .spacing-lg { padding: 2rem; }
+  .spacing-xl { padding: 3rem; }
+  .spacing-2xl { padding: 4rem; }
+  .spacing-3xl { padding: 6rem; }
+
+  /* Max content width */
+  .max-content-width {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Consistent gutters */
+  .gutter {
+    padding-left: clamp(1rem, 4vw, 2rem);
+    padding-right: clamp(1rem, 4vw, 2rem);
+  }
 }
 
 @keyframes gradientShift {
