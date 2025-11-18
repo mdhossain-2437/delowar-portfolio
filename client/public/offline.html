@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Offline Mode</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Courier New", monospace;
+        background: #020617;
+        color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+      }
+      canvas {
+        border: 2px solid #0ea5e9;
+        background: #030712;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Delowar Offline Run</h1>
+    <canvas id="dino" width="360" height="140"></canvas>
+    <p>Tap / Space = jump · survive the firewall spikes!</p>
+    <script>
+      const canvas = document.getElementById("dino");
+      const ctx = canvas.getContext("2d");
+      let y = 90;
+      let vy = 0;
+      const gravity = 0.55;
+      let onGround = true;
+      let obstacleX = 360;
+      let score = 0;
+      let speed = 4;
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0ea5e9";
+        ctx.beginPath();
+        ctx.arc(30, y + 10, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(18, y + 12, 24, 26);
+        ctx.fillStyle = "#f43f5e";
+        ctx.fillRect(obstacleX, 100, 18, 30);
+        obstacleX -= speed;
+        if (obstacleX < -20) {
+          obstacleX = 360;
+          score += 1;
+          speed = Math.min(speed + 0.2, 8);
+        }
+        if (y < 90) {
+          vy += gravity;
+          y += vy;
+        } else {
+          y = 90;
+          vy = 0;
+          onGround = true;
+        }
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "14px 'Courier New'";
+        ctx.fillText(`Score: ${score}`, 250, 20);
+        requestAnimationFrame(loop);
+      }
+      loop();
+      function jump() {
+        if (!onGround) return;
+        vy = -11;
+        y -= 1;
+        onGround = false;
+      }
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") jump();
+      });
+      document.addEventListener("touchstart", jump);
+    </script>
+  </body>
+</html>

@@ -39,6 +39,7 @@ import {
   type TimelineEvent, type InsertTimelineEvent,
   type Achievement, type InsertAchievement,
   type ContactMessage, type InsertContactMessage,
+  guestbookEntries, type GuestbookEntry, type InsertGuestbookEntry,
   type PlaygroundEntry, type InsertPlaygroundEntry,
   type ResumeSection, type InsertResumeSection,
   type Task, type InsertTask,
@@ -303,6 +304,42 @@ export class DbStorage {
 
   async getContactMessages(): Promise<ContactMessage[]> {
     return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+  }
+
+  async getContactMessageById(id: string): Promise<ContactMessage | undefined> {
+    const result = await db
+      .select()
+      .from(contactMessages)
+      .where(eq(contactMessages.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async updateContactMessage(
+    id: string,
+    data: Partial<ContactMessage>,
+  ): Promise<ContactMessage> {
+    const result = await db
+      .update(contactMessages)
+      .set(data)
+      .where(eq(contactMessages.id, id))
+      .returning();
+    if (!result[0]) throw new Error("Contact message not found");
+    return result[0];
+  }
+
+  // ==================== GUESTBOOK METHODS ====================
+  async insertGuestbookEntry(data: InsertGuestbookEntry): Promise<GuestbookEntry> {
+    const result = await db.insert(guestbookEntries).values(data).returning();
+    return result[0];
+  }
+
+  async getGuestbookEntries(limit = 40): Promise<GuestbookEntry[]> {
+    return await db
+      .select()
+      .from(guestbookEntries)
+      .orderBy(desc(guestbookEntries.createdAt))
+      .limit(limit);
   }
 
   // ==================== WORKSPACE: TASK METHODS ====================

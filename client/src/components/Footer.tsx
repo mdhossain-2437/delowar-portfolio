@@ -1,25 +1,15 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Github, Linkedin, Twitter, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.offsetTop - offset;
-      window.scrollTo({ top: elementPosition, behavior: 'smooth' });
-    }
-  };
-
   const quickLinks = [
-    { label: 'Home', id: 'home' },
-    { label: 'About', id: 'about' },
-    { label: 'Skills', id: 'skills' },
-    { label: 'Projects', id: 'projects' },
-    { label: 'Journey', id: 'journey' },
-    { label: 'Contact', id: 'contact' },
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Projects", href: "/projects" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact", href: "/contact" },
+    { label: "Resume", href: "/resume" },
   ];
 
   const socialLinks = [
@@ -67,13 +57,13 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4 text-foreground">Quick Links</h4>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
-                <li key={link.id}>
-                  <button
-                    onClick={() => scrollToSection(link.id)}
+                <li key={link.label}>
+                  <Link
+                    to={link.href}
                     className="text-muted-foreground hover:text-accent transition-colors"
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

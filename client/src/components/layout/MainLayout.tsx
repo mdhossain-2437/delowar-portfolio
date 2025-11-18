@@ -1,6 +1,8 @@
 import Header from "./Header";
-import Footer from "@/components/Footer";
 import { Outlet } from "react-router-dom";
+import { lazy, Suspense } from "react";
+
+const LazyFooter = lazy(() => import("@/components/Footer"));
 
 interface MainLayoutProps {
   children?: React.ReactNode;
@@ -13,7 +15,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <main className="flex-grow pt-16">
         {children ?? <Outlet />}
       </main>
-      <Footer />
+      <Suspense fallback={<div className="w-full h-32 bg-white/5" />}>
+        <LazyFooter />
+      </Suspense>
     </div>
   );
 }

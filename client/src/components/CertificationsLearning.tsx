@@ -11,7 +11,6 @@ export default function CertificationsLearning() {
       date: "2023",
       icon: <Award className="w-8 h-8" />,
       skills: ["React", "JavaScript", "HTML/CSS"],
-      color: "from-purple-500 to-blue-500",
     },
     {
       title: "Full Stack Open",
@@ -19,7 +18,6 @@ export default function CertificationsLearning() {
       date: "2023",
       icon: <GraduationCap className="w-8 h-8" />,
       skills: ["Node.js", "Express", "MongoDB"],
-      color: "from-blue-500 to-cyan-500",
     },
     {
       title: "JavaScript Algorithms",
@@ -27,7 +25,6 @@ export default function CertificationsLearning() {
       date: "2022",
       icon: <Trophy className="w-8 h-8" />,
       skills: ["Algorithms", "Data Structures"],
-      color: "from-cyan-500 to-green-500",
     },
     {
       title: "Responsive Web Design",
@@ -35,7 +32,6 @@ export default function CertificationsLearning() {
       date: "2022",
       icon: <BookOpen className="w-8 h-8" />,
       skills: ["CSS", "Flexbox", "Grid"],
-      color: "from-green-500 to-yellow-500",
     },
   ];
 
@@ -74,9 +70,9 @@ export default function CertificationsLearning() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Card className="glass-card group hover:border-accent/50 transition-all duration-300 h-full">
-                <div className={`h-2 bg-gradient-to-r ${cert.color}`} />
+                <div className="h-2 bg-primary/40" />
                 <CardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${cert.color} mb-4 group-hover:scale-110 transition-transform`}>
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#020817] text-primary mb-4 group-hover:scale-110 transition-transform">
                     {cert.icon}
                   </div>
                   <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">

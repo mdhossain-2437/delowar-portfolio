@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, MapPin, Phone, Send, CheckCircle2, Github, Linkedin, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUISounds } from "@/hooks/useUISounds";
 
 export default function InteractiveContact() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { playSuccess, playHover, playClick } = useUISounds();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,21 +38,50 @@ export default function InteractiveContact() {
     }
 
     setIsSubmitting(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitted(true);
-    setIsSubmitting(false);
-    
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for reaching out. I'll get back to you soon!",
-    });
 
-    setTimeout(() => {
-      setFormData({ name: "", email: "", message: "" });
-      setIsSubmitted(false);
-    }, 3000);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          subject: "General inquiry",
+          reason: "general",
+        }),
+      });
+
+      if (!response.ok) {
+        const raw = await response.text();
+        let parsedMessage = "Failed to send message";
+        try {
+          const data = raw ? JSON.parse(raw) : null;
+          if (data?.message) parsedMessage = data.message;
+        } catch {
+          if (raw) parsedMessage = raw;
+        }
+        throw new Error(parsedMessage);
+      }
+
+      setIsSubmitted(true);
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for reaching out. I'll get back to you soon!",
+      });
+      playSuccess();
+
+      setTimeout(() => {
+        setFormData({ name: "", email: "", message: "" });
+        setIsSubmitted(false);
+      }, 3000);
+    } catch (error: any) {
+      toast({
+        title: "Failed to send message",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -101,7 +132,7 @@ export default function InteractiveContact() {
                       whileHover={{ x: 5 }}
                       className="flex items-start gap-4 group"
                     >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-full bg-[#020817] text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                         {info.icon}
                       </div>
                       <div>
@@ -168,9 +199,9 @@ export default function InteractiveContact() {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="John Doe"
+                        placeholder="What's your name?"
                         required
-                        className="bg-background/50"
+                        className="bg-white text-foreground placeholder:text-muted-foreground border border-border dark:bg-[#0b1120]"
                       />
                     </div>
 
@@ -180,9 +211,9 @@ export default function InteractiveContact() {
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="john@example.com"
+                        placeholder="Where can I reach you?"
                         required
-                        className="bg-background/50"
+                        className="bg-white text-foreground placeholder:text-muted-foreground border border-border dark:bg-[#0b1120]"
                       />
                     </div>
 
@@ -191,10 +222,10 @@ export default function InteractiveContact() {
                       <Textarea
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        placeholder="Tell me about your project..."
+                        placeholder="Tell me about your idea, challenge, or dream build..."
                         rows={5}
                         required
-                        className="bg-background/50"
+                        className="bg-white text-foreground placeholder:text-muted-foreground border border-border dark:bg-[#0b1120]"
                       />
                     </div>
 
@@ -202,6 +233,8 @@ export default function InteractiveContact() {
                       type="submit"
                       disabled={isSubmitting}
                       className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+                      onMouseEnter={playHover}
+                      onClick={playClick}
                     >
                       {isSubmitting ? (
                         <>

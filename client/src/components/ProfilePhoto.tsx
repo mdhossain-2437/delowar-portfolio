@@ -15,7 +15,7 @@ export default function ProfilePhoto() {
       >
         {/* Gradient background layers */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-blue-500/30 to-teal-500/30 rounded-3xl blur-2xl"
+          className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/15 to-accent/30 rounded-3xl blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             rotate: [0, 5, 0],
@@ -27,7 +27,7 @@ export default function ProfilePhoto() {
           }}
         />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-3xl blur-xl"
+          className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-primary/10 to-accent/25 rounded-3xl blur-xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [0, -5, 0],
@@ -49,13 +49,13 @@ export default function ProfilePhoto() {
       >
         {/* Decorative frame */}
         <motion.div
-          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/50 via-blue-500/50 to-teal-500/50 p-[2px]"
+          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/50 via-primary/20 to-accent/50 p-[2px]"
           animate={{
             background: [
-              "linear-gradient(to bottom right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5), rgba(20, 184, 166, 0.5))",
-              "linear-gradient(to bottom right, rgba(59, 130, 246, 0.5), rgba(20, 184, 166, 0.5), rgba(168, 85, 247, 0.5))",
-              "linear-gradient(to bottom right, rgba(20, 184, 166, 0.5), rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
-              "linear-gradient(to bottom right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5), rgba(20, 184, 166, 0.5))",
+              "linear-gradient(to bottom right, hsla(270,95%,75%,0.5), hsla(270,95%,75%,0.2), hsla(197,71%,73%,0.5))",
+              "linear-gradient(to bottom right, hsla(270,95%,75%,0.2), hsla(197,71%,73%,0.4), hsla(270,95%,75%,0.5))",
+              "linear-gradient(to bottom right, hsla(197,71%,73%,0.5), hsla(270,95%,75%,0.2), hsla(197,71%,73%,0.3))",
+              "linear-gradient(to bottom right, hsla(270,95%,75%,0.5), hsla(197,71%,73%,0.4), hsla(270,95%,75%,0.2))",
             ],
           }}
           transition={{
@@ -72,7 +72,7 @@ export default function ProfilePhoto() {
               transition={{ type: "spring", stiffness: 300 }}
             >
               {!imageLoaded && (
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-blue-900/50 animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/20 animate-pulse" />
               )}
 
               <img
@@ -98,7 +98,7 @@ export default function ProfilePhoto() {
 
         {/* Floating tech badges */}
         <motion.div
-          className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg"
+          className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-accent text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg shadow-primary/40"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.8, type: "spring" }}
@@ -108,7 +108,7 @@ export default function ProfilePhoto() {
         </motion.div>
 
         <motion.div
-          className="absolute -bottom-2 -left-2 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg"
+          className="absolute -bottom-2 -left-2 bg-gradient-to-r from-accent to-primary text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg shadow-accent/40"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1, type: "spring" }}
@@ -123,7 +123,7 @@ export default function ProfilePhoto() {
           animate={{ y: [-5, 5, -5] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="w-2 h-2 bg-purple-400 rounded-full shadow-lg shadow-purple-400/50" />
+          <div className="w-2 h-2 bg-primary/70 rounded-full shadow-lg shadow-primary/40" />
         </motion.div>
 
         <motion.div
@@ -131,7 +131,7 @@ export default function ProfilePhoto() {
           animate={{ y: [5, -5, 5] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="w-2 h-2 bg-blue-400 rounded-full shadow-lg shadow-blue-400/50" />
+          <div className="w-2 h-2 bg-accent/70 rounded-full shadow-lg shadow-accent/40" />
         </motion.div>
 
         <motion.div
@@ -139,13 +139,13 @@ export default function ProfilePhoto() {
           animate={{ x: [-5, 5, -5] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="w-2 h-2 bg-teal-400 rounded-full shadow-lg shadow-teal-400/50" />
+          <div className="w-2 h-2 bg-accent/60 rounded-full shadow-lg shadow-accent/30" />
         </motion.div>
       </motion.div>
 
       {/* Code snippets floating around */}
       <motion.div
-        className="absolute top-10 -left-16 text-purple-400/60 font-mono text-sm"
+        className="absolute top-10 -left-16 text-primary/70 font-mono text-sm"
         animate={{
           y: [0, -10, 0],
           opacity: [0.4, 0.6, 0.4],
@@ -156,7 +156,7 @@ export default function ProfilePhoto() {
       </motion.div>
 
       <motion.div
-        className="absolute bottom-20 -right-16 text-blue-400/60 font-mono text-sm"
+        className="absolute bottom-20 -right-16 text-accent/70 font-mono text-sm"
         animate={{
           y: [0, -10, 0],
           opacity: [0.4, 0.6, 0.4],
@@ -172,7 +172,7 @@ export default function ProfilePhoto() {
       </motion.div>
 
       <motion.div
-        className="absolute -bottom-8 left-1/3 text-teal-400/60 font-mono text-xs"
+        className="absolute -bottom-8 left-1/3 text-accent/60 font-mono text-xs"
         animate={{
           y: [0, -10, 0],
           opacity: [0.4, 0.6, 0.4],

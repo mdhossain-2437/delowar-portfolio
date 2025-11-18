@@ -8,6 +8,7 @@ import {
   type TimelineEvent, type InsertTimelineEvent,
   type Achievement, type InsertAchievement,
   type ContactMessage, type InsertContactMessage,
+  type GuestbookEntry, type InsertGuestbookEntry,
   type PlaygroundEntry, type InsertPlaygroundEntry,
   type ResumeSection, type InsertResumeSection,
   type Task, type InsertTask,
@@ -36,6 +37,7 @@ export class MockStorage {
   private timelineEvents: Map<string, TimelineEvent> = new Map();
   private achievements: Map<string, Achievement> = new Map();
   private contactMessages: Map<string, ContactMessage> = new Map();
+  private guestbookEntries: Map<string, GuestbookEntry> = new Map();
   private playgroundEntries: Map<string, PlaygroundEntry> = new Map();
   private resumeSections: Map<string, ResumeSection> = new Map();
   private tasks: Map<string, Task> = new Map();
@@ -274,6 +276,23 @@ export class MockStorage {
   async getContactMessages(): Promise<ContactMessage[]> {
     return Array.from(this.contactMessages.values())
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  // ==================== GUESTBOOK METHODS ====================
+  async insertGuestbookEntry(data: InsertGuestbookEntry): Promise<GuestbookEntry> {
+    const entry: GuestbookEntry = {
+      ...data,
+      id: randomUUID(),
+      createdAt: new Date(),
+    };
+    this.guestbookEntries.set(entry.id, entry);
+    return entry;
+  }
+
+  async getGuestbookEntries(limit = 40): Promise<GuestbookEntry[]> {
+    return Array.from(this.guestbookEntries.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, limit);
   }
 
   // ==================== WORKSPACE: TASK METHODS ====================

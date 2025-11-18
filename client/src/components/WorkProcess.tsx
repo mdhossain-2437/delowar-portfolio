@@ -9,42 +9,36 @@ export default function WorkProcess() {
       icon: <Search className="w-8 h-8" />,
       title: "Discovery & Research",
       description: "Understanding your goals, target audience, and technical requirements. I dive deep into what makes your project unique.",
-      color: "from-purple-500 to-blue-500",
     },
     {
       step: "02",
       icon: <Palette className="w-8 h-8" />,
       title: "Design & Planning",
       description: "Creating wireframes, user flows, and technical architecture. Every pixel and every line of code is planned with purpose.",
-      color: "from-blue-500 to-cyan-500",
     },
     {
       step: "03",
       icon: <Code className="w-8 h-8" />,
       title: "Development",
       description: "Building with clean, maintainable code using modern technologies. Regular updates keep you in the loop every step of the way.",
-      color: "from-cyan-500 to-green-500",
     },
     {
       step: "04",
       icon: <TestTube className="w-8 h-8" />,
       title: "Testing & QA",
       description: "Rigorous testing across devices and browsers. I ensure everything works flawlessly before launch.",
-      color: "from-green-500 to-yellow-500",
     },
     {
       step: "05",
       icon: <Rocket className="w-8 h-8" />,
       title: "Launch & Deploy",
       description: "Smooth deployment with proper monitoring and optimization. Your project goes live without a hitch.",
-      color: "from-yellow-500 to-orange-500",
     },
     {
       step: "06",
       icon: <RefreshCw className="w-8 h-8" />,
       title: "Support & Iterate",
       description: "Ongoing support and improvements based on user feedback. Great products evolve with their users.",
-      color: "from-orange-500 to-red-500",
     },
   ];
 
@@ -76,10 +70,10 @@ export default function WorkProcess() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Card className="glass-card group hover:border-accent/50 transition-all duration-300 h-full relative overflow-hidden">
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${process.color}`} />
-                
+                <div className="absolute top-0 left-0 right-0 h-1 bg-primary/40" />
+
                 <CardContent className="p-6 pt-8">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${process.color} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#020817] text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
                     {process.icon}
                   </div>
                   

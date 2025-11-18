@@ -1,9 +1,15 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, MessageSquare, Calendar } from "lucide-react";
+import { useHaptic } from "@/hooks/useHaptic";
+import { useUISounds } from "@/hooks/useUISounds";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function CTASection() {
+  const haptic = useHaptic();
+  const { playClick, playHover } = useUISounds();
+  const t = useTranslation();
   const scrollToContact = () => {
     const element = document.getElementById('contact');
     if (element) {
@@ -32,7 +38,7 @@ export default function CTASection() {
                 transition={{ duration: 0.6 }}
                 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
               >
-                Ready to Start Your Project?
+                {t("cta.title")}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -41,7 +47,7 @@ export default function CTASection() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
               >
-                Let's work together to build something amazing. I'm available for freelance projects and collaborations.
+                {t("cta.subtitle")}
               </motion.p>
 
               <motion.div
@@ -51,30 +57,42 @@ export default function CTASection() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               >
-                <Button
+                <MagneticButton
                   size="lg"
-                  onClick={scrollToContact}
+                  onClick={() => {
+                    haptic();
+                    playClick();
+                    scrollToContact();
+                  }}
+                  onMouseEnter={playHover}
                   className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity group"
-                >
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Get In Touch
-                </Button>
-                <Button
+                  >
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    {t("cta.action")}
+                  </MagneticButton>
+                <MagneticButton
                   size="lg"
                   variant="outline"
                   className="border-2 group"
-                >
-                  <Download className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform" />
-                  Download Resume
-                </Button>
-                <Button
+                  onMouseEnter={playHover}
+                  onClick={playClick}
+                  >
+                    <Download className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform" />
+                    {t("cta.download")}
+                  </MagneticButton>
+                <MagneticButton
                   size="lg"
                   variant="outline"
                   className="border-2"
-                >
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Schedule Call
-                </Button>
+                  onMouseEnter={playHover}
+                  onClick={() => {
+                    haptic();
+                    playClick();
+                  }}
+                  >
+                    <Calendar className="w-5 h-5 mr-2" />
+                    {t("cta.schedule")}
+                  </MagneticButton>
               </motion.div>
 
               <motion.div

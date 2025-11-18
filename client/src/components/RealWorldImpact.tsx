@@ -15,7 +15,6 @@ export default function RealWorldImpact() {
         { label: "Active Users", value: "2,500+", icon: <Users className="w-4 h-4" /> },
       ],
       tech: ["React", "Node.js", "MongoDB", "Stripe"],
-      gradient: "from-purple-500 to-pink-500",
     },
     {
       title: "School Management System",
@@ -27,7 +26,6 @@ export default function RealWorldImpact() {
         { label: "Satisfaction", value: "4.8/5", icon: <Star className="w-4 h-4" /> },
       ],
       tech: ["Next.js", "PostgreSQL", "TypeScript"],
-      gradient: "from-blue-500 to-cyan-500",
     },
     {
       title: "Freelancer Portfolio Generator",
@@ -39,7 +37,6 @@ export default function RealWorldImpact() {
         { label: "GitHub Stars", value: "150+", icon: <Star className="w-4 h-4" /> },
       ],
       tech: ["React", "Tailwind", "Vite"],
-      gradient: "from-green-500 to-emerald-500",
     },
     {
       title: "Inventory Management App",
@@ -51,7 +48,6 @@ export default function RealWorldImpact() {
         { label: "Items Tracked", value: "5,000+", icon: <BarChart3 className="w-4 h-4" /> },
       ],
       tech: ["React", "Express", "MySQL", "Redis"],
-      gradient: "from-orange-500 to-red-500",
     },
   ];
 
@@ -84,7 +80,7 @@ export default function RealWorldImpact() {
             >
               <Card className="glass-card group hover:border-accent/50 transition-all duration-300 h-full">
                 <CardContent className="p-6">
-                  <div className={`w-full h-2 rounded-full bg-gradient-to-r ${impact.gradient} mb-6`} />
+                  <div className="w-full h-2 rounded-full bg-primary/40 mb-6" />
                   
                   <h3 className="text-2xl font-bold mb-2 group-hover:text-accent transition-colors">
                     {impact.title}

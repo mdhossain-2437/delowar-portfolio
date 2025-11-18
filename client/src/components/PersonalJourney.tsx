@@ -9,42 +9,36 @@ export default function PersonalJourney() {
       icon: <Lightbulb className="w-8 h-8" />,
       title: "The Spark",
       description: "Discovered the magic of code when I built my first HTML page. That moment of seeing my creation come to life on screen changed everything.",
-      gradient: "from-yellow-500 to-orange-500",
     },
     {
       year: "2020",
       icon: <Code className="w-8 h-8" />,
       title: "Deep Dive",
       description: "Spent countless nights learning JavaScript, React, and Node.js. Every bug was a puzzle, every solution a victory.",
-      gradient: "from-blue-500 to-cyan-500",
     },
     {
       year: "2021",
       icon: <Rocket className="w-8 h-8" />,
       title: "First Freelance",
       description: "Landed my first client and delivered a full-stack e-commerce platform. The feeling of solving real-world problems was incredible.",
-      gradient: "from-purple-500 to-pink-500",
     },
     {
       year: "2022",
       icon: <Target className="w-8 h-8" />,
       title: "Finding My Focus",
       description: "Specialized in React and Node.js, building scalable applications. Started contributing to open-source projects.",
-      gradient: "from-green-500 to-emerald-500",
     },
     {
       year: "2023",
       icon: <TrendingUp className="w-8 h-8" />,
       title: "Growth & Impact",
       description: "Built 10+ production applications helping businesses grow. Explored AI/ML to create smarter solutions.",
-      gradient: "from-cyan-500 to-blue-500",
     },
     {
       year: "2024-25",
       icon: <Heart className="w-8 h-8" />,
       title: "The Journey Continues",
       description: "Passionate about building beautiful, performant applications that make a real difference in people's lives.",
-      gradient: "from-pink-500 to-rose-500",
     },
   ];
 
@@ -76,10 +70,10 @@ export default function PersonalJourney() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Card className="glass-card overflow-hidden group hover:border-accent/50 transition-all duration-300 h-full">
-                <div className={`h-2 bg-gradient-to-r ${step.gradient}`} />
+                <div className="h-2 bg-primary/40" />
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${step.gradient} group-hover:scale-110 transition-transform duration-300`}>
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#020817] text-primary group-hover:scale-110 transition-transform duration-300">
                       {step.icon}
                     </div>
                     <div className="text-2xl font-bold text-primary">

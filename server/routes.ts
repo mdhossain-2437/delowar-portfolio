@@ -1,12 +1,18 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./dbStorage";
+import { randomUUID } from "crypto";
+import { fetchGardenEntries } from "./services/digitalGarden";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import type { User } from "@shared/schema";
+import { sendContactNotification } from "./services/mailer";
+import { appConfig } from "./config";
+import { mountSwagger } from "./swagger";
+import { createChallenge, verifyChallenge } from "./services/webauthnMemory";
 
 // ==================== AUTH MIDDLEWARE ====================
 
@@ -15,6 +21,76 @@ const parseBooleanQuery = (value: unknown) =>
 
 const parseStringQuery = (value: unknown) =>
   typeof value === "string" && value.length > 0 ? value : undefined;
+
+const contactMessageSchema = z.object({
+  name: z.string().min(2).max(120),
+  email: z.string().email(),
+  subject: z.string().min(2).max(150).default("General inquiry"),
+  message: z.string().min(10).max(2000),
+  reason: z.string().optional(),
+});
+
+const newsletterSchema = z.object({
+  email: z.string().email(),
+  source: z.string().optional(),
+});
+
+const bugReportSchema = z.object({
+  message: z.string().min(6).max(2000),
+  steps: z.string().max(500).optional(),
+  screenshot: z.string().max(2_000_000).optional(),
+});
+
+const guestbookMessageSchema = z.object({
+  message: z.string().min(4).max(360),
+});
+
+const defaultGithubCallback = (() => {
+  try {
+    if (!process.env.PUBLIC_SITE_URL) return "";
+    return new URL("/api/auth/github/callback", process.env.PUBLIC_SITE_URL).toString();
+  } catch {
+    return "";
+  }
+})();
+
+const githubConfig = {
+  clientId: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackUrl: process.env.GITHUB_CALLBACK_URL || defaultGithubCallback,
+};
+
+const isGithubAuthConfigured = () =>
+  Boolean(githubConfig.clientId && githubConfig.clientSecret && githubConfig.callbackUrl);
+
+const openWeatherKey = process.env.OPENWEATHER_API_KEY;
+const getPublicProfile = () => ({
+  ...appConfig.profile,
+  updatedAt: new Date().toISOString(),
+});
+
+const githubUsername = process.env.GITHUB_USERNAME || "mdhossain-2437";
+const experienceStartYear = parseInt(process.env.EXPERIENCE_START_YEAR || "2017", 10);
+const siteLaunchedAt = new Date(process.env.SITE_LAUNCHED_AT || "2021-01-01");
+
+let ogViewCounter = 42000;
+
+const buildOgSvg = (title: string, highlight: string, secondary: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#7c3aed" offset="0%"/>
+      <stop stop-color="#0ea5e9" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#020617"/>
+  <rect x="40" y="40" width="1120" height="550" rx="32" fill="url(#g)" opacity="0.08"/>
+  <text x="80" y="180" font-family="Inter, sans-serif" font-size="64" fill="#e2e8f0">${title}</text>
+  <text x="80" y="260" font-family="Inter, sans-serif" font-size="42" fill="#cbd5f5">${highlight}</text>
+  <text x="80" y="330" font-family="Inter, sans-serif" font-size="28" fill="#94a3b8">${secondary}</text>
+  <text x="80" y="520" font-family="Inter, sans-serif" font-size="24" fill="#f1f5f9">api: ${appConfig.publicApiBase.replace(/^https?:\/\//, "")}</text>
+  <text x="80" y="560" font-family="Inter, sans-serif" font-size="20" fill="#94a3b8">views: ${ogViewCounter.toLocaleString()}</text>
+</svg>`;
 
 function isAuthenticated(req: any, res: any, next: any) {
   if (req.isAuthenticated()) {
@@ -39,6 +115,7 @@ function isAdmin(req: any, res: any, next: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== SESSION & PASSPORT SETUP ====================
+  mountSwagger(app);
   
   app.use(
     session({
@@ -264,6 +341,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+  // ==================== PUBLIC API ROUTES ====================
+
+  app.get("/api/public/profile", (_req, res) => {
+    res.json(getPublicProfile());
+  });
+
+  app.get("/api/public/projects", async (req, res) => {
+    try {
+      const limit = Math.min(
+        25,
+        Math.max(1, parseInt((req.query.limit as string) || "12", 10) || 12),
+      );
+      const projects = await storage.getProjects();
+      res.json(projects.slice(0, limit));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/og", (req, res) => {
+    ogViewCounter++;
+    const title =
+      (typeof req.query.title === "string" && req.query.title) || appConfig.profile.name;
+    const highlight =
+      (typeof req.query.highlight === "string" && req.query.highlight) ||
+      `Latest commit-ready build • ${new Date().toLocaleDateString()}`;
+    const secondary =
+      (typeof req.query.secondary === "string" && req.query.secondary) ||
+      appConfig.profile.title;
+    const svg = buildOgSvg(title, highlight, secondary);
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.send(svg);
+  });
+
+  app.get("/api/garden", async (_req, res) => {
+    try {
+      const entries = await fetchGardenEntries();
+      res.json(entries);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/stats", async (_req, res) => {
+    try {
+      const contributionsRes = await fetch(
+        `https://github-contributions-api.jogruber.de/v4/${githubUsername}`,
+        {
+          headers: { "User-Agent": "delowar-portfolio" },
+        },
+      );
+      const contributions = contributionsRes.ok ? await contributionsRes.json() : null;
+      const total = contributions?.totalContributions ?? 0;
+      const yearsOfExperience = Math.max(1, new Date().getFullYear() - experienceStartYear);
+      const uptimeDays = Math.max(
+        1,
+        Math.floor((Date.now() - siteLaunchedAt.getTime()) / (1000 * 60 * 60 * 24)),
+      );
+      const coffeesConsumed = Math.round(uptimeDays * 1.1);
+      res.json({ commits: total, yearsOfExperience, coffeesConsumed, uptimeDays });
+    } catch {
+      const yearsOfExperience = Math.max(1, new Date().getFullYear() - experienceStartYear);
+      const uptimeDays = Math.max(
+        1,
+        Math.floor((Date.now() - siteLaunchedAt.getTime()) / (1000 * 60 * 60 * 24)),
+      );
+      res.json({
+        commits: 1800,
+        yearsOfExperience,
+        coffeesConsumed: Math.round(uptimeDays * 1.1),
+        uptimeDays,
+      });
+    }
+  });
 
   // ==================== SKILLS ROUTES ====================
 
@@ -412,9 +563,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/contact", async (req, res) => {
     try {
-      const message = await storage.insertContactMessage(req.body);
-      // TODO: Send email notification using Resend integration
+      const parsed = contactMessageSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res
+          .status(400)
+          .json({ message: parsed.error.errors[0]?.message ?? "Invalid form data" });
+      }
+
+      const payload = parsed.data;
+      const sanitizedMessage = {
+        name: payload.name.trim(),
+        email: payload.email.trim().toLowerCase(),
+        subject: payload.subject.trim() || "General inquiry",
+        message: payload.message.trim(),
+        reason: payload.reason?.trim() || "general",
+        status: "new",
+      };
+
+      const message = await storage.insertContactMessage(sanitizedMessage);
+
+      await sendContactNotification({
+        name: message.name,
+        email: message.email,
+        subject: message.subject,
+        message: message.message,
+      });
+
       res.json({ success: true, message });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/newsletter", async (req, res) => {
+    try {
+      const parsed = newsletterSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid newsletter payload" });
+      }
+      await sendContactNotification({
+        name: "Newsletter Opt-in",
+        email: parsed.data.email,
+        subject: "New subscriber",
+        message: `Add ${parsed.data.email} to the update list.\nSource: ${parsed.data.source ?? "home newsletter"}`,
+      });
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/bug-report", async (req, res) => {
+    try {
+      const parsed = bugReportSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid bug payload" });
+      }
+      const { message, steps, screenshot } = parsed.data;
+      await sendContactNotification({
+        name: "Bug widget",
+        email: appConfig.contactInboxEmail,
+        subject: "New onsite bug report",
+        message: [
+          "Bug summary:",
+          message,
+          "",
+          steps ? `Steps: ${steps}` : "",
+          screenshot ? `Screenshot (base64): ${screenshot.slice(0, 80)}...` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      });
+      res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -424,6 +644,216 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== WEBAUTHN DEMO ROUTES ====================
+
+  app.post("/api/webauthn/challenge", (req, res) => {
+    const userId =
+      (typeof req.body?.userId === "string" && req.body.userId.trim()) || "demo-user";
+    const challenge = createChallenge(userId);
+    res.json({
+      userId,
+      challenge,
+      rpId: new URL(appConfig.publicApiBase).hostname,
+      name: appConfig.profile.name,
+    });
+  });
+
+  app.post("/api/webauthn/verify", (req, res) => {
+    const { userId, challenge } = req.body ?? {};
+    if (!userId || !challenge) {
+      return res.status(400).json({ message: "Missing payload" });
+    }
+    const ok = verifyChallenge(userId, challenge);
+    if (!ok) {
+      return res.status(400).json({ message: "Challenge mismatch" });
+    }
+    res.json({ success: true });
+  });
+
+  app.get("/api/environment/weather", async (req, res) => {
+    if (!openWeatherKey) {
+      return res.status(503).json({ message: "Weather service is not configured." });
+    }
+
+    const lat = parseFloat((req.query.lat as string) ?? "");
+    const lon = parseFloat((req.query.lon as string) ?? "");
+
+    if (Number.isNaN(lat) || Number.isNaN(lon)) {
+      return res.status(400).json({ message: "Latitude and longitude are required." });
+    }
+
+    try {
+      const params = new URLSearchParams({
+        lat: lat.toString(),
+        lon: lon.toString(),
+        appid: openWeatherKey,
+        units: "metric",
+      });
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?${params}`);
+      if (!response.ok) {
+        throw new Error(`Weather API error: ${response.status}`);
+      }
+      const data = (await response.json()) as any;
+      const condition = data.weather?.[0]?.main ?? "Unknown";
+      const description = data.weather?.[0]?.description ?? "";
+      const temperature = data.main?.temp ?? null;
+      const isRaining =
+        typeof condition === "string" && ["Rain", "Thunderstorm", "Drizzle"].includes(condition);
+
+      res.json({
+        condition,
+        description,
+        temperature,
+        isRaining,
+        timestamp: Date.now(),
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message ?? "Failed to fetch weather." });
+    }
+  });
+
+  // ==================== GITHUB AUTH & GUESTBOOK ROUTES ====================
+
+  app.get("/api/auth/github", (req, res) => {
+    if (!isGithubAuthConfigured()) {
+      return res.status(503).json({ message: "GitHub OAuth is not configured yet." });
+    }
+
+    const state = randomUUID();
+    req.session.githubOAuthState = state;
+    const params = new URLSearchParams({
+      client_id: githubConfig.clientId!,
+      redirect_uri: githubConfig.callbackUrl!,
+      scope: "read:user",
+      state,
+      allow_signup: "true",
+    });
+    res.redirect(`https://github.com/login/oauth/authorize?${params.toString()}`);
+  });
+
+  app.get("/api/auth/github/callback", async (req, res) => {
+    if (!isGithubAuthConfigured()) {
+      return res.status(503).send("GitHub OAuth is not configured yet.");
+    }
+
+    const { code, state } = req.query;
+    if (typeof code !== "string" || typeof state !== "string") {
+      return res.status(400).send("Missing code or state.");
+    }
+
+    if (!req.session.githubOAuthState || req.session.githubOAuthState !== state) {
+      return res.status(400).send("Invalid OAuth state.");
+    }
+
+    try {
+      const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: new URLSearchParams({
+          client_id: githubConfig.clientId!,
+          client_secret: githubConfig.clientSecret!,
+          code,
+          redirect_uri: githubConfig.callbackUrl!,
+        }),
+      });
+
+      const tokenPayload = (await tokenResponse.json()) as {
+        access_token?: string;
+        error?: string;
+        error_description?: string;
+      };
+
+      if (!tokenPayload.access_token) {
+        throw new Error(tokenPayload.error_description || "Failed to exchange GitHub code.");
+      }
+
+      const profileResponse = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `Bearer ${tokenPayload.access_token}`,
+          "User-Agent": "delowar-portfolio",
+        },
+      });
+
+      if (!profileResponse.ok) {
+        throw new Error("Failed to fetch GitHub profile.");
+      }
+
+      const profile = (await profileResponse.json()) as {
+        id: number;
+        login: string;
+        name?: string;
+        avatar_url?: string;
+        html_url?: string;
+      };
+
+      req.session.githubUser = {
+        id: String(profile.id),
+        login: profile.login,
+        name: profile.name || profile.login,
+        avatarUrl: profile.avatar_url || "",
+        profileUrl: profile.html_url || `https://github.com/${profile.login}`,
+      };
+      req.session.githubOAuthState = undefined;
+
+      res.redirect("/guestbook?auth=github");
+    } catch (error) {
+      console.error("GitHub OAuth callback error:", error);
+      res.redirect("/guestbook?auth=error");
+    }
+  });
+
+  app.post("/api/auth/github/logout", (req, res) => {
+    delete req.session.githubUser;
+    res.json({ success: true });
+  });
+
+  app.get("/api/guestbook/session", (req, res) => {
+    res.json({ user: req.session.githubUser ?? null });
+  });
+
+  app.get("/api/guestbook", async (req, res) => {
+    try {
+      const limit = Math.min(
+        100,
+        Math.max(1, parseInt((req.query.limit as string) || "40", 10) || 40),
+      );
+      const entries = await storage.getGuestbookEntries(limit);
+      res.json(entries);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/guestbook", async (req, res) => {
+    if (!req.session.githubUser) {
+      return res.status(401).json({ message: "Sign in with GitHub to leave a note." });
+    }
+
+    try {
+      const parsed = guestbookMessageSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res
+          .status(400)
+          .json({ message: parsed.error.errors[0]?.message ?? "Invalid message." });
+      }
+
+      const entry = await storage.insertGuestbookEntry({
+        githubId: req.session.githubUser.id,
+        githubLogin: req.session.githubUser.login,
+        githubName: req.session.githubUser.name,
+        githubAvatar: req.session.githubUser.avatarUrl,
+        githubProfile: req.session.githubUser.profileUrl,
+        message: parsed.data.message.trim(),
+      });
+
+      res.json(entry);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

@@ -1,4 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Home,
@@ -6,20 +7,30 @@ import {
   Sparkles,
   FolderGit2,
   MessageCircle,
+  BookOpen,
+  Newspaper,
+  Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import VoiceCommandToggle from "@/components/VoiceCommandToggle";
+import InstallPWAButton from "@/components/InstallPWAButton";
+import FocusModeToggle from "@/components/FocusModeToggle";
+import SoundToggle from "@/components/SoundToggle";
+import LocaleToggle from "@/components/LocaleToggle";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Navigation() {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const t = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      
-      const sections = ["home", "about", "skills", "projects", "contact"];
+
+      const sections = ["home", "about", "skills", "projects", "blog", "contact"];
       const scrollPosition = window.scrollY + 150;
-      
+
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -47,11 +58,12 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "about", label: "About", icon: User },
-    { id: "skills", label: "Skills", icon: Sparkles },
-    { id: "projects", label: "Projects", icon: FolderGit2 },
-    { id: "contact", label: "Contact", icon: MessageCircle },
+    { id: "home", label: t("nav.home"), icon: Home },
+    { id: "about", label: t("nav.about"), icon: User },
+    { id: "skills", label: t("nav.skills"), icon: Sparkles },
+    { id: "projects", label: t("nav.projects"), icon: FolderGit2 },
+    { id: "blog", label: t("nav.blog"), icon: BookOpen },
+    { id: "contact", label: t("nav.contact"), icon: MessageCircle },
   ];
 
   return (
@@ -80,35 +92,59 @@ export default function Navigation() {
               </span>
             </motion.button>
 
-            <div className="hidden md:flex items-center space-x-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
-                    activeSection === item.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  data-testid={`nav-${item.id}`}
-                >
-                  {item.label}
-                  {activeSection === item.id && (
-                    <motion.div
-                      layoutId="activeSection"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-              <Button
-                onClick={() => scrollToSection("contact")}
-                className="ml-4 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            <div className="hidden md:flex items-center space-x-3">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
+                  activeSection === item.id
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                data-testid={`nav-${item.id}`}
               >
-                Let's Talk
-              </Button>
-            </div>
+                {item.label}
+                {activeSection === item.id && (
+                  <motion.div
+                    layoutId="activeSection"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+            ))}
+            <button
+              onClick={() => navigate("/guestbook")}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+              aria-label="Guestbook"
+              type="button"
+            >
+              <Users className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate("/blog")}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+              type="button"
+            >
+              <BookOpen className="w-4 h-4" />
+              {t("nav.blog")}
+            </button>
+            <button
+              onClick={() => navigate("/uses")}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              type="button"
+            >
+              {t("nav.uses")}
+            </button>
+            <InstallPWAButton />
+            <FocusModeToggle />
+            <SoundToggle />
+            <LocaleToggle />
+          </div>
+          <div className="hidden lg:block">
+            <VoiceCommandToggle />
+          </div>
           </div>
         </div>
       </motion.nav>
@@ -121,13 +157,33 @@ export default function Navigation() {
       >
         <div className="max-w-md mx-auto rounded-3xl border border-border bg-background/80 backdrop-blur-xl shadow-2xl shadow-primary/10">
           <div className="flex items-center justify-between">
-            {navItems.map((item) => {
+            {[
+              ...navItems.map((item) => ({
+                ...item,
+                action: () => scrollToSection(item.id),
+                isRoute: false,
+              })),
+              {
+                id: "blog-page",
+                label: t("nav.blog"),
+                icon: Newspaper,
+                action: () => navigate("/blog"),
+                isRoute: true,
+              },
+              {
+                id: "guestbook-page",
+                label: t("nav.guestbook"),
+                icon: Users,
+                action: () => navigate("/guestbook"),
+                isRoute: true,
+              },
+            ].map((item) => {
               const Icon = item.icon;
-              const isActive = activeSection === item.id;
+              const isActive = !item.isRoute && activeSection === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => scrollToSection(item.id)}
+                  onClick={item.action}
                   className="relative flex-1 px-3 py-3 flex flex-col items-center gap-1 text-xs font-medium focus-visible:outline-none"
                   data-testid={`mobile-bottom-nav-${item.id}`}
                 >
@@ -150,6 +206,11 @@ export default function Navigation() {
               );
             })}
           </div>
+        </div>
+        <div className="mt-2 flex justify-end gap-2 max-w-md mx-auto">
+          <FocusModeToggle />
+          <SoundToggle />
+          <LocaleToggle />
         </div>
       </motion.div>
     </Fragment>

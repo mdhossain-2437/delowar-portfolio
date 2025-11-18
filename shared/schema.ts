@@ -144,10 +144,15 @@ export const contactMessages = pgTable("contact_messages", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   reason: text("reason").notNull(), // general, project, job, collaboration, etc.
+  subject: text("subject").notNull().default("General inquiry"),
   message: text("message").notNull(),
   attachedFile: text("attached_file"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   status: text("status").notNull().default("new"), // new, read, replied
+  replyMessage: text("reply_message"),
+  replySubject: text("reply_subject"),
+  repliedAt: timestamp("replied_at"),
+  responderEmail: text("responder_email"),
 });
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
@@ -157,6 +162,27 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+
+// ==================== GUESTBOOK ====================
+
+export const guestbookEntries = pgTable("guestbook_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  githubId: text("github_id").notNull(),
+  githubLogin: text("github_login").notNull(),
+  githubName: text("github_name").notNull(),
+  githubAvatar: text("github_avatar"),
+  githubProfile: text("github_profile"),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertGuestbookEntrySchema = createInsertSchema(guestbookEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertGuestbookEntry = z.infer<typeof insertGuestbookEntrySchema>;
+export type GuestbookEntry = typeof guestbookEntries.$inferSelect;
 
 // ==================== PLAYGROUND ====================
 

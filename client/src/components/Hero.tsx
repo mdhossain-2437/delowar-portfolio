@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { projects } from "@/lib/projectsData";
 import { Fade } from "react-awesome-reveal";
 import { useShouldRenderHeroCanvas } from "@/hooks/useShouldRenderHeroCanvas";
+import StegoResumeButton from "@/components/StegoResumeButton";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CanvasHero = lazy(() => import("./3d/CanvasHero"));
 
@@ -35,6 +37,7 @@ export default function Hero() {
     triggerOnce: true,
     threshold: 0.2,
   });
+  const t = useTranslation();
 
   useEffect(() => {
     const timer = setInterval(
@@ -101,24 +104,21 @@ export default function Hero() {
                     <span>{currentRole}</span>
                   </Fade>
                 </div>
-                <p className="text-lg md:text-xl text-muted-foreground">
-                  Full-stack developer focused on expressive web products—crafting immersive
-                  portfolios, developer tools, and business dashboards with React, TypeScript, and
-                  motion-forward UX.
-                </p>
+                <p className="text-lg md:text-xl text-muted-foreground">{t("hero.title")}</p>
+                <p className="text-base md:text-lg text-muted-foreground">{t("hero.subtitle")}</p>
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => scrollToSection("projects")}
                     className="px-8 py-3 rounded-xl bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground font-semibold inline-flex items-center gap-2"
                   >
-                    View Projects
+                    {t("cta.action")}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <a
                     href="/Delowar_Hossain_Resume.pdf"
                     className="px-8 py-3 rounded-xl border border-white/20 text-foreground font-semibold hover:border-accent transition-colors"
                   >
-                    Download Resume
+                    {t("cta.download")}
                   </a>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -127,6 +127,7 @@ export default function Hero() {
                       {tech}
                     </Badge>
                   ))}
+                  <StegoResumeButton />
                 </div>
               </div>
             </motion.div>

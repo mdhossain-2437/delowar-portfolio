@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { useUISounds } from "@/hooks/useUISounds";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -11,6 +13,8 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { playSuccess, playHover, playClick } = useUISounds();
+  const t = useTranslation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -22,20 +26,39 @@ export default function Contact() {
     setIsSubmitting(true);
 
     try {
-      // Simulate form submission (replace with actual EmailJS or backend integration)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          reason: "general",
+        }),
+      });
+
+      if (!response.ok) {
+        const raw = await response.text();
+        let parsedMessage = "Failed to send message";
+        try {
+          const data = raw ? JSON.parse(raw) : null;
+          if (data?.message) parsedMessage = data.message;
+        } catch {
+          if (raw) parsedMessage = raw;
+        }
+        throw new Error(parsedMessage);
+      }
 
       toast({
         title: "Message sent successfully!",
         description: "I'll get back to you soon.",
         duration: 5000,
       });
+      playSuccess();
 
       setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Failed to send message",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         variant: "destructive",
         duration: 5000,
       });
@@ -94,7 +117,7 @@ export default function Contact() {
         >
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Let's Build Something Great
+              {t("contact.title")}
             </span>
           </h2>
 
@@ -108,11 +131,8 @@ export default function Contact() {
               viewport={{ once: true }}
             >
               <div>
-                <h3 className="text-2xl font-semibold mb-6">Get In Touch</h3>
-                <p className="text-lg text-muted-foreground mb-8">
-                  I'm always excited to work on innovative projects and collaborate with fellow developers. 
-                  Whether you have a project idea, want to discuss technology, or just say hello, I'd love to hear from you!
-                </p>
+                <h3 className="text-2xl font-semibold mb-6">{t("contact.title")}</h3>
+                <p className="text-lg text-muted-foreground mb-8">{t("contact.subtitle")}</p>
               </div>
 
               {/* Contact Details */}
@@ -127,8 +147,8 @@ export default function Contact() {
                     viewport={{ once: true }}
                     data-testid={`contact-${detail.label.toLowerCase()}`}
                   >
-                    <div className={`w-12 h-12 bg-${detail.color}/20 rounded-lg flex items-center justify-center`}>
-                      <i className={`${detail.icon} text-${detail.color}`}></i>
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#020817] text-primary">
+                      <i className={detail.icon}></i>
                     </div>
                     <div>
                       <p className="font-semibold">{detail.label}</p>
@@ -172,11 +192,9 @@ export default function Contact() {
               >
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="font-semibold text-accent">Available for freelance & collaborations</span>
+                  <span className="font-semibold text-accent">{t("contact.title")}</span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Open to exciting opportunities and innovative projects. Let's create something amazing together!
-                </p>
+                <p className="text-sm text-muted-foreground">{t("contact.subtitle")}</p>
               </motion.div>
             </motion.div>
 
@@ -198,7 +216,8 @@ export default function Contact() {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    placeholder="What's your name?"
+                    className="w-full px-4 py-3 border border-border rounded-lg bg-white text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 dark:bg-[#0b1120]"
                     data-testid="input-name"
                   />
                 </div>
@@ -212,7 +231,8 @@ export default function Contact() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    placeholder="Where can I reach you?"
+                    className="w-full px-4 py-3 border border-border rounded-lg bg-white text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 dark:bg-[#0b1120]"
                     data-testid="input-email"
                   />
                 </div>
@@ -226,7 +246,8 @@ export default function Contact() {
                     required
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    placeholder="Project or topic"
+                    className="w-full px-4 py-3 border border-border rounded-lg bg-white text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 dark:bg-[#0b1120]"
                     data-testid="input-subject"
                   />
                 </div>
@@ -240,7 +261,8 @@ export default function Contact() {
                     required
                     value={formData.message}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none"
+                    placeholder="Tell me about your idea, challenge, or dream build..."
+                    className="w-full px-4 py-3 border border-border rounded-lg bg-white text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none dark:bg-[#0b1120]"
                     data-testid="input-message"
                   />
                 </div>
@@ -250,6 +272,8 @@ export default function Contact() {
                   disabled={isSubmitting}
                   className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold py-3 px-6 rounded-lg hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   data-testid="submit-button"
+                  onMouseEnter={playHover}
+                  onClick={playClick}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
