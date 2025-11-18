@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { ExternalLink, Github, FileText } from "lucide-react";
 import { projects, generateSlug } from "@/lib/projectsData";
+import { Helmet } from "react-helmet-async";
 
 export default function ProjectsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
@@ -20,6 +21,13 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
+      <Helmet>
+        <title>Projects | Delowar Hossain</title>
+        <meta
+          name="description"
+          content="A curated list of full-stack web, AI, and design projects with detailed case studies."
+        />
+      </Helmet>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -157,13 +165,13 @@ export default function ProjectsPage() {
                       Code
                     </a>
                     
-                    <Link href={`/projects/${generateSlug(project.title)}`}>
-                      <a className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground py-2 px-3 rounded-md text-sm font-medium transition-opacity w-full"
-                        data-testid={`case-study-${generateSlug(project.title)}`}
-                      >
-                        <FileText className="h-3.5 w-3.5" />
-                        Study
-                      </a>
+                    <Link
+                      to={`/projects/${generateSlug(project.title)}`}
+                      className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground py-2 px-3 rounded-md text-sm font-medium transition-opacity w-full"
+                      data-testid={`case-study-${generateSlug(project.title)}`}
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Study
                     </Link>
                   </div>
                 </div>

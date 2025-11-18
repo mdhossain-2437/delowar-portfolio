@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./storage";
+import { storage } from "./dbStorage";
 
 const app = express();
 app.use(express.json());
@@ -49,7 +49,9 @@ app.use((req, res, next) => {
       log("✅ Database seeded successfully");
     }
   } catch (error) {
-    log("⚠️ Error checking/seeding database:", error);
+    const reason =
+      error instanceof Error ? error.message : String(error);
+    log(`⚠️ Error checking/seeding database: ${reason}`);
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -73,13 +75,39 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-    },
-    () => {
-    log(`serving on port ${port}`);
-  });
+  const preferredPort = parseInt(process.env.PORT || "5000", 10);
+  const maxAttempts = process.env.PORT ? 0 : 5;
+
+  const startServer = (port: number, attemptsLeft: number) => {
+    const listener = server.listen(
+      {
+        port,
+        host: "0.0.0.0",
+      },
+      () => {
+        log(`serving on port ${port}`);
+      },
+    );
+
+    listener.on("error", (error: any) => {
+      if (error.code === "EADDRINUSE" && attemptsLeft > 0) {
+        const nextPort = port + 1;
+        log(
+          `⚠️ Port ${port} is in use, attempting to use ${nextPort}. Set PORT env to override.`,
+        );
+        listener.close();
+        setTimeout(() => startServer(nextPort, attemptsLeft - 1), 250);
+      } else if (error.code === "EADDRINUSE") {
+        log(
+          `❌ Port ${port} is already in use. Please free the port or set PORT to a different value.`,
+        );
+        process.exit(1);
+      } else {
+        log(`❌ Failed to start server: ${error.message}`);
+        process.exit(1);
+      }
+    });
+  };
+
+  startServer(preferredPort, maxAttempts);
 })();

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { useToast } from "@/hooks/use-toast";
+import { Helmet } from "react-helmet-async";
 
 export default function ResumePage() {
   const [viewMode, setViewMode] = useState<"online" | "print">("online");
@@ -292,6 +293,10 @@ export default function ResumePage() {
 
   return (
     <div className={`min-h-screen py-12 px-4 sm:px-6 lg:px-8 ${viewMode === 'print' ? 'print-view' : ''}`}>
+      <Helmet>
+        <title>Resume | Delowar Hossain</title>
+        <meta name="description" content="Download the ATS-friendly resume for MD Delowar Hossain." />
+      </Helmet>
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

@@ -1,14 +1,14 @@
-import { useRoute, Link, Redirect } from "wouter";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ArrowLeft, 
-  ExternalLink, 
-  Github, 
-  Users, 
+import {
+  ArrowLeft,
+  ExternalLink,
+  Github,
+  Users,
   Target, 
   Code, 
   Lightbulb, 
@@ -17,14 +17,14 @@ import {
   AlertCircle
 } from "lucide-react";
 import { getProjectBySlug, getRelatedProjects, generateSlug } from "@/lib/projectsData";
+import { Helmet } from "react-helmet-async";
 
 export default function ProjectDetailPage() {
-  const [, params] = useRoute("/projects/:slug");
-  const slug = params?.slug || "";
+  const { slug = "" } = useParams();
   const project = getProjectBySlug(slug);
 
   if (!project) {
-    return <Redirect to="/projects" />;
+    return <Navigate to="/projects" replace />;
   }
 
   const relatedProjects = getRelatedProjects(project.id, 3);
@@ -39,7 +39,12 @@ export default function ProjectDetailPage() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <Link href="/projects">
+        <Helmet>
+          <title>{project.title} | Delowar Hossain</title>
+          <meta name="description" content={project.description} />
+        </Helmet>
+
+        <Link to="/projects">
           <Button variant="ghost" className="mb-8 group" data-testid="back-to-projects">
             <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             Back to Projects
@@ -396,7 +401,7 @@ export default function ProjectDetailPage() {
             
             <div className="grid md:grid-cols-3 gap-6">
               {relatedProjects.map((relatedProject) => (
-                <Link key={relatedProject.id} href={`/projects/${generateSlug(relatedProject.title)}`}>
+                <Link key={relatedProject.id} to={`/projects/${generateSlug(relatedProject.title)}`}>
                   <Card className="glass-card hover:shadow-lg transition-all cursor-pointer group h-full">
                     <div className="h-40 overflow-hidden">
                       <img 
@@ -419,7 +424,7 @@ export default function ProjectDetailPage() {
             </div>
 
             <div className="text-center mt-8">
-              <Link href="/projects">
+              <Link to="/projects">
                 <Button variant="outline" size="lg">
                   View All Projects
                 </Button>

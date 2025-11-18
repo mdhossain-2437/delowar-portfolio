@@ -1,9 +1,13 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden">
+      <Helmet>
+        <title>404 | Delowar Hossain</title>
+      </Helmet>
       {/* Floating orbs in background */}
       <div className="absolute inset-0">
         <div className="floating-orb absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-primary/20 to-transparent rounded-full animate-float"></div>
@@ -167,7 +171,7 @@ export default function NotFound() {
             transition={{ delay: 0.9, duration: 0.6 }}
           >
             <Link
-              href="/"
+              to="/"
               className="inline-block bg-gradient-to-r from-primary to-accent text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105"
               data-testid="back-home-button"
             >

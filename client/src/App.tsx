@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,124 +21,58 @@ import TimelinePage from "@/pages/TimelinePage";
 import AchievementsPage from "@/pages/AchievementsPage";
 import StackPage from "@/pages/StackPage";
 import WorkspaceTasksPage from "@/pages/WorkspaceTasksPage";
+import MaintenancePage from "@/pages/MaintenancePage";
+import ServerErrorPage from "@/pages/ServerErrorPage";
+import { HelmetProvider } from "react-helmet-async";
+import ScrollToTop from "@/components/ScrollToTop";
 
-function Router() {
+function AppRoutes() {
   return (
-    <Switch>
-      {/* Home page with its own layout (Navigation + Footer built-in) */}
-      <Route path="/" component={Home} />
-      
-      {/* All other routes wrapped in MainLayout */}
-      <Route path="/about">
-        <MainLayout>
-          <AboutPage />
-        </MainLayout>
+    <Routes>
+      <Route path="/" element={<Home />} />
+
+      <Route element={<MainLayout />}>
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/skills" element={<SkillsPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/resume" element={<ResumePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/timeline" element={<TimelinePage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
+        <Route path="/stack" element={<StackPage />} />
+        <Route path="/workspace/tasks" element={<WorkspaceTasksPage />} />
       </Route>
-      
-      <Route path="/skills">
-        <MainLayout>
-          <SkillsPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/projects/:slug">
-        <MainLayout>
-          <ProjectDetailPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/projects">
-        <MainLayout>
-          <ProjectsPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/blog/:slug">
-        <MainLayout>
-          <BlogPostPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/blog">
-        <MainLayout>
-          <BlogPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/playground">
-        <MainLayout>
-          <PlaygroundPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/contact">
-        <MainLayout>
-          <ContactPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/resume">
-        <MainLayout>
-          <ResumePage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/dashboard">
-        <MainLayout>
-          <DashboardPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/auth/login">
-        <MainLayout>
-          <LoginPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/timeline">
-        <MainLayout>
-          <TimelinePage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/achievements">
-        <MainLayout>
-          <AchievementsPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/stack">
-        <MainLayout>
-          <StackPage />
-        </MainLayout>
-      </Route>
-      
-      <Route path="/workspace/tasks">
-        <MainLayout>
-          <WorkspaceTasksPage />
-        </MainLayout>
-      </Route>
-      
-      {/* 404 Not Found */}
-      <Route>
-        <MainLayout>
-          <NotFoundPage />
-        </MainLayout>
-      </Route>
-    </Switch>
+
+      <Route path="/maintenance" element={<MaintenancePage />} />
+      <Route path="/server-error" element={<ServerErrorPage />} />
+
+      <Route path="/404" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to="/404" replace />} />
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="min-h-screen bg-background text-foreground">
-          <Toaster />
-          <Router />
-        </div>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <div className="min-h-screen bg-background text-foreground">
+              <Toaster />
+              <AppRoutes />
+            </div>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 

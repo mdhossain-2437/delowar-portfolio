@@ -1,18 +1,21 @@
-import { useRoute } from "wouter";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
+import { Helmet } from "react-helmet-async";
 
 export default function BlogPostPage() {
-  const [, params] = useRoute("/blog/:slug");
-  const slug = params?.slug || "unknown";
+  const { slug = "unknown" } = useParams();
 
   return (
     <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <Link href="/blog">
+        <Helmet>
+          <title>{slug} | Delowar Blog</title>
+          <meta name="description" content={`Blog post placeholder for ${slug}`} />
+        </Helmet>
+        <Link to="/blog">
           <Button variant="ghost" className="mb-6" data-testid="back-to-blog">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Blog

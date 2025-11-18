@@ -1,11 +1,12 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./dbStorage";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import type { User } from "@shared/schema";
 
 // ==================== AUTH MIDDLEWARE ====================
 
@@ -14,6 +15,13 @@ function isAuthenticated(req: any, res: any, next: any) {
     return next();
   }
   res.status(401).json({ message: "Unauthorized" });
+}
+
+function requireUser(req: Request): User {
+  if (!req.user) {
+    throw new Error("Authenticated user not found on request object");
+  }
+  return req.user as User;
 }
 
 function isAdmin(req: any, res: any, next: any) {
@@ -102,13 +110,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/auth/login", passport.authenticate("local"), (req, res) => {
+    const user = requireUser(req);
     res.json({ 
       success: true, 
       user: { 
-        id: req.user.id, 
-        username: req.user.username, 
-        name: req.user.name,
-        role: req.user.role 
+        id: user.id, 
+        username: user.username, 
+        name: user.name,
+        role: user.role 
       } 
     });
   });
@@ -120,12 +129,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", isAuthenticated, (req, res) => {
+    const user = requireUser(req);
     res.json({ 
       user: { 
-        id: req.user.id, 
-        username: req.user.username, 
-        name: req.user.name,
-        role: req.user.role 
+        id: user.id, 
+        username: user.username, 
+        name: user.name,
+        role: user.role 
       } 
     });
   });
@@ -417,8 +427,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/tasks", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const { status, priority } = req.query;
-      const tasks = await storage.getTasks(req.user.id, {
+      const tasks = await storage.getTasks(user.id, {
         status: status as string,
         priority: priority as string,
       });
@@ -430,9 +441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/tasks", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const task = await storage.insertTask({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(task);
     } catch (error: any) {
@@ -442,7 +454,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/workspace/tasks/:id", isAuthenticated, async (req, res) => {
     try {
-      const task = await storage.updateTask(req.params.id, req.user.id, req.body);
+      const user = requireUser(req);
+      const task = await storage.updateTask(req.params.id, user.id, req.body);
       res.json(task);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -451,7 +464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/workspace/tasks/:id", isAuthenticated, async (req, res) => {
     try {
-      await storage.deleteTask(req.params.id, req.user.id);
+      const user = requireUser(req);
+      await storage.deleteTask(req.params.id, user.id);
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -462,7 +476,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/notes", isAuthenticated, async (req, res) => {
     try {
-      const notes = await storage.getNotes(req.user.id);
+      const user = requireUser(req);
+      const notes = await storage.getNotes(user.id);
       res.json(notes);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -471,9 +486,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/notes", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const note = await storage.insertNote({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(note);
     } catch (error: any) {
@@ -483,7 +499,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/workspace/notes/:id", isAuthenticated, async (req, res) => {
     try {
-      const note = await storage.updateNote(req.params.id, req.user.id, req.body);
+      const user = requireUser(req);
+      const note = await storage.updateNote(req.params.id, user.id, req.body);
       res.json(note);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -492,7 +509,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/workspace/notes/:id", isAuthenticated, async (req, res) => {
     try {
-      await storage.deleteNote(req.params.id, req.user.id);
+      const user = requireUser(req);
+      await storage.deleteNote(req.params.id, user.id);
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -503,7 +521,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/snippets", isAuthenticated, async (req, res) => {
     try {
-      const snippets = await storage.getCodeSnippets(req.user.id);
+      const user = requireUser(req);
+      const snippets = await storage.getCodeSnippets(user.id);
       res.json(snippets);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -512,9 +531,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/snippets", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const snippet = await storage.insertCodeSnippet({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(snippet);
     } catch (error: any) {
@@ -526,7 +546,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/learning", isAuthenticated, async (req, res) => {
     try {
-      const items = await storage.getLearningItems(req.user.id);
+      const user = requireUser(req);
+      const items = await storage.getLearningItems(user.id);
       res.json(items);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -535,9 +556,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/learning", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const item = await storage.insertLearningItem({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(item);
     } catch (error: any) {
@@ -549,7 +571,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/time-entries", isAuthenticated, async (req, res) => {
     try {
-      const entries = await storage.getTimeEntries(req.user.id);
+      const user = requireUser(req);
+      const entries = await storage.getTimeEntries(user.id);
       res.json(entries);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -558,8 +581,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/time-entries/start", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const entry = await storage.startTimeEntry({
-        userId: req.user.id,
+        userId: user.id,
         ...req.body,
       });
       res.json(entry);
@@ -570,7 +594,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/time-entries/:id/stop", isAuthenticated, async (req, res) => {
     try {
-      const entry = await storage.stopTimeEntry(req.params.id, req.user.id);
+      const user = requireUser(req);
+      const entry = await storage.stopTimeEntry(req.params.id, user.id);
       res.json(entry);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -581,7 +606,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/habits", isAuthenticated, async (req, res) => {
     try {
-      const habits = await storage.getHabits(req.user.id);
+      const user = requireUser(req);
+      const habits = await storage.getHabits(user.id);
       res.json(habits);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -590,9 +616,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/habits", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const habit = await storage.insertHabit({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(habit);
     } catch (error: any) {
@@ -602,9 +629,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/habits/:id/log", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const log = await storage.logHabit({
         habitId: req.params.id,
-        userId: req.user.id,
+        userId: user.id,
         ...req.body,
       });
       res.json(log);
@@ -617,7 +645,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/workspace/calendar", isAuthenticated, async (req, res) => {
     try {
-      const events = await storage.getCalendarEvents(req.user.id);
+      const user = requireUser(req);
+      const events = await storage.getCalendarEvents(user.id);
       res.json(events);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -626,9 +655,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/workspace/calendar", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const event = await storage.insertCalendarEvent({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(event);
     } catch (error: any) {
@@ -640,7 +670,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/clients", isAuthenticated, async (req, res) => {
     try {
-      const clients = await storage.getClients(req.user.id);
+      const user = requireUser(req);
+      const clients = await storage.getClients(user.id);
       res.json(clients);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -649,9 +680,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/business/clients", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const client = await storage.insertClient({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(client);
     } catch (error: any) {
@@ -663,7 +695,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/proposals", isAuthenticated, async (req, res) => {
     try {
-      const proposals = await storage.getProposals(req.user.id);
+      const user = requireUser(req);
+      const proposals = await storage.getProposals(user.id);
       res.json(proposals);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -672,9 +705,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/business/proposals", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const proposal = await storage.insertProposal({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(proposal);
     } catch (error: any) {
@@ -686,7 +720,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/invoices", isAuthenticated, async (req, res) => {
     try {
-      const invoices = await storage.getInvoices(req.user.id);
+      const user = requireUser(req);
+      const invoices = await storage.getInvoices(user.id);
       res.json(invoices);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -695,9 +730,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/business/invoices", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const invoice = await storage.insertInvoice({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(invoice);
     } catch (error: any) {
@@ -709,7 +745,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/finance/overview", isAuthenticated, async (req, res) => {
     try {
-      const overview = await storage.getFinanceOverview(req.user.id);
+      const user = requireUser(req);
+      const overview = await storage.getFinanceOverview(user.id);
       res.json(overview);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -718,7 +755,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/expenses", isAuthenticated, async (req, res) => {
     try {
-      const expenses = await storage.getExpenses(req.user.id);
+      const user = requireUser(req);
+      const expenses = await storage.getExpenses(user.id);
       res.json(expenses);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -727,9 +765,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/business/expenses", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const expense = await storage.insertExpense({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(expense);
     } catch (error: any) {
@@ -739,7 +778,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/business/income", isAuthenticated, async (req, res) => {
     try {
-      const income = await storage.getIncomeEntries(req.user.id);
+      const user = requireUser(req);
+      const income = await storage.getIncomeEntries(user.id);
       res.json(income);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -748,9 +788,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/business/income", isAuthenticated, async (req, res) => {
     try {
+      const user = requireUser(req);
       const incomeEntry = await storage.insertIncomeEntry({
         ...req.body,
-        userId: req.user.id,
+        userId: user.id,
       });
       res.json(incomeEntry);
     } catch (error: any) {

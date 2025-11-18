@@ -1,8 +1,9 @@
 import Header from "./Header";
 import Footer from "@/components/Footer";
+import { Outlet } from "react-router-dom";
 
 interface MainLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
@@ -10,7 +11,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow pt-16">
-        {children}
+        {children ?? <Outlet />}
       </main>
       <Footer />
     </div>

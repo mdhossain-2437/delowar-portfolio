@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Header() {
-  const [location] = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -18,6 +19,10 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -35,8 +40,8 @@ export default function Header() {
   ];
 
   const isActivePath = (path: string) => {
-    if (path === "/") return location === "/";
-    return location.startsWith(path);
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -51,7 +56,10 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/">
+          <button
+            onClick={() => navigate("/")}
+            className="text-left"
+          >
             <motion.div
               className="flex items-center space-x-2 cursor-pointer"
               whileHover={{ scale: 1.05 }}
@@ -62,26 +70,26 @@ export default function Header() {
                 Delowar
               </span>
             </motion.div>
-          </Link>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
-              <Link key={link.path} href={link.path}>
-                <motion.div
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    isActivePath(link.path)
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  data-testid={`nav-${link.label.toLowerCase()}`}
-                >
-                  {link.label}
-                </motion.div>
-              </Link>
-            ))}
+              {navLinks.map((link) => (
+                <NavLink key={link.path} to={link.path}>
+                  <motion.div
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                      isActivePath(link.path)
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    data-testid={`nav-${link.label.toLowerCase()}`}
+                  >
+                    {link.label}
+                  </motion.div>
+                </NavLink>
+              ))}
 
             {/* Theme Toggle */}
             <div className="ml-2">
@@ -121,7 +129,7 @@ export default function Header() {
             >
               <div className="py-4 space-y-1">
                 {navLinks.map((link) => (
-                  <Link key={link.path} href={link.path}>
+                  <NavLink key={link.path} to={link.path}>
                     <motion.div
                       className={`block px-4 py-3 rounded-md text-base font-medium cursor-pointer ${
                         isActivePath(link.path)
@@ -134,7 +142,7 @@ export default function Header() {
                     >
                       {link.label}
                     </motion.div>
-                  </Link>
+                  </NavLink>
                 ))}
               </div>
             </motion.div>

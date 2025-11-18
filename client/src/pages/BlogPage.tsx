@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Helmet } from "react-helmet-async";
 
 export default function BlogPage() {
   return (
     <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
+      <Helmet>
+        <title>Blog | Delowar Hossain</title>
+        <meta name="description" content="Insights on product engineering, AI experiments, and tooling updates." />
+      </Helmet>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

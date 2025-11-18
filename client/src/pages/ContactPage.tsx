@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Helmet } from "react-helmet-async";
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
+      <Helmet>
+        <title>Contact | Delowar Hossain</title>
+        <meta name="description" content="Reach out for collaborations, consulting, or product discussions." />
+      </Helmet>
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
