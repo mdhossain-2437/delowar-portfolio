@@ -583,6 +583,34 @@ export class MockStorage {
     this.playgroundEntries.set(entry.id, entry);
     return entry;
   }
+
+  async seedDatabase(): Promise<void> {
+    this.users.clear();
+    this.projects.clear();
+    this.blogPosts.clear();
+    this.blogTags.clear();
+    this.skills.clear();
+    this.testimonials.clear();
+    this.timelineEvents.clear();
+    this.achievements.clear();
+    this.contactMessages.clear();
+    this.playgroundEntries.clear();
+    this.resumeSections.clear();
+    this.tasks.clear();
+    this.notes.clear();
+    this.codeSnippets.clear();
+    this.learningItems.clear();
+    this.timeEntries.clear();
+    this.habits.clear();
+    this.habitLogs.clear();
+    this.calendarEvents.clear();
+    this.clients.clear();
+    this.proposals.clear();
+    this.invoices.clear();
+    this.expenses.clear();
+    this.incomeEntries.clear();
+    this.seedMockData();
+  }
 }
 
 export const storage = new MockStorage();

@@ -1,17 +1,61 @@
 import { motion } from "framer-motion";
-import React, { Suspense, lazy } from "react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
-const CanvasHero = lazy(() => import("./3d/CanvasHero"));
 import { useInView } from "react-intersection-observer";
+import {
+  Sparkles,
+  Cpu,
+  Globe,
+  Rocket,
+  MessageSquare,
+} from "lucide-react";
+
+const heroHighlights = [
+  {
+    label: "Experience Architect",
+    detail: "Cinematic, story-driven interfaces with purposeful motion.",
+    icon: Sparkles,
+  },
+  {
+    label: "Systems Thinker",
+    detail: "Automation + AI-first workflows that scale teams globally.",
+    icon: Cpu,
+  },
+  {
+    label: "Community Catalyst",
+    detail: "Mentoring the next wave of makers & founders worldwide.",
+    icon: Globe,
+  },
+];
+
+const heroStats = [
+  { value: "45+", label: "Products shipped", sub: "Full-stack experiences" },
+  { value: "12", label: "Awards & honors", sub: "Design + dev showcases" },
+  { value: "1M+", label: "User interactions", sub: "Measured + optimized" },
+];
+
+const heroFocus = [
+  {
+    title: "Currently Crafting",
+    description:
+      "An AI-native workspace OS blending analytics, storytelling, and automation into one fluid canvas.",
+    tag: "Realtime React • WebGL • Edge Functions",
+  },
+  {
+    title: "Signature Move",
+    description:
+      "Layering volumetric gradients, tactile depth, and system thinking to guide users through complex flows.",
+    tag: "Design Systems • Framer Motion • Narrative UX",
+  },
+];
 
 export default function Hero() {
   const typingText = useTypingAnimation(
     "Web Developer, AI Explorer, Creative Problem Solver",
-    50
+    50,
   );
   const [ref, inView] = useInView({
     triggerOnce: true,
-    threshold: 0.1,
+    threshold: 0.2,
   });
 
   const scrollToSection = (sectionId: string) => {
@@ -24,151 +68,199 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden hero-gradient"
+      ref={ref}
+      className="relative min-h-screen overflow-hidden hero-gradient"
     >
-      {/* 3D Background - Temporarily disabled due to React Three Fiber compatibility issues */}
-      {/* <div className="absolute inset-0 z-0">
-        <Suspense fallback={null}>
-          <CanvasHero />
-        </Suspense>
-      </div> */}
+      <div className="hero-orb hero-orb-1" />
+      <div className="hero-orb hero-orb-2" />
+      <div className="hero-noise" />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background/90 z-1"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.035] pointer-events-none" />
 
-      {/* Interactive Grid Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] z-1"></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="relative z-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_420px] items-center">
+          <div className="space-y-10">
             <motion.div
-              ref={ref}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="flex flex-col items-center"
+              className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground"
             >
-              <motion.div
-                className="text-sm md:text-lg font-mono mb-4 text-accent/80"
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.2, duration: 0.6 }}
-              >
-                <span className="inline-block">{"<"}</span>
-                <span className="inline-block mx-2">Hello, World!</span>
-                <span className="inline-block">{"/>"}</span>
-              </motion.div>
+              <Rocket className="h-4 w-4 text-accent" />
+              Available for visionary collaborations
+            </motion.div>
 
-              <motion.h1
-                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 relative"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={inView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 0.4, duration: 0.8 }}
-              >
-                <span className="relative">
-                  <span className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-lg"></span>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.1, duration: 0.9 }}
+              className="space-y-6"
+            >
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                <span className="block text-muted-foreground text-xl md:text-2xl mb-4 font-mono">
+                  {typingText}
+                  <span className="animate-pulse">|</span>
+                </span>
+                <span className="relative inline-block">
+                  <span className="absolute inset-0 blur-3xl bg-gradient-to-r from-primary/30 via-accent/20 to-primary/30 opacity-80" />
                   <span className="relative bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                     Delowar Hossain
                   </span>
-                </span>
-              </motion.h1>
+                </span>{" "}
+                crafts living, breathing digital playgrounds.
+              </h1>
 
-              <div className="text-xl md:text-2xl lg:text-3xl mb-8 h-16 flex items-center justify-center">
-                <motion.span
-                  className="text-muted-foreground"
-                  initial={{ opacity: 0 }}
-                  animate={inView ? { opacity: 1 } : {}}
-                  transition={{ delay: 0.6, duration: 0.6 }}
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                I help ambitious teams translate bold ideas into immersive
+                products. From AI copilots to cinematic portfolios, every pixel
+                and API is orchestrated to feel alive, intuitive, and
+                unforgettable.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="flex flex-wrap gap-3"
+            >
+              {heroHighlights.map((highlight) => (
+                <div
+                  key={highlight.label}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 px-4 py-3"
                 >
-                  {typingText}
-                  <span className="animate-pulse">|</span>
-                </motion.span>
-              </div>
+                  <div className="rounded-full bg-white/10 p-2 text-primary">
+                    <highlight.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {highlight.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {highlight.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
 
-              <motion.p
-                className="text-lg md:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto text-center leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.8, duration: 0.6 }}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <button
+                onClick={() => scrollToSection("projects")}
+                className="group relative flex-1 sm:flex-none px-8 py-4 rounded-2xl bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground font-semibold overflow-hidden"
               >
-                <span className="text-accent">Building</span> fast, reliable,
-                and beautiful digital experiences that actually work.{" "}
-                <span className="text-primary">Passionate</span> about creating
-                innovative tools that empower developers and learners.
-              </motion.p>
+                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20" />
+                <span className="relative flex items-center justify-center gap-2">
+                  View Signature Work
+                  <motion.span
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.2 }}
+                  >
+                    →
+                  </motion.span>
+                </span>
+              </button>
+              <button
+                onClick={() => scrollToSection("contact")}
+                className="flex-1 sm:flex-none rounded-2xl border border-white/15 bg-white/5 px-8 py-4 font-semibold text-foreground hover:border-accent/60 transition"
+              >
+                Book a Product Jam
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.35, duration: 0.8 }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+            >
+              {heroStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-center backdrop-blur"
+                >
+                  <p className="text-3xl font-bold text-foreground">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-1">
+                    {stat.sub}
+                  </p>
+                </div>
+              ))}
             </motion.div>
           </div>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center relative z-10"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 1, duration: 0.6 }}
+            transition={{ delay: 0.3, duration: 0.9 }}
+            className="relative"
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToSection("projects")}
-              className="group relative px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold rounded-lg overflow-hidden"
-              data-testid="view-work-button"
-            >
-              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-              <span className="relative flex items-center justify-center gap-2">
-                View My Work
-                <motion.svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  initial={{ x: 0 }}
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </motion.svg>
-              </span>
-            </motion.button>
+            <div className="relative rounded-[36px] border border-white/15 bg-white/5 p-6 backdrop-blur-xl shadow-2xl shadow-primary/10">
+              <div className="absolute inset-x-8 -top-4 h-8 rounded-full bg-gradient-to-r from-primary/30 to-accent/30 blur-2xl" />
+              <div className="relative space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Focus</p>
+                    <p className="text-2xl font-semibold">Lab Notes</p>
+                  </div>
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
+                    Live feed
+                  </span>
+                </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToSection("contact")}
-              className="group relative px-8 py-4 border border-border bg-card/30 backdrop-blur-sm text-foreground font-semibold rounded-lg overflow-hidden hover:border-accent/50 transition-colors duration-300"
-              data-testid="contact-button"
-            >
-              <span className="relative flex items-center justify-center gap-2">
-                Let's Connect
-                <motion.span
-                  animate={{ y: [0, -2, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  👋
-                </motion.span>
-              </span>
-            </motion.button>
+                <div className="space-y-4">
+                  {heroFocus.map((focus, index) => (
+                    <motion.div
+                      key={focus.title}
+                      className="rounded-2xl border border-white/10 bg-white/5 p-5"
+                      animate={{
+                        y: inView ? [0, -4, 0] : 0,
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 6 + index * 2,
+                      }}
+                    >
+                      <p className="text-sm uppercase tracking-widest text-primary">
+                        {focus.tag}
+                      </p>
+                      <p className="mt-2 text-xl font-semibold">
+                        {focus.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {focus.description}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-4 space-y-3">
+                  <p className="text-sm uppercase tracking-widest text-muted-foreground">
+                    Open for collab
+                  </p>
+                  <p className="text-lg font-semibold">
+                    Let's architect your next milestone, sprint, or launch week.
+                  </p>
+                  <button
+                    onClick={() => scrollToSection("contact")}
+                    className="inline-flex items-center gap-2 text-accent font-semibold"
+                  >
+                    Send a voice memo
+                    <MessageSquare className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-      >
-        <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-muted-foreground rounded-full mt-2 animate-pulse"></div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

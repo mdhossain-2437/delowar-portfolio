@@ -1,42 +1,17 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+let storage: any;
+let storageBackend = "mock";
 
-// modify the interface with any CRUD methods
-// you might need
-
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+if (process.env.DATABASE_URL) {
+  const dbModule = await import("./dbStorage");
+  storage = dbModule.storage;
+  storageBackend = "database";
+} else {
+  const mockModule = await import("./mockStorage");
+  storage = mockModule.storage;
+  storageBackend = "mock";
+  console.warn(
+    "[storage] DATABASE_URL not set – falling back to in-memory mock storage. Data will not persist between runs.",
+  );
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { 
-      ...insertUser, 
-      id,
-      role: insertUser.role || "user"
-    };
-    this.users.set(id, user);
-    return user;
-  }
-}
-
-export const storage = new MemStorage();
+export { storage, storageBackend };
