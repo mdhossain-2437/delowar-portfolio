@@ -26,12 +26,12 @@ export default function Hero() {
       id="home"
       className="min-h-screen flex items-center justify-center relative overflow-hidden hero-gradient"
     >
-      {/* 3D Background */}
-      <div className="absolute inset-0 z-0">
+      {/* 3D Background - Temporarily disabled due to React Three Fiber compatibility issues */}
+      {/* <div className="absolute inset-0 z-0">
         <Suspense fallback={null}>
           <CanvasHero />
         </Suspense>
-      </div>
+      </div> */}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background/90 z-1"></div>
