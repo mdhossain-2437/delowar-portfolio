@@ -13,6 +13,7 @@ import { sendContactNotification } from "./services/mailer";
 import { appConfig } from "./config";
 import { mountSwagger } from "./swagger";
 import { createChallenge, verifyChallenge } from "./services/webauthnMemory";
+import { getSecurityProfile } from "./security";
 
 // ==================== AUTH MIDDLEWARE ====================
 
@@ -1284,6 +1285,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
+  });
+
+  app.get("/api/health/security", (_req, res) => {
+    res.json({
+      profile: getSecurityProfile(),
+      timestamp: new Date().toISOString(),
+    });
   });
 
   const httpServer = createServer(app);

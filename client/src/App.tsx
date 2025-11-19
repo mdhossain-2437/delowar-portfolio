@@ -37,6 +37,7 @@ import OfflineBanner from "@/components/OfflineBanner";
 import BugReportWidget from "@/components/BugReportWidget";
 import EyeTrackingToggle from "@/components/EyeTrackingToggle";
 import DynamicPresenceMeta from "@/components/DynamicPresenceMeta";
+import ServiceWorkerStatus from "@/components/ServiceWorkerStatus";
 
 function AppRoutes() {
   return (
@@ -92,6 +93,7 @@ function App() {
                     <EyeTrackingToggle />
                     <Toaster />
                     <AppRoutes />
+                    <ServiceWorkerStatus />
                   </div>
                 </BrowserRouter>
               </TimeTravelProvider>

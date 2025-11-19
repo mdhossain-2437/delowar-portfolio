@@ -1,4 +1,5 @@
-const CACHE = "delowar-cache-v2";
+const SW_VERSION = "sw-2025-11-19";
+const CACHE = "delowar-cache-v3";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   "/",
@@ -106,7 +107,18 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
+  if (!event.data) return;
+  const { type } = event.data;
+  if (type === "SKIP_WAITING") {
     self.skipWaiting();
+    return;
+  }
+
+  if (type === "GET_SW_STATUS" && event.ports[0]) {
+    event.ports[0].postMessage({
+      version: SW_VERSION,
+      cacheKeys: [CACHE],
+      precached: PRECACHE,
+    });
   }
 });

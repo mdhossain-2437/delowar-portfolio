@@ -3,10 +3,13 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./dbStorage";
+import { applySecurity } from "./security";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: false, limit: "2mb" }));
+
+applySecurity(app);
 
 app.use((req, res, next) => {
   const start = Date.now();

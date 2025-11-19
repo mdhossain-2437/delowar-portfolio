@@ -5,6 +5,7 @@ import "./index.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SoundProvider } from "./contexts/SoundContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
+import { startPerformanceMonitoring } from "./lib/perfVitals";
 
 if (typeof window !== "undefined") {
   (window as any).React = React;
@@ -19,6 +20,8 @@ createRoot(document.getElementById("root")!).render(
     </SoundProvider>
   </ThemeProvider>,
 );
+
+startPerformanceMonitoring();
 
 if ("serviceWorker" in navigator) {
   if (import.meta.env.PROD) {

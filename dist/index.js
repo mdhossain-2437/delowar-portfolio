@@ -1339,6 +1339,72 @@ function verifyChallenge(userId, challenge) {
   return ok;
 }
 
+// server/security.ts
+import helmet from "helmet";
+var PROD_CSP = {
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+    fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+    imgSrc: ["'self'", "data:", "https://*"],
+    connectSrc: ["'self'", "https://api.delowarhossain.dev", "https://*.ingest.sentry.io"],
+    frameSrc: ["'self'"],
+    objectSrc: ["'none'"],
+    upgradeInsecureRequests: []
+  }
+};
+var DEV_CSP = {
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", "http://localhost:5000"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    fontSrc: ["'self'", "data:"],
+    imgSrc: ["'self'", "data:", "blob:"],
+    connectSrc: ["'self'", "ws://localhost:5000", "http://localhost:5000"],
+    frameSrc: ["'self'"],
+    objectSrc: ["'none'"]
+  }
+};
+var profile;
+function applySecurity(app2) {
+  const isProduction = app2.get("env") === "production";
+  app2.disable("x-powered-by");
+  const csp = isProduction ? PROD_CSP : DEV_CSP;
+  profile = {
+    mode: isProduction ? "production" : "development",
+    csp,
+    hstsEnabled: Boolean(isProduction)
+  };
+  app2.use(
+    helmet({
+      contentSecurityPolicy: csp,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+      crossOriginResourcePolicy: { policy: "same-origin" },
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+      dnsPrefetchControl: { allow: false },
+      frameguard: { action: "deny" },
+      hsts: isProduction ? {
+        maxAge: 60 * 60 * 24 * 365,
+        includeSubDomains: true,
+        preload: true
+      } : false,
+      permittedCrossDomainPolicies: { permittedPolicies: "none" }
+    })
+  );
+  app2.use((_req, res, next) => {
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-DNS-Prefetch-Control", "off");
+    next();
+  });
+}
+function getSecurityProfile() {
+  return profile;
+}
+
 // server/routes.ts
 var parseBooleanQuery = (value) => typeof value === "string" ? value === "true" : void 0;
 var parseStringQuery = (value) => typeof value === "string" && value.length > 0 ? value : void 0;
@@ -1985,13 +2051,13 @@ Source: ${parsed.data.source ?? "home newsletter"}`
       if (!profileResponse.ok) {
         throw new Error("Failed to fetch GitHub profile.");
       }
-      const profile = await profileResponse.json();
+      const profile2 = await profileResponse.json();
       req.session.githubUser = {
-        id: String(profile.id),
-        login: profile.login,
-        name: profile.name || profile.login,
-        avatarUrl: profile.avatar_url || "",
-        profileUrl: profile.html_url || `https://github.com/${profile.login}`
+        id: String(profile2.id),
+        login: profile2.login,
+        name: profile2.name || profile2.login,
+        avatarUrl: profile2.avatar_url || "",
+        profileUrl: profile2.html_url || `https://github.com/${profile2.login}`
       };
       req.session.githubOAuthState = void 0;
       res.redirect("/guestbook?auth=github");
@@ -2404,6 +2470,12 @@ Source: ${parsed.data.source ?? "home newsletter"}`
       res.status(500).json({ message: error.message });
     }
   });
+  app2.get("/api/health/security", (_req, res) => {
+    res.json({
+      profile: getSecurityProfile(),
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  });
   const httpServer = createServer(app2);
   return httpServer;
 }
@@ -2562,6 +2634,7 @@ function serveStatic(app2) {
 var app = express2();
 app.use(express2.json({ limit: "2mb" }));
 app.use(express2.urlencoded({ extended: false, limit: "2mb" }));
+applySecurity(app);
 app.use((req, res, next) => {
   const start = Date.now();
   const path3 = req.path;
