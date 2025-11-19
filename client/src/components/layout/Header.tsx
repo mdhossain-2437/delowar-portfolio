@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
+import BrutalismToggle from "@/components/BrutalismToggle";
 
 export default function Header() {
   const location = useLocation();
@@ -91,15 +92,16 @@ export default function Header() {
                 </NavLink>
               ))}
 
-            {/* Theme Toggle */}
-            <div className="ml-2">
+            <div className="flex items-center gap-2 ml-4">
               <ThemeToggle />
+              <BrutalismToggle />
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             <ThemeToggle />
+            <BrutalismToggle />
 
             <Button
               variant="ghost"

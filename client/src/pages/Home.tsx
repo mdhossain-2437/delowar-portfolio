@@ -38,6 +38,25 @@ const ComparisonSlider = lazy(() => import("@/components/ComparisonSlider"));
 const StatsDashboard = lazy(() => import("@/components/StatsDashboard"));
 const NewsletterSignup = lazy(() => import("@/components/NewsletterSignup"));
 const Bookshelf = lazy(() => import("@/components/Bookshelf"));
+const ServerlessMetricsPanel = lazy(() => import("@/components/ServerlessMetricsPanel"));
+const CICDStatusWidget = lazy(() => import("@/components/CICDStatusWidget"));
+const AudioReactiveCanvas = lazy(() => import("@/components/AudioReactiveCanvas"));
+const PersonalizationBanner = lazy(() => import("@/components/PersonalizationBanner"));
+const BrowserFingerprintDemo = lazy(() => import("@/components/BrowserFingerprintDemo"));
+const ThemeBuilder = lazy(() => import("@/components/ThemeBuilder"));
+const CodeReviewHeatmap = lazy(() => import("@/components/CodeReviewHeatmap"));
+const GitBranchVisualizer = lazy(() => import("@/components/GitBranchVisualizer"));
+const AIQuickEstimate = lazy(() => import("@/components/AIQuickEstimate"));
+const TechDebtTracker = lazy(() => import("@/components/TechDebtTracker"));
+const DailyTimeCapsule = lazy(() => import("@/components/DailyTimeCapsule"));
+const AchievementsPanel = lazy(() => import("@/components/AchievementsPanel"));
+const DynamicStoryProgression = lazy(
+  () => import("@/components/DynamicStoryProgression"),
+);
+const AvatarCustomizer = lazy(() => import("@/components/AvatarCustomizer"));
+const DeveloperBattleGame = lazy(() => import("@/components/DeveloperBattleGame"));
+const IsometricSiteMap = lazy(() => import("@/components/IsometricSiteMap"));
+const PhysicsDragGallery = lazy(() => import("@/components/PhysicsDragGallery"));
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +92,9 @@ export default function Home() {
         <CustomCursor />
         <Navigation />
         <Hero />
+        <SectionLoader minHeight="9rem">
+          <PersonalizationBanner />
+        </SectionLoader>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
           <SectionLoader minHeight="8rem">
             <AmbientStatusWidget />
@@ -87,6 +109,9 @@ export default function Home() {
         <About />
         <PersonalJourney />
         <SectionLoader>
+          <DynamicStoryProgression />
+        </SectionLoader>
+        <SectionLoader>
           <ARPortal />
         </SectionLoader>
         <SectionLoader>
@@ -95,9 +120,21 @@ export default function Home() {
         <SectionLoader minHeight="20rem">
           <P2PIntroVideo />
         </SectionLoader>
+        <SectionLoader minHeight="18rem">
+          <AudioReactiveCanvas />
+        </SectionLoader>
         <Skills />
         <SectionLoader>
+          <AvatarCustomizer />
+        </SectionLoader>
+        <SectionLoader>
           <TechStackVisualization />
+        </SectionLoader>
+        <SectionLoader>
+          <PhysicsDragGallery />
+        </SectionLoader>
+        <SectionLoader>
+          <BrowserFingerprintDemo />
         </SectionLoader>
         <SectionLoader>
           <Experience />
@@ -121,7 +158,19 @@ export default function Home() {
           <RealWorldImpact />
         </SectionLoader>
         <SectionLoader>
+          <IsometricSiteMap />
+        </SectionLoader>
+        <SectionLoader>
+          <TechDebtTracker />
+        </SectionLoader>
+        <SectionLoader>
+          <ServerlessMetricsPanel />
+        </SectionLoader>
+        <SectionLoader>
           <StatsDashboard />
+        </SectionLoader>
+        <SectionLoader>
+          <CICDStatusWidget />
         </SectionLoader>
         <SectionLoader>
           <WorkProcess />
@@ -130,13 +179,25 @@ export default function Home() {
           <CertificationsLearning />
         </SectionLoader>
         <SectionLoader>
+          <GitBranchVisualizer />
+        </SectionLoader>
+        <SectionLoader>
+          <ThemeBuilder />
+        </SectionLoader>
+        <SectionLoader>
           <PricingCalculator />
+        </SectionLoader>
+        <SectionLoader>
+          <AIQuickEstimate />
         </SectionLoader>
         <SectionLoader>
           <WasmImageLab />
         </SectionLoader>
         <SectionLoader>
           <DigitalGarden />
+        </SectionLoader>
+        <SectionLoader>
+          <CodeReviewHeatmap />
         </SectionLoader>
         <SectionLoader>
           <Bookshelf />
@@ -149,6 +210,15 @@ export default function Home() {
         </SectionLoader>
         <SectionLoader>
           <SupportMe />
+        </SectionLoader>
+        <SectionLoader>
+          <DeveloperBattleGame />
+        </SectionLoader>
+        <SectionLoader>
+          <AchievementsPanel />
+        </SectionLoader>
+        <SectionLoader>
+          <DailyTimeCapsule />
         </SectionLoader>
         <SectionLoader>
           <NewsletterSignup />

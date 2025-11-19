@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Github, Linkedin, Twitter, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import SecurityHeadersBadge from "./SecurityHeadersBadge";
 
 export default function Footer() {
   const quickLinks = [
@@ -104,11 +105,12 @@ export default function Footer() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="pt-8 border-t border-border text-center"
+          className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-center"
         >
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
             Made with <Heart className="w-4 h-4 text-accent fill-accent" /> by Delowar Hossain &copy; 2025
           </p>
+          <SecurityHeadersBadge />
         </motion.div>
       </div>
     </footer>

@@ -6,6 +6,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SoundProvider } from "./contexts/SoundContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
 import { startPerformanceMonitoring } from "./lib/perfVitals";
+import { AchievementProvider } from "./contexts/AchievementContext";
 
 if (typeof window !== "undefined") {
   (window as any).React = React;
@@ -13,11 +14,13 @@ if (typeof window !== "undefined") {
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>
-    <SoundProvider>
-      <LocaleProvider>
-        <App />
-      </LocaleProvider>
-    </SoundProvider>
+    <AchievementProvider>
+      <SoundProvider>
+        <LocaleProvider>
+          <App />
+        </LocaleProvider>
+      </SoundProvider>
+    </AchievementProvider>
   </ThemeProvider>,
 );
 

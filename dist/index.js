@@ -1366,7 +1366,12 @@ var DEV_CSP = {
     objectSrc: ["'none'"]
   }
 };
-var profile;
+var DEFAULT_PROFILE = {
+  mode: "development",
+  csp: DEV_CSP,
+  hstsEnabled: false
+};
+var profile = DEFAULT_PROFILE;
 function applySecurity(app2) {
   const isProduction = app2.get("env") === "production";
   app2.disable("x-powered-by");
@@ -1402,7 +1407,287 @@ function applySecurity(app2) {
   });
 }
 function getSecurityProfile() {
-  return profile;
+  return profile ?? DEFAULT_PROFILE;
+}
+
+// server/services/devOps.ts
+var fallbackRuns = [
+  {
+    id: "offline-1",
+    name: "Deploy main",
+    status: "completed",
+    conclusion: "success",
+    commit: "30005f0",
+    url: "https://github.com/mdhossain-2437/delowar-portfolio/actions",
+    startedAt: new Date(Date.now() - 1e3 * 60 * 60 * 6).toISOString(),
+    durationSeconds: 86
+  },
+  {
+    id: "offline-2",
+    name: "API smoke tests",
+    status: "completed",
+    conclusion: "success",
+    commit: "2d1f6a0",
+    url: "https://github.com/mdhossain-2437/delowar-portfolio/actions",
+    startedAt: new Date(Date.now() - 1e3 * 60 * 60 * 26).toISOString(),
+    durationSeconds: 41
+  },
+  {
+    id: "offline-3",
+    name: "Preview deploy",
+    status: "completed",
+    conclusion: "failure",
+    commit: "a8a4efc",
+    url: "https://github.com/mdhossain-2437/delowar-portfolio/actions",
+    startedAt: new Date(Date.now() - 1e3 * 60 * 60 * 30).toISOString(),
+    durationSeconds: 55
+  }
+];
+async function getWorkflowRuns() {
+  const repo = process.env.CI_REPO || "mdhossain-2437/delowar-portfolio";
+  const branch = process.env.CI_BRANCH || "main";
+  const token = process.env.GITHUB_ACTIONS_TOKEN;
+  const url = `https://api.github.com/repos/${repo}/actions/runs?per_page=5&branch=${branch}`;
+  if (!token) {
+    return {
+      provider: "github",
+      repo,
+      branch,
+      runs: fallbackRuns,
+      live: false,
+      fetchedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      error: "GITHUB_ACTIONS_TOKEN missing - using fallback log"
+    };
+  }
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "delowar-portfolio"
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}`);
+    }
+    const json = await response.json();
+    const runs = json.workflow_runs.slice(0, 4).map((run) => ({
+      id: String(run.id),
+      name: run.name ?? run.display_title ?? "Workflow run",
+      status: run.status,
+      conclusion: run.conclusion,
+      commit: run.head_commit?.id?.slice(0, 7) ?? "unknown",
+      url: run.html_url,
+      startedAt: run.run_started_at ?? run.created_at,
+      durationSeconds: run.run_started_at ? Math.max(
+        1,
+        Math.round(
+          (new Date(run.updated_at).getTime() - new Date(run.run_started_at).getTime()) / 1e3
+        )
+      ) : 0
+    }));
+    return {
+      provider: "github",
+      repo,
+      branch,
+      runs,
+      live: true,
+      fetchedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+  } catch (error) {
+    return {
+      provider: "github",
+      repo,
+      branch,
+      runs: fallbackRuns,
+      live: false,
+      fetchedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      error: error?.message ?? "Failed to fetch GitHub workflow runs"
+    };
+  }
+}
+
+// server/services/serverlessMetrics.ts
+var fallbackMetrics = {
+  provider: "vercel",
+  windowHours: 24,
+  updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+  totals: {
+    invocations: 1280,
+    errors: 2,
+    avgDuration: 186
+  },
+  functions: [
+    {
+      name: "api/contact",
+      invocations: 320,
+      errors: 0,
+      avgDuration: 140,
+      p95Duration: 210,
+      region: "iad1"
+    },
+    {
+      name: "api/og-image",
+      invocations: 540,
+      errors: 1,
+      avgDuration: 220,
+      p95Duration: 340,
+      region: "cdg1"
+    },
+    {
+      name: "api/auth",
+      invocations: 420,
+      errors: 1,
+      avgDuration: 98,
+      p95Duration: 150,
+      region: "sin1"
+    }
+  ],
+  live: false,
+  error: "SERVERLESS_METRICS_ENDPOINT not configured - showing demo data"
+};
+async function getServerlessMetrics() {
+  const endpoint = process.env.SERVERLESS_METRICS_ENDPOINT;
+  const token = process.env.SERVERLESS_METRICS_TOKEN;
+  if (!endpoint) {
+    return fallbackMetrics;
+  }
+  try {
+    const res = await fetch(endpoint, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+        "User-Agent": "delowar-portfolio"
+      }
+    });
+    if (!res.ok) {
+      throw new Error(`Serverless metrics endpoint returned ${res.status}`);
+    }
+    const payload = await res.json();
+    return {
+      provider: payload.provider ?? "custom",
+      windowHours: payload.windowHours ?? 24,
+      updatedAt: payload.updatedAt ?? (/* @__PURE__ */ new Date()).toISOString(),
+      totals: payload.totals,
+      functions: payload.functions,
+      live: true
+    };
+  } catch (error) {
+    return {
+      ...fallbackMetrics,
+      error: error?.message ?? "Failed to fetch serverless metrics",
+      live: false,
+      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+  }
+}
+
+// server/services/personalization.ts
+var localeConfig = [
+  {
+    countries: ["BD", "IN"],
+    language: "bn",
+    greeting: "\u09B8\u09CD\u09AC\u09BE\u0997\u09A4\u09AE! \u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09DF \u099F\u09CD\u09B0\u09BE\u09AB\u09BF\u0995\u0995\u09C7 \u0985\u0997\u09CD\u09B0\u09BE\u09A7\u09BF\u0995\u09BE\u09B0 \u09A6\u09C7\u0993\u09DF\u09BE \u09B9\u09DF\u09C7\u099B\u09C7\u0964",
+    message: "Bangladesh visitors see Bengali copy and Dhaka-centric case studies first."
+  },
+  {
+    countries: ["US", "CA", "GB", "AU"],
+    language: "en",
+    greeting: "Hello from the edge!",
+    message: "US visitors get fast routes via CDG and IAD regions with English hero copy."
+  }
+];
+function resolveEdgeProfile(req) {
+  const headerCountry = req.headers["cf-ipcountry"] || req.headers["x-vercel-ip-country"] || req.headers["x-country"] || req.headers["x-geo-country"];
+  const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim();
+  const matched = localeConfig.find(
+    (profile2) => profile2.countries.includes((headerCountry ?? "").toUpperCase())
+  ) ?? localeConfig[1];
+  return {
+    country: headerCountry ?? "US",
+    ip,
+    primaryLanguage: matched.language,
+    greeting: matched.greeting,
+    message: matched.message,
+    regions: headerCountry?.toUpperCase() === "BD" ? ["SIN1", "MUM1"] : ["CDG1", "IAD1"]
+  };
+}
+
+// server/services/aiEstimator.ts
+var baseRates = [
+  { tag: "ai", multiplier: 1.4 },
+  { tag: "realtime", multiplier: 1.2 },
+  { tag: "mobile", multiplier: 1.15 },
+  { tag: "dashboard", multiplier: 1.1 },
+  { tag: "ecommerce", multiplier: 1.25 }
+];
+var keywords = {
+  ai: ["ai", "ml", "machine learning", "llm", "gpt"],
+  realtime: ["websocket", "live", "chat", "stream"],
+  mobile: ["mobile", "react native", "pwa"],
+  dashboard: ["dashboard", "analytics", "admin"],
+  ecommerce: ["checkout", "cart", "payment", "shop"]
+};
+function estimateFromBrief(brief) {
+  const normalized = brief.toLowerCase();
+  const tags = Object.entries(keywords).filter(([, terms]) => terms.some((term) => normalized.includes(term))).map(([tag]) => tag);
+  let timeline = 4;
+  let budget = 8e3;
+  if (brief.length > 400) {
+    timeline += 4;
+    budget += 6e3;
+  } else if (brief.length > 200) {
+    timeline += 2;
+    budget += 3e3;
+  }
+  tags.forEach((tag) => {
+    const mod = baseRates.find((rate) => rate.tag === tag);
+    if (mod) {
+      budget *= mod.multiplier;
+      timeline += 1;
+    }
+  });
+  if (!tags.length) {
+    tags.push("web-app");
+  }
+  return {
+    timelineWeeks: Math.round(timeline),
+    budgetUSD: Math.round(budget / 100) * 100,
+    confidence: Math.max(0.6, 1 - tags.length * 0.05),
+    tags,
+    rationale: `Detected ${tags.join(", ")} scope in brief of ${brief.length} chars.`
+  };
+}
+
+// server/services/engineeringInsights.ts
+var heatmapData = Array.from({ length: 28 }).map((_, index2) => {
+  const date = /* @__PURE__ */ new Date();
+  date.setDate(date.getDate() - (27 - index2));
+  return {
+    date: date.toISOString().split("T")[0],
+    comments: Math.floor(Math.random() * 6),
+    approvals: Math.floor(Math.random() * 3)
+  };
+});
+var branchData = [
+  { name: "main", type: "release", aheadBy: 0, lastCommit: "30005f0" },
+  { name: "feature/edge-personalization", type: "feature", mergedInto: "main", aheadBy: 0, lastCommit: "2d1f6a0" },
+  { name: "feature/gamification", type: "feature", aheadBy: 5, lastCommit: "a2b1f1c" },
+  { name: "hotfix/csp", type: "hotfix", mergedInto: "main", aheadBy: 0, lastCommit: "9d0c111" }
+];
+function getCodeReviewHeatmap() {
+  return {
+    days: heatmapData,
+    summary: {
+      comments: heatmapData.reduce((sum, day) => sum + day.comments, 0),
+      approvals: heatmapData.reduce((sum, day) => sum + day.approvals, 0)
+    }
+  };
+}
+function getBranchGraph() {
+  return {
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    nodes: branchData
+  };
 }
 
 // server/routes.ts
@@ -2476,9 +2761,61 @@ Source: ${parsed.data.source ?? "home newsletter"}`
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     });
   });
+  app2.get("/api/metrics/lighthouse", (_req, res) => {
+    res.json(lighthouseScore);
+  });
+  app2.get("/api/metrics/cicd", async (_req, res) => {
+    try {
+      const runs = await getWorkflowRuns();
+      res.json(runs);
+    } catch (error) {
+      res.status(500).json({
+        message: error?.message ?? "Unable to load CI/CD status",
+        runs: []
+      });
+    }
+  });
+  app2.get("/api/metrics/serverless", async (_req, res) => {
+    const metrics = await getServerlessMetrics();
+    res.json(metrics);
+  });
+  app2.get("/api/personalization/profile", (req, res) => {
+    res.json({
+      profile: resolveEdgeProfile(req),
+      servedAt: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  });
+  app2.post("/api/ai/estimate", (req, res) => {
+    const brief = String(req.body?.brief ?? "");
+    if (!brief || brief.length < 20) {
+      return res.status(400).json({
+        message: "Please describe the project in at least 20 characters."
+      });
+    }
+    res.json({
+      brief,
+      estimate: estimateFromBrief(brief),
+      generatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  });
+  app2.get("/api/engineering/code-reviews", (_req, res) => {
+    res.json(getCodeReviewHeatmap());
+  });
+  app2.get("/api/engineering/branches", (_req, res) => {
+    res.json(getBranchGraph());
+  });
   const httpServer = createServer(app2);
   return httpServer;
 }
+var lighthouseScore = (() => {
+  const configured = Number(process.env.LIGHTHOUSE_PERFORMANCE_SCORE ?? "0");
+  const defaultScore = Number.isFinite(configured) && configured > 0 ? configured : 0.97;
+  const numericScore = Math.min(1, Math.max(0, defaultScore));
+  return {
+    performance: Math.round(numericScore * 100),
+    updatedAt: process.env.LIGHTHOUSE_LAST_AUDIT ?? (/* @__PURE__ */ new Date()).toISOString()
+  };
+})();
 
 // server/vite.ts
 import express from "express";

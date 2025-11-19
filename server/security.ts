@@ -34,7 +34,13 @@ const DEV_CSP = {
   },
 };
 
-let profile: SecurityProfile | undefined;
+const DEFAULT_PROFILE: SecurityProfile = {
+  mode: "development",
+  csp: DEV_CSP,
+  hstsEnabled: false,
+};
+
+let profile: SecurityProfile = DEFAULT_PROFILE;
 
 export function applySecurity(app: Express) {
   const isProduction = app.get("env") === "production";
@@ -77,6 +83,6 @@ export function applySecurity(app: Express) {
   });
 }
 
-export function getSecurityProfile() {
-  return profile;
+export function getSecurityProfile(): SecurityProfile {
+  return profile ?? DEFAULT_PROFILE;
 }

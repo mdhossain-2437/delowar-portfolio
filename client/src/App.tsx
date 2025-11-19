@@ -38,6 +38,8 @@ import BugReportWidget from "@/components/BugReportWidget";
 import EyeTrackingToggle from "@/components/EyeTrackingToggle";
 import DynamicPresenceMeta from "@/components/DynamicPresenceMeta";
 import ServiceWorkerStatus from "@/components/ServiceWorkerStatus";
+import LighthouseScoreWidget from "@/components/LighthouseScoreWidget";
+import FPSRamMonitor from "@/components/FPSRamMonitor";
 
 function AppRoutes() {
   return (
@@ -91,6 +93,8 @@ function App() {
                     <OfflineBanner />
                     <BugReportWidget />
                     <EyeTrackingToggle />
+                    <LighthouseScoreWidget />
+                    <FPSRamMonitor />
                     <Toaster />
                     <AppRoutes />
                     <ServiceWorkerStatus />
