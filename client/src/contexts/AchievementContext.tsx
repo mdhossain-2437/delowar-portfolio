@@ -46,6 +46,11 @@ const ACHIEVEMENTS: Achievement[] = [
     title: "Bug Hunter",
     description: "Defeated the code bug in the developer battle.",
   },
+  {
+    id: "puzzle-master",
+    title: "Puzzle Master",
+    description: "Solved the 404 cipher to escape hyperspace.",
+  },
 ];
 
 type AchievementContextValue = {

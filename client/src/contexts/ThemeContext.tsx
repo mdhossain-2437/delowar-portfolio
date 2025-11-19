@@ -136,7 +136,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("useTheme fallback: ThemeProvider missing in tree.");
+    }
+    return {
+      theme: "dark",
+      toggleTheme: () => {},
+      setTheme: () => {},
+    };
   }
   return context;
 }

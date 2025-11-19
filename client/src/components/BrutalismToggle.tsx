@@ -51,6 +51,7 @@ export default function BrutalismToggle() {
       size="sm"
       onClick={toggleBrutalism}
       className="font-mono text-xs tracking-widest"
+      data-testid="brutalism-toggle"
     >
       {enabled ? "Disable Brutalism" : "⚡ Brutalism Mode"}
     </Button>

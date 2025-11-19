@@ -27,6 +27,7 @@ import ServerErrorPage from "@/pages/ServerErrorPage";
 import GuestbookPage from "@/pages/GuestbookPage";
 import ARCardPage from "@/pages/ARCardPage";
 import UsesPage from "@/pages/UsesPage";
+import MediaKitPage from "@/pages/MediaKitPage";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "@/components/ScrollToTop";
 import { useConsoleEasterEggs } from "@/hooks/useConsoleEasterEggs";
@@ -40,6 +41,7 @@ import DynamicPresenceMeta from "@/components/DynamicPresenceMeta";
 import ServiceWorkerStatus from "@/components/ServiceWorkerStatus";
 import LighthouseScoreWidget from "@/components/LighthouseScoreWidget";
 import FPSRamMonitor from "@/components/FPSRamMonitor";
+import AccessibilityDebugger from "@/components/AccessibilityDebugger";
 
 function AppRoutes() {
   return (
@@ -64,6 +66,7 @@ function AppRoutes() {
         <Route path="/stack" element={<StackPage />} />
         <Route path="/workspace/tasks" element={<WorkspaceTasksPage />} />
         <Route path="/uses" element={<UsesPage />} />
+        <Route path="media-kit" element={<MediaKitPage />} />
       </Route>
       <Route path="/admin" element={<AdminDashboard />} />
 
@@ -89,6 +92,7 @@ function App() {
                 <BrowserRouter>
                   <ScrollToTop />
                   <DynamicPresenceMeta />
+                  <AccessibilityDebugger />
                   <div className="min-h-screen bg-background text-foreground">
                     <OfflineBanner />
                     <BugReportWidget />

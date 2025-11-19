@@ -32,7 +32,7 @@ export default function AvatarCustomizer() {
   }, [state, unlock, unlocked]);
 
   return (
-    <section className="py-20 bg-card/60">
+    <section className="py-20 bg-card/60" data-testid="avatar-customizer">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">

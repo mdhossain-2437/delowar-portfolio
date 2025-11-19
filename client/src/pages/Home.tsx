@@ -57,6 +57,12 @@ const AvatarCustomizer = lazy(() => import("@/components/AvatarCustomizer"));
 const DeveloperBattleGame = lazy(() => import("@/components/DeveloperBattleGame"));
 const IsometricSiteMap = lazy(() => import("@/components/IsometricSiteMap"));
 const PhysicsDragGallery = lazy(() => import("@/components/PhysicsDragGallery"));
+const MicroFrontendShowcase = lazy(() => import("@/components/MicroFrontendShowcase"));
+const PrecacheStrategyDemo = lazy(() => import("@/components/PrecacheStrategyDemo"));
+const DeviceMotionScene = lazy(() => import("@/components/DeviceMotionScene"));
+const DigitalBucketList = lazy(() => import("@/components/DigitalBucketList"));
+const KnowledgeGraph = lazy(() => import("@/components/KnowledgeGraph"));
+const WelcomeBackBanner = lazy(() => import("@/components/WelcomeBackBanner"));
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -95,6 +101,9 @@ export default function Home() {
         <SectionLoader minHeight="9rem">
           <PersonalizationBanner />
         </SectionLoader>
+        <SectionLoader minHeight="9rem">
+          <WelcomeBackBanner />
+        </SectionLoader>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
           <SectionLoader minHeight="8rem">
             <AmbientStatusWidget />
@@ -123,6 +132,9 @@ export default function Home() {
         <SectionLoader minHeight="18rem">
           <AudioReactiveCanvas />
         </SectionLoader>
+        <SectionLoader>
+          <DeviceMotionScene />
+        </SectionLoader>
         <Skills />
         <SectionLoader>
           <AvatarCustomizer />
@@ -144,6 +156,12 @@ export default function Home() {
         </SectionLoader>
         <SectionLoader>
           <Projects />
+        </SectionLoader>
+        <SectionLoader>
+          <MicroFrontendShowcase />
+        </SectionLoader>
+        <SectionLoader>
+          <PrecacheStrategyDemo />
         </SectionLoader>
         <SectionLoader>
           <ComparisonSlider />
@@ -200,6 +218,9 @@ export default function Home() {
           <CodeReviewHeatmap />
         </SectionLoader>
         <SectionLoader>
+          <DigitalBucketList />
+        </SectionLoader>
+        <SectionLoader>
           <Bookshelf />
         </SectionLoader>
         <SectionLoader>
@@ -213,6 +234,9 @@ export default function Home() {
         </SectionLoader>
         <SectionLoader>
           <DeveloperBattleGame />
+        </SectionLoader>
+        <SectionLoader>
+          <KnowledgeGraph />
         </SectionLoader>
         <SectionLoader>
           <AchievementsPanel />

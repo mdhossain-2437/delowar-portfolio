@@ -11,6 +11,7 @@ export default function Footer() {
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
     { label: "Resume", href: "/resume" },
+    { label: "Media Kit", href: "/media-kit" },
   ];
 
   const socialLinks = [

@@ -38,6 +38,7 @@ export default function Header() {
     { path: "/workspace/tasks", label: "Tasks" },
     { path: "/contact", label: "Contact" },
     { path: "/resume", label: "Resume" },
+    { path: "/media-kit", label: "Media Kit" },
   ];
 
   const isActivePath = (path: string) => {

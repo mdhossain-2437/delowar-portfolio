@@ -1,8 +1,10 @@
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Compass } from "lucide-react";
+import { Home, Compass, Key } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { useAchievements } from "@/contexts/AchievementContext";
 
 const orbitVariants = {
   animate: {
@@ -28,6 +30,29 @@ const pulseVariants = {
 };
 
 export default function NotFoundPage() {
+  const [answer, setAnswer] = useState("");
+  const [solved, setSolved] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { unlock, unlocked } = useAchievements();
+
+  const submitPuzzle = (event: FormEvent) => {
+    event.preventDefault();
+    const normalized = answer.trim();
+    if (normalized === "15") {
+      setSolved(true);
+      setFeedback("Correct! Redirect unlocked.");
+      if (!unlocked.has("puzzle-master")) {
+        unlock("puzzle-master");
+      }
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
+    } else {
+      setFeedback("Nope. Remember: 1010₂ + 5₁₀ ?");
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       <Helmet>
@@ -110,6 +135,32 @@ export default function NotFoundPage() {
           The coordinates you dialed don't exist anymore. Let's drop you back to a safe orbit or
           jump into the contact bay to report a bug.
         </p>
+
+        <form
+          onSubmit={submitPuzzle}
+          className="space-y-2 border border-border rounded-2xl p-4 bg-background/80"
+        >
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Key className="h-4 w-4 text-primary" />
+            <span>Escape puzzle: convert 1010₂ + 5₁₀ into decimal.</span>
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={answer}
+              onChange={(event) => setAnswer(event.target.value)}
+              className="flex-1 rounded-xl border border-border bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter answer…"
+            />
+            <Button type="submit" variant="secondary">
+              Submit
+            </Button>
+          </div>
+          {feedback && (
+            <p className={`text-xs ${solved ? "text-emerald-400" : "text-amber-400"}`}>
+              {feedback}
+            </p>
+          )}
+        </form>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link to="/">

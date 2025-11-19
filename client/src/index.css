@@ -111,6 +111,29 @@ body.focus-mode .glass-card {
   border-color: #e2e8f0 !important;
 }
 
+body.accessibility-debugger *:focus {
+  outline: 3px dashed #fbbf24 !important;
+}
+
+body.accessibility-debugger [aria-label],
+body.accessibility-debugger [role] {
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.8) inset;
+  position: relative;
+}
+
+body.accessibility-debugger [aria-label]::after,
+body.accessibility-debugger [role]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: -1.5rem;
+  left: 0;
+  font-size: 0.6rem;
+  background: #0ea5e9;
+  color: #0f172a;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
 body.brutalism-mode {
   background: #f4f1ea !important;
   color: #1c1c1c !important;

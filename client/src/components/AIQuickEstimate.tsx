@@ -74,7 +74,10 @@ export default function AIQuickEstimate() {
           {error && <p className="text-sm text-red-400">{error}</p>}
         </div>
         {result && (
-          <div className="rounded-3xl border border-border bg-background/80 p-5 space-y-3">
+        <div
+          className="rounded-3xl border border-border bg-background/80 p-5 space-y-3"
+          data-testid="estimate-result"
+        >
             <p className="text-sm text-muted-foreground">
               Generated {new Date(result.generatedAt).toLocaleTimeString()} · tags{" "}
               {result.estimate.tags.join(", ")}

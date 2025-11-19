@@ -62,7 +62,11 @@ export default function ServerlessMetricsPanel() {
         {!isLoading && !error && data && totals && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <MetricCard label="Invocations" value={totals.invocations.toLocaleString()} />
+              <MetricCard
+                label="Invocations"
+                value={totals.invocations.toLocaleString()}
+                dataTestId="serverless-invocations"
+              />
               <MetricCard label="Average duration" value={`${totals.avgDuration} ms`} />
               <MetricCard label="Errors" value={totals.errors.toLocaleString()} />
             </div>
@@ -113,9 +117,17 @@ export default function ServerlessMetricsPanel() {
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({
+  label,
+  value,
+  dataTestId,
+}: {
+  label: string;
+  value: string;
+  dataTestId?: string;
+}) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4" data-testid={dataTestId}>
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">
         {label}
       </p>
