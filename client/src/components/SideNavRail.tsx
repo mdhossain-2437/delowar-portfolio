@@ -41,8 +41,8 @@ export default function SideNavRail({ sections }: { sections: NavSection[] }) {
   if (orderedSections.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed left-4 top-28 z-[900] hidden md:flex">
-      <div className="pointer-events-auto rounded-3xl border border-white/10 bg-background/30 backdrop-blur-xl shadow-lg px-3 py-4">
+    <div className="group pointer-events-none fixed left-2 top-28 z-[900] hidden md:flex">
+      <div className="pointer-events-auto w-11 group-hover:w-56 transition-[width] duration-300 ease-out rounded-3xl border border-white/10 bg-background/40 backdrop-blur-xl shadow-lg px-2 py-3 overflow-hidden">
         <div className="flex flex-col gap-1">
           {orderedSections.map((section) => {
             const isActive = activeId === section.id;
@@ -50,7 +50,7 @@ export default function SideNavRail({ sections }: { sections: NavSection[] }) {
               <button
                 key={section.id}
                 onClick={() => scrollTo(section.id)}
-                className={`group flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-2xl px-2 py-2 text-sm font-medium transition-colors ${
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
                 aria-current={isActive ? "true" : "false"}
@@ -63,7 +63,9 @@ export default function SideNavRail({ sections }: { sections: NavSection[] }) {
                     }`}
                   />
                 </span>
-                <span>{section.label}</span>
+                <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  {section.label}
+                </span>
               </button>
             );
           })}
