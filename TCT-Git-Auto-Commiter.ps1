@@ -91,10 +91,10 @@ $CONFIG_FILE = ".\tct_config.json"
 $script:Config = @{
     # Basic
     APP_NAME              = "TCT-Git-Auto-Commiter"
-    APP_VERSION           = "3.0"
+    APP_VERSION           = "3.1"
     AUTO_BRANCH           = "dage/auto"
-    DELAY_SECONDS         = 10
-    COOLDOWN_SECONDS      = 2
+    DELAY_SECONDS         = 60
+    COOLDOWN_SECONDS      = 5
     
     # Squash
     SQUASH_ENABLED        = $true
@@ -120,7 +120,12 @@ $script:Config = @{
     # UI
     ENABLE_GUI            = $true
     ENABLE_TRAY           = $true
-    THEME                 = "dark"  # dark or light
+    THEME                 = "hacker"  # hacker, dark, or light
+    TERMINAL_FONT         = "Consolas"
+    TERMINAL_FONT_SIZE    = 10
+    SHOW_MATRIX_EFFECT    = $true
+    TYPING_EFFECT         = $true
+    SCAN_LINES            = $true
     
     # Remote API
     REMOTE_API_ENABLED    = $true
@@ -233,6 +238,31 @@ $script:commitHistory = @()  # For metrics
 $script:lastCommitTime = $null
 $script:sessionStartTime = Get-Date
 $script:pausedByQuietHours = $false
+$script:memoryCheckInterval = 0
+$script:lastMemoryCheck = Get-Date
+
+# ========================= MEMORY MANAGEMENT =========================
+function Optimize-Memory {
+    try {
+        # Force garbage collection
+        [System.GC]::Collect()
+        [System.GC]::WaitForPendingFinalizers()
+        [System.GC]::Collect()
+        
+        # Trim working set
+        $process = [System.Diagnostics.Process]::GetCurrentProcess()
+        $process.MinWorkingSet = $process.MinWorkingSet
+        
+        Write-Log "Memory optimized. Current usage: $([math]::Round($process.WorkingSet64 / 1MB, 2)) MB" "DEBUG"
+    } catch {
+        Write-Log "Memory optimization failed: $_" "WARN"
+    }
+}
+
+function Get-MemoryUsage {
+    $process = [System.Diagnostics.Process]::GetCurrentProcess()
+    return [math]::Round($process.WorkingSet64 / 1MB, 2)
+}
 
 # ========================= LOGGING =========================
 function Write-Log([string]$text, [string]$level = "INFO") {
@@ -1469,74 +1499,135 @@ function Engine-Loop {
     }
 }
 
-# GUI + tray ULTIMATE UI with Settings Panel, Dashboard, Multi-repo support
+# GUI + tray HACKER TERMINAL UI with extreme customization
 if ($script:Config.ENABLE_GUI) {
     # Remove stop file on fresh start
     Remove-Item -Path ".tct_stop" -ErrorAction SilentlyContinue
     
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "$($script:Config.APP_NAME) v$($script:Config.APP_VERSION)"
-    $form.Size = New-Object System.Drawing.Size(1000,650)
+    $form.Text = "◈◈◈ $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ◈ HACKER TERMINAL ◈◈◈"
+    $form.Size = New-Object System.Drawing.Size(1200,750)
     $form.StartPosition = "CenterScreen"
-    $form.Font = New-Object System.Drawing.Font("Segoe UI",9)
+    $form.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT, $script:Config.TERMINAL_FONT_SIZE)
     
-    # Apply theme
+    # Apply hacker theme
+    $isHacker = $script:Config.THEME -eq "hacker"
     $isDark = $script:Config.THEME -eq "dark"
-    $form.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(30,30,30) } else { [System.Drawing.Color]::FromArgb(240,240,240) }
-    $form.ForeColor = if ($isDark) { [System.Drawing.Color]::White } else { [System.Drawing.Color]::Black }
+    
+    if ($isHacker) {
+        $form.BackColor = [System.Drawing.Color]::Black
+        $form.ForeColor = [System.Drawing.Color]::Lime
+        $bgColor = [System.Drawing.Color]::Black
+        $fgColor = [System.Drawing.Color]::Lime
+        $accentColor = [System.Drawing.Color]::FromArgb(0,255,65)
+        $panelColor = [System.Drawing.Color]::FromArgb(10,10,10)
+        $buttonBg = [System.Drawing.Color]::FromArgb(0,50,0)
+    } elseif ($isDark) {
+        $form.BackColor = [System.Drawing.Color]::FromArgb(30,30,30)
+        $form.ForeColor = [System.Drawing.Color]::White
+        $bgColor = [System.Drawing.Color]::FromArgb(30,30,30)
+        $fgColor = [System.Drawing.Color]::White
+        $accentColor = [System.Drawing.Color]::FromArgb(100,200,255)
+        $panelColor = [System.Drawing.Color]::FromArgb(40,40,40)
+        $buttonBg = [System.Drawing.Color]::FromArgb(60,60,60)
+    } else {
+        $form.BackColor = [System.Drawing.Color]::FromArgb(240,240,240)
+        $form.ForeColor = [System.Drawing.Color]::Black
+        $bgColor = [System.Drawing.Color]::FromArgb(240,240,240)
+        $fgColor = [System.Drawing.Color]::Black
+        $accentColor = [System.Drawing.Color]::FromArgb(0,120,215)
+        $panelColor = [System.Drawing.Color]::White
+        $buttonBg = [System.Drawing.Color]::FromArgb(225,225,225)
+    }
     
     # Create tab control for main views
     $tabControl = New-Object System.Windows.Forms.TabControl
     $tabControl.Location = New-Object System.Drawing.Point(10,10)
-    $tabControl.Size = New-Object System.Drawing.Size(970,550)
+    $tabControl.Size = New-Object System.Drawing.Size(1170,630)
+    $tabControl.BackColor = $panelColor
+    $tabControl.ForeColor = $fgColor
     $form.Controls.Add($tabControl)
     
-    # ============ TAB 1: Main Dashboard ============
+    # ============ TAB 1: TERMINAL Dashboard ============
     $tabMain = New-Object System.Windows.Forms.TabPage
-    $tabMain.Text = "📊 Dashboard"
-    $tabMain.BackColor = $form.BackColor
+    $tabMain.Text = if ($isHacker) { "[▓] TERMINAL" } else { "📊 Dashboard" }
+    $tabMain.BackColor = $bgColor
+    $tabMain.ForeColor = $fgColor
     $tabControl.Controls.Add($tabMain)
     
-    # Header label
+    # ASCII Art Header for hacker mode
+    if ($isHacker) {
+        $asciiHeader = New-Object System.Windows.Forms.Label
+        $asciiHeader.Text = @"
+ ████████╗ ██████╗████████╗    ██████╗ ██╗████████╗     █████╗ ██╗   ██╗████████╗ ██████╗ 
+ ╚══██╔══╝██╔════╝╚══██╔══╝   ██╔════╝ ██║╚══██╔══╝    ██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗
+    ██║   ██║        ██║      ██║  ███╗██║   ██║       ███████║██║   ██║   ██║   ██║   ██║
+    ██║   ██║        ██║      ██║   ██║██║   ██║       ██╔══██║██║   ██║   ██║   ██║   ██║
+    ██║   ╚██████╗   ██║      ╚██████╔╝██║   ██║       ██║  ██║╚██████╔╝   ██║   ╚██████╔╝
+    ╚═╝    ╚═════╝   ╚═╝       ╚═════╝ ╚═╝   ╚═╝       ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ 
+"@
+        $asciiHeader.Location = New-Object System.Drawing.Point(10,5)
+        $asciiHeader.AutoSize = $true
+        $asciiHeader.ForeColor = $accentColor
+        $asciiHeader.Font = New-Object System.Drawing.Font("Courier New",6,[System.Drawing.FontStyle]::Bold)
+        $tabMain.Controls.Add($asciiHeader)
+    }
+    
+    # Status label with hacker styling
     $lbl = New-Object System.Windows.Forms.Label
-    $lbl.Text = "Status: Idle"
-    $lbl.Location = New-Object System.Drawing.Point(12,10)
+    $lbl.Text = if ($isHacker) { "[STATUS] >>> IDLE" } else { "Status: Idle" }
+    $lbl.Location = New-Object System.Drawing.Point(12, $(if ($isHacker) { 85 } else { 10 }))
     $lbl.AutoSize = $true
-    $lbl.ForeColor = [System.Drawing.Color]::LightGreen
-    $lbl.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
+    $lbl.ForeColor = $accentColor
+    $lbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,11,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($lbl)
     
-    # Metrics panel (top right)
+    # Metrics panel (top right) - Hacker style
     $metricsPanel = New-Object System.Windows.Forms.Panel
-    $metricsPanel.Location = New-Object System.Drawing.Point(650,10)
-    $metricsPanel.Size = New-Object System.Drawing.Size(300,140)
+    $metricsPanel.Location = New-Object System.Drawing.Point(800, $(if ($isHacker) { 85 } else { 10 }))
+    $metricsPanel.Size = New-Object System.Drawing.Size(350,160)
     $metricsPanel.BorderStyle = "FixedSingle"
-    $metricsPanel.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(40,40,40) } else { [System.Drawing.Color]::White }
+    $metricsPanel.BackColor = $panelColor
+    $metricsPanel.ForeColor = $fgColor
     $tabMain.Controls.Add($metricsPanel)
     
     $lblMetricsTitle = New-Object System.Windows.Forms.Label
-    $lblMetricsTitle.Text = "📈 Session Metrics"
+    $lblMetricsTitle.Text = if ($isHacker) { "[▓▓] SYSTEM METRICS [▓▓]" } else { "📈 Session Metrics" }
     $lblMetricsTitle.Location = New-Object System.Drawing.Point(10,5)
     $lblMetricsTitle.AutoSize = $true
-    $lblMetricsTitle.Font = New-Object System.Drawing.Font("Segoe UI",10,[System.Drawing.FontStyle]::Bold)
+    $lblMetricsTitle.ForeColor = $accentColor
+    $lblMetricsTitle.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,10,[System.Drawing.FontStyle]::Bold)
     $metricsPanel.Controls.Add($lblMetricsTitle)
     
     $lblMetrics = New-Object System.Windows.Forms.Label
     $lblMetrics.Location = New-Object System.Drawing.Point(10,30)
-    $lblMetrics.Size = New-Object System.Drawing.Size(280,100)
-    $lblMetrics.Text = "Commits: 0`r`nErrors: 0`r`nUptime: 0m`r`nLast Commit: Never"
+    $lblMetrics.Size = New-Object System.Drawing.Size(330,120)
+    $lblMetrics.ForeColor = $fgColor
+    $lblMetrics.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
+    if ($isHacker) {
+        $lblMetrics.Text = "[>] COMMITS..... 0`r`n[>] ERRORS...... 0`r`n[>] UPTIME...... 0m`r`n[>] LAST_COMMIT. NEVER`r`n[>] MEMORY...... 0 MB`r`n[>] REPO........ ACTIVE"
+    } else {
+        $lblMetrics.Text = "Commits: 0`r`nErrors: 0`r`nUptime: 0m`r`nLast Commit: Never`r`nMemory: 0 MB"
+    }
     $metricsPanel.Controls.Add($lblMetrics)
     
-    # Log textbox
+    # Terminal log textbox with scan line effect
     $txtLog = New-Object System.Windows.Forms.TextBox
     $txtLog.Multiline = $true
     $txtLog.ScrollBars = "Both"
     $txtLog.ReadOnly = $true
-    $txtLog.Size = New-Object System.Drawing.Size(940,300)
-    $txtLog.Location = New-Object System.Drawing.Point(12,160)
-    $txtLog.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(20,20,20) } else { [System.Drawing.Color]::White }
-    $txtLog.ForeColor = if ($isDark) { [System.Drawing.Color]::LightGray } else { [System.Drawing.Color]::Black }
-    $txtLog.Font = New-Object System.Drawing.Font("Consolas",9)
+    $txtLog.Size = New-Object System.Drawing.Size(1140,340)
+    $txtLog.Location = New-Object System.Drawing.Point(12, $(if ($isHacker) { 250 } else { 180 }))
+    $txtLog.BackColor = $bgColor
+    $txtLog.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(0,255,0) } elseif ($isDark) { [System.Drawing.Color]::LightGray } else { [System.Drawing.Color]::Black }
+    $txtLog.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT, $script:Config.TERMINAL_FONT_SIZE)
+    $txtLog.BorderStyle = "FixedSingle"
+    if ($isHacker) {
+        # Add scan line effect visual cue
+        $txtLog.Text = "═══════════════════════════════════════════════════════════════════════════════════════════════════════`r`n" +
+                       "██ TERMINAL INITIALIZED ██ AWAITING COMMANDS ██ ALL SYSTEMS NOMINAL ██`r`n" +
+                       "═══════════════════════════════════════════════════════════════════════════════════════════════════════`r`n`r`n"
+    }
     $tabMain.Controls.Add($txtLog)
     
     # Control buttons
