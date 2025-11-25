@@ -651,15 +651,136 @@ function Enable-GPGSigning([string]$keyId) {
 
 function Ensure-Git {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        [System.Windows.Forms.MessageBox]::Show("Git not found in PATH. Please install Git and re-run.","$APP_NAME","OK","Error")
+        [System.Windows.Forms.MessageBox]::Show("Git not found in PATH. Please install Git and re-run.", $script:Config.APP_NAME, "OK", "Error")
         exit 1
     }
 }
 
+# Initialize
+Load-Config
+Initialize-Metrics
+Load-FileHashes
 Ensure-Git
 
 # Basic sanity: create backup folder if missing
-if (-not (Test-Path $BACKUP_FOLDER)) { New-Item -ItemType Directory -Path $BACKUP_FOLDER -Force | Out-Null }
+if (-not (Test-Path $script:Config.BACKUP_FOLDER)) { 
+    New-Item -ItemType Directory -Path $script:Config.BACKUP_FOLDER -Force | Out-Null 
+}
+
+# ========================= MULTI-LLM SUPPORT =========================
+function Call-LLM([string]$prompt) {
+    $provider = $script:Config.LLM_PROVIDER
+    $model = $script:Config.LLM_MODEL
+    
+    switch ($provider) {
+        "gemini" { return Call-Gemini $prompt }
+        "openai" { return Call-OpenAI $prompt }
+        "claude" { return Call-Claude $prompt }
+        "ollama" { return Call-Ollama $prompt }
+        default { return Call-Gemini $prompt }
+    }
+}
+
+function Call-Gemini([string]$prompt) {
+    try {
+        $apiKey = $script:Config.GEMINI_API_KEY
+        if (-not $apiKey) { $apiKey = $INLINE_KEYS["GEMINI_API_KEY"] }
+        if (-not $apiKey) { return $null }
+        
+        $model = $script:Config.LLM_MODEL
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}"
+        
+        $payload = @{ 
+            contents = @(@{ parts = @(@{ text = $prompt }) })
+            generationConfig = @{ maxOutputTokens = 200; temperature = 0.3 }
+        } | ConvertTo-Json -Depth 10
+        
+        $resp = Invoke-RestMethod -Uri $url -Method Post -ContentType "application/json" -Body $payload -ErrorAction Stop
+        
+        if ($resp.candidates -and $resp.candidates[0].content.parts) {
+            return $resp.candidates[0].content.parts[0].text.Trim()
+        }
+    } catch {
+        Write-Log "Gemini error: $_" "WARN"
+    }
+    return $null
+}
+
+function Call-OpenAI([string]$prompt) {
+    try {
+        $apiKey = $script:Config.OPENAI_API_KEY
+        if (-not $apiKey) { return $null }
+        
+        $url = "https://api.openai.com/v1/chat/completions"
+        $headers = @{ "Authorization" = "Bearer $apiKey"; "Content-Type" = "application/json" }
+        
+        $payload = @{
+            model = "gpt-3.5-turbo"
+            messages = @(@{ role = "user"; content = $prompt })
+            max_tokens = 200
+            temperature = 0.3
+        } | ConvertTo-Json -Depth 5
+        
+        $resp = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body $payload -ErrorAction Stop
+        
+        if ($resp.choices -and $resp.choices[0].message) {
+            return $resp.choices[0].message.content.Trim()
+        }
+    } catch {
+        Write-Log "OpenAI error: $_" "WARN"
+    }
+    return $null
+}
+
+function Call-Claude([string]$prompt) {
+    try {
+        $apiKey = $script:Config.CLAUDE_API_KEY
+        if (-not $apiKey) { return $null }
+        
+        $url = "https://api.anthropic.com/v1/messages"
+        $headers = @{ 
+            "x-api-key" = $apiKey
+            "anthropic-version" = "2023-06-01"
+            "Content-Type" = "application/json" 
+        }
+        
+        $payload = @{
+            model = "claude-3-haiku-20240307"
+            max_tokens = 200
+            messages = @(@{ role = "user"; content = $prompt })
+        } | ConvertTo-Json -Depth 5
+        
+        $resp = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body $payload -ErrorAction Stop
+        
+        if ($resp.content -and $resp.content[0].text) {
+            return $resp.content[0].text.Trim()
+        }
+    } catch {
+        Write-Log "Claude error: $_" "WARN"
+    }
+    return $null
+}
+
+function Call-Ollama([string]$prompt) {
+    try {
+        $url = "$($script:Config.OLLAMA_URL)/api/generate"
+        
+        $payload = @{
+            model = $script:Config.LLM_MODEL
+            prompt = $prompt
+            stream = $false
+        } | ConvertTo-Json
+        
+        $resp = Invoke-RestMethod -Uri $url -Method Post -Body $payload -ContentType "application/json" -ErrorAction Stop
+        
+        if ($resp.response) {
+            return $resp.response.Trim()
+        }
+    } catch {
+        Write-Log "Ollama error: $_" "WARN"
+    }
+    return $null
+}
 
 # Simple .gitignore friendliness
 function Is-Ignored([string]$path) {
