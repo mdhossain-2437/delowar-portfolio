@@ -1285,7 +1285,7 @@ function Uninstall-ScheduledTask {
     }
 }
 
-# Main engine loop - improved with proper error handling
+# Main engine loop - improved with all features
 function Engine-Loop {
     Ensure-AutoBranch
     Start-RemoteAPI
@@ -1299,16 +1299,38 @@ function Engine-Loop {
             # Check for stop signal
             if (Test-Path ".tct_stop") { 
                 $script:lastStatus = "Paused"
-                Write-Log "Engine paused by stop file."
-                Start-Sleep -Seconds $DELAY_SECONDS
+                Write-Log "Engine paused by stop file." "INFO"
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
                 continue 
+            }
+            
+            # Check quiet hours
+            if (Is-QuietHours) {
+                if (-not $script:pausedByQuietHours) {
+                    Write-Log "Entering quiet hours, pausing commits..." "INFO"
+                    $script:pausedByQuietHours = $true
+                }
+                $script:lastStatus = "Quiet Hours"
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
+                continue
+            } elseif ($script:pausedByQuietHours) {
+                Write-Log "Exiting quiet hours, resuming commits..." "INFO"
+                $script:pausedByQuietHours = $false
+            }
+            
+            # Check for conflicts
+            if (Check-MergeConflicts) {
+                $script:lastStatus = "Conflict Detected"
+                Resolve-Conflicts
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
+                continue
             }
             
             # Verify git repo
             if (-not (Test-Path ".git")) { 
                 $script:lastStatus = "Not a git repo"
-                Write-Log "Not a git repo here."
-                Start-Sleep -Seconds $DELAY_SECONDS
+                Write-Log "Not a git repo here." "WARN"
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
                 continue 
             }
             
@@ -1316,7 +1338,7 @@ function Engine-Loop {
             $porc = git status --porcelain --untracked-files=all 2>$null
             if (-not $porc -or $porc.Trim() -eq "") { 
                 $script:lastStatus = "Watching (no changes)"
-                Start-Sleep -Seconds $DELAY_SECONDS
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
                 continue 
             }
             
@@ -1328,7 +1350,6 @@ function Engine-Loop {
                 $code = $l.Substring(0,2).Trim()
                 $path = $l.Substring(3).Trim()
                 
-                # Skip ignored files
                 if (Is-Ignored $path) { continue }
                 
                 switch -Regex ($code) { 
@@ -1348,25 +1369,27 @@ function Engine-Loop {
                 }
             }
             
-            $total = $added.Count + $modified.Count + $deleted.Count + $untracked.Count + $renamed.Count
+            # Smart change detection - filter out unchanged files
+            $allChanges = $added + $modified + $untracked
+            $realChanges = Filter-RealChanges $allChanges
+            
+            $total = $realChanges.Count + $deleted.Count + $renamed.Count
             if ($total -eq 0) { 
-                $script:lastStatus = "Watching (filtered)"
-                Start-Sleep -Seconds $DELAY_SECONDS
+                $script:lastStatus = "Watching (no real changes)"
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
                 continue 
             }
             
             # Cooldown before commit
-            Write-Log "Detected $total changes, waiting cooldown..."
+            Write-Log "Detected $total real changes, waiting cooldown..." "INFO"
             $script:lastStatus = "Cooldown..."
-            Start-Sleep -Seconds $COOLDOWN_SECONDS
+            Start-Sleep -Seconds $script:Config.COOLDOWN_SECONDS
             
             # Switch to auto branch if strict mode
             $hadStash = $false
-            if ($STRICT_SAFE_MODE) {
-                $currentBranch = git rev-parse --abbrev-ref HEAD 2>$null
-                if ($currentBranch -ne $AUTO_BRANCH) {
-                    $hadStash = Safe-Checkout $AUTO_BRANCH
-                }
+            $currentBranch = git rev-parse --abbrev-ref HEAD 2>$null
+            if ($script:Config.STRICT_SAFE_MODE -and $currentBranch -ne $script:Config.AUTO_BRANCH) {
+                $hadStash = Safe-Checkout $script:Config.AUTO_BRANCH
             }
             
             # Stage all changes
@@ -1379,31 +1402,49 @@ function Engine-Loop {
             # Check if anything staged
             $staged = git diff --cached --name-only 2>$null
             if (-not $staged) { 
-                Write-Log "Nothing staged after add."
-                if ($STRICT_SAFE_MODE -and $currentBranch -ne $AUTO_BRANCH) { 
+                Write-Log "Nothing staged after add." "WARN"
+                if ($script:Config.STRICT_SAFE_MODE -and $currentBranch -ne $script:Config.AUTO_BRANCH) { 
                     Safe-Return $currentBranch $hadStash
                 }
-                Start-Sleep -Seconds $DELAY_SECONDS
+                Start-Sleep -Seconds $script:Config.DELAY_SECONDS
                 continue 
             }
             
-            # Commit
+            # Commit (with optional GPG signing)
             $script:lastStatus = "Committing..."
-            $commitOut = git commit -m "AutoCommit: $commitMsg" 2>&1
+            $commitCommand = "git commit -m `"AutoCommit: $commitMsg`""
+            if ($script:Config.GPG_SIGNING -and $script:Config.GPG_KEY_ID) {
+                $commitCommand += " -S"
+            }
+            
+            $commitOut = Invoke-Expression $commitCommand 2>&1
             
             if ($LASTEXITCODE -eq 0) {
                 $script:commitCount++
-                Write-Log "Committed (#$($script:commitCount)): $commitMsg"
+                $script:lastCommitTime = Get-Date
+                Write-Log "Committed (#$($script:commitCount)): $commitMsg" "INFO"
+                
+                # Update metrics
+                Update-Metrics @{ filesCount = $total; message = $commitMsg }
+                
+                # Save file hashes
+                Save-FileHashes
                 
                 # Track commits
                 $trackFile = Join-Path $env:TEMP "tct_commits.txt"
                 Add-Content -Path $trackFile -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | $commitMsg" -ErrorAction SilentlyContinue
                 
                 $script:lastStatus = "Last commit: $($script:commitCount)"
+                
+                # Notifications
+                Show-Toast "Commit Created" $commitMsg "success"
+                Send-Webhook "📝 New Commit" "AutoCommit: $commitMsg" "success"
             } else { 
                 $script:errorCount++
-                Write-Log "Commit failed: $commitOut"
+                $script:metrics.totalErrors++
+                Write-Log "Commit failed: $commitOut" "ERROR"
                 $script:lastStatus = "Commit failed"
+                Show-Toast "Commit Failed" "Check logs for details" "error"
             }
             
             # Push, backup, squash
@@ -1412,17 +1453,19 @@ function Engine-Loop {
             Auto-Squash-IfNeeded
             
             # Return to original branch if strict mode
-            if ($STRICT_SAFE_MODE -and $currentBranch -and $currentBranch -ne $AUTO_BRANCH) { 
+            if ($script:Config.STRICT_SAFE_MODE -and $currentBranch -and $currentBranch -ne $script:Config.AUTO_BRANCH) { 
                 Safe-Return $currentBranch $hadStash
             }
             
         } catch {
             $script:errorCount++
-            Write-Log "Engine error: $_"
+            $script:metrics.totalErrors++
+            Write-Log "Engine error: $_" "ERROR"
             $script:lastStatus = "Error: $_"
+            Show-Toast "Engine Error" $_.ToString() "error"
         }
         
-        Start-Sleep -Seconds $DELAY_SECONDS
+        Start-Sleep -Seconds $script:Config.DELAY_SECONDS
     }
 }
 
