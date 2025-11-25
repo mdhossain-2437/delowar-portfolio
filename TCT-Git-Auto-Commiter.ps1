@@ -1801,16 +1801,19 @@ if ($script:Config.ENABLE_GUI) {
     })
 
     # Tray icon setup
-    if ($ENABLE_TRAY) {
+    if ($script:Config.ENABLE_TRAY) {
         $script:trayIcon = New-Object System.Windows.Forms.NotifyIcon
         $script:trayIcon.Icon = [System.Drawing.SystemIcons]::Application
         $script:trayIcon.Visible = $true
-        $script:trayIcon.Text = $APP_NAME
+        $script:trayIcon.Text = $script:Config.APP_NAME
         
         $menu = New-Object System.Windows.Forms.ContextMenuStrip
         $mOpen = $menu.Items.Add("📂 Open Window")
         $mStop = $menu.Items.Add("⏹ Stop Engine")
         $mStart = $menu.Items.Add("▶ Start Engine")
+        $menu.Items.Add("-")
+        $mSettings = $menu.Items.Add("⚙️ Settings")
+        $mExport = $menu.Items.Add("📄 Export Log")
         $menu.Items.Add("-")
         $mExit = $menu.Items.Add("❌ Exit")
         
@@ -1828,6 +1831,17 @@ if ($script:Config.ENABLE_GUI) {
         $mStart.Add_Click({
             Remove-Item -Path ".tct_stop" -ErrorAction SilentlyContinue
             UI-Log "Engine resumed by tray."
+        })
+        $mSettings.Add_Click({
+            $form.WindowState = "Normal"
+            $form.Show()
+            $tabControl.SelectedTab = $tabSettings
+        })
+        $mExport.Add_Click({
+            $exportPath = Export-ActivityLog "json"
+            if ($exportPath) {
+                Show-Toast "Export Complete" "Log exported to $exportPath" "success"
+            }
         })
         $mExit.Add_Click({ 
             Stop-Engine
@@ -1847,7 +1861,7 @@ if ($script:Config.ENABLE_GUI) {
         $txtLog.AppendText("$(Get-Date -Format 'HH:mm:ss') | $s`r`n")
         $txtLog.SelectionStart = $txtLog.Text.Length
         $txtLog.ScrollToCaret()
-        Write-Log $s 
+        Write-Log $s "INFO"
     }
 
     # Start button click - use runspace for proper threading
