@@ -39,7 +39,9 @@ export default function Navigation() {
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [lastHeard, setLastHeard] = useState<string | null>(null);
-  const [voiceFeedback, setVoiceFeedback] = useState<VoiceFeedback | null>(null);
+  const [voiceFeedback, setVoiceFeedback] = useState<VoiceFeedback | null>(
+    null
+  );
   const recognitionRef = useRef<any>(null);
   const { toggleTheme, setTheme } = useTheme();
   const { muted, toggleMute, playSuccess } = useSoundboard();
@@ -71,7 +73,10 @@ export default function Navigation() {
           const element = document.getElementById(section);
           if (element) {
             const { offsetTop, offsetHeight } = element;
-            if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            if (
+              scrollPosition >= offsetTop &&
+              scrollPosition < offsetTop + offsetHeight
+            ) {
               setActiveSection(section);
               break;
             }
@@ -88,7 +93,8 @@ export default function Navigation() {
 
   useEffect(() => {
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setVoiceSupported(false);
       return;
@@ -132,10 +138,30 @@ export default function Navigation() {
 
   const navItems = useMemo(
     () => [
-      { id: "home", label: t("nav.home"), icon: Home, voiceKeywords: ["home", "top", "hero"] },
-      { id: "about", label: t("nav.about"), icon: User, voiceKeywords: ["about", "bio", "who"] },
-      { id: "skills", label: t("nav.skills"), icon: Sparkles, voiceKeywords: ["skills", "skill"] },
-      { id: "stack", label: "Stack", icon: Zap, voiceKeywords: ["stack", "tech", "tooling"] },
+      {
+        id: "home",
+        label: t("nav.home"),
+        icon: Home,
+        voiceKeywords: ["home", "top", "hero"],
+      },
+      {
+        id: "about",
+        label: t("nav.about"),
+        icon: User,
+        voiceKeywords: ["about", "bio", "who"],
+      },
+      {
+        id: "skills",
+        label: t("nav.skills"),
+        icon: Sparkles,
+        voiceKeywords: ["skills", "skill"],
+      },
+      {
+        id: "stack",
+        label: "Stack",
+        icon: Zap,
+        voiceKeywords: ["stack", "tech", "tooling"],
+      },
       {
         id: "experience",
         label: "Experience",
@@ -148,17 +174,32 @@ export default function Navigation() {
         icon: FolderGit2,
         voiceKeywords: ["projects", "portfolio", "work"],
       },
-      { id: "impact", label: "Impact", icon: BookOpen, voiceKeywords: ["impact", "case"] },
-      { id: "blog", label: t("nav.blog"), icon: BookOpen, voiceKeywords: ["blog", "articles"] },
+      {
+        id: "impact",
+        label: "Impact",
+        icon: BookOpen,
+        voiceKeywords: ["impact", "case"],
+      },
+      {
+        id: "blog",
+        label: t("nav.blog"),
+        icon: BookOpen,
+        voiceKeywords: ["blog", "articles"],
+      },
       {
         id: "achievements",
         label: "Achievements",
         icon: Sparkles,
         voiceKeywords: ["achievements", "awards"],
       },
-      { id: "contact", label: t("nav.contact"), icon: MessageCircle, voiceKeywords: ["contact"] },
+      {
+        id: "contact",
+        label: t("nav.contact"),
+        icon: MessageCircle,
+        voiceKeywords: ["contact"],
+      },
     ],
-    [t],
+    [t]
   );
 
   const voiceIntents = useMemo<VoiceIntent[]>(() => {
@@ -245,7 +286,13 @@ export default function Navigation() {
       {
         id: "toggle-sound",
         label: muted ? "Unmute interface sound" : "Mute interface sound",
-        keywords: ["mute sound", "unmute sound", "silence", "sound on", "sound off"],
+        keywords: [
+          "mute sound",
+          "unmute sound",
+          "silence",
+          "sound on",
+          "sound off",
+        ],
         type: "system",
         action: toggleMute,
       },
@@ -276,11 +323,18 @@ export default function Navigation() {
       },
     ];
 
-    return [...sectionIntents, ...routeIntents, ...systemIntents, ...utilityIntents];
+    return [
+      ...sectionIntents,
+      ...routeIntents,
+      ...systemIntents,
+      ...utilityIntents,
+    ];
   }, [navItems, navigate, muted, toggleMute, setTheme, toggleTheme]);
 
   const matchVoiceIntent = (text: string) =>
-    voiceIntents.find((intent) => intent.keywords.some((keyword) => text.includes(keyword)));
+    voiceIntents.find((intent) =>
+      intent.keywords.some((keyword) => text.includes(keyword))
+    );
 
   const handleVoiceCommand = (text: string) => {
     const normalized = text.trim().toLowerCase();
@@ -339,7 +393,7 @@ export default function Navigation() {
         >
           {/* Premium glow effect */}
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/5 via-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
+
           <div className="relative px-6 py-4">
             <div className="flex justify-between items-center">
               {/* Logo */}
@@ -382,7 +436,11 @@ export default function Navigation() {
                         <motion.div
                           layoutId="navActiveSection"
                           className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg"
-                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
+                          }}
                         />
                       )}
                       <span className="relative z-10 flex items-center gap-2">
@@ -418,7 +476,10 @@ export default function Navigation() {
                           <motion.span
                             key={bar}
                             className="w-0.5 rounded-full bg-purple-400"
-                            animate={{ height: ["30%", "80%", "40%"], opacity: [0.6, 1, 0.6] }}
+                            animate={{
+                              height: ["30%", "80%", "40%"],
+                              opacity: [0.6, 1, 0.6],
+                            }}
                             transition={{
                               duration: 1.2,
                               repeat: Infinity,
@@ -430,7 +491,11 @@ export default function Navigation() {
                       </span>
                     </>
                   )}
-                  <Mic className={`h-4 w-4 ${isListening ? "opacity-0" : "opacity-100"} transition-opacity`} />
+                  <Mic
+                    className={`h-4 w-4 ${
+                      isListening ? "opacity-0" : "opacity-100"
+                    } transition-opacity`}
+                  />
                 </motion.button>
 
                 {/* Additional Tools */}
@@ -454,7 +519,7 @@ export default function Navigation() {
         <div className="relative rounded-2xl border border-slate-700/50 bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-purple-500/10 overflow-hidden">
           {/* Glow effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-cyan-500/5" />
-          
+
           <div className="relative grid grid-cols-5 gap-1 p-2">
             {navItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
@@ -471,7 +536,11 @@ export default function Navigation() {
                     <motion.span
                       layoutId="mobileActiveSection"
                       className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-600/20 to-cyan-600/20 border border-purple-500/30"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
                     />
                   )}
                   <span
@@ -480,7 +549,9 @@ export default function Navigation() {
                     }`}
                   >
                     <Icon className="h-5 w-5" />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    <span className="text-[10px] font-medium">
+                      {item.label}
+                    </span>
                   </span>
                 </motion.button>
               );
@@ -532,7 +603,10 @@ export default function Navigation() {
                   <motion.span
                     key={bar}
                     className="w-[3px] rounded-full bg-primary/80"
-                    animate={{ height: ["30%", "100%", "35%"], opacity: [0.6, 1, 0.6] }}
+                    animate={{
+                      height: ["30%", "100%", "35%"],
+                      opacity: [0.6, 1, 0.6],
+                    }}
                     transition={{
                       duration: 1.4,
                       repeat: Infinity,
@@ -567,7 +641,9 @@ export default function Navigation() {
             </div>
             <div
               className={`text-xs ${
-                voiceFeedback.status === "matched" ? "text-primary" : "text-muted-foreground"
+                voiceFeedback.status === "matched"
+                  ? "text-primary"
+                  : "text-muted-foreground"
               }`}
             >
               {voiceFeedback.action}

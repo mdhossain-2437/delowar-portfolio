@@ -1,6 +1,16 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { ArrowRight, Sparkles, Code2, Zap, Github, Linkedin, Mail, Star, TrendingUp } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Code2,
+  Zap,
+  Github,
+  Linkedin,
+  Mail,
+  Star,
+  TrendingUp,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -11,14 +21,21 @@ const stats = [
 ];
 
 const techStack = [
-  "React", "TypeScript", "Node.js", "Next.js", "Tailwind CSS", 
-  "MongoDB", "PostgreSQL", "Docker", "AWS"
+  "React",
+  "TypeScript",
+  "Node.js",
+  "Next.js",
+  "Tailwind CSS",
+  "MongoDB",
+  "PostgreSQL",
+  "Docker",
+  "AWS",
 ];
 
 export default function Hero() {
   const t = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const phrases = useMemo(
     () => [
       "Building Digital Experiences",
@@ -26,9 +43,9 @@ export default function Hero() {
       "AI & Modern Web Solutions",
       "Crafting Beautiful Interfaces",
     ],
-    [],
+    []
   );
-  
+
   const [typed, setTyped] = useState("");
   const [loop, setLoop] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,7 +63,9 @@ export default function Hero() {
 
     const timer = window.setTimeout(() => {
       setTyped((prev) =>
-        isDeleting ? current.substring(0, prev.length - 1) : current.substring(0, prev.length + 1),
+        isDeleting
+          ? current.substring(0, prev.length - 1)
+          : current.substring(0, prev.length + 1)
       );
 
       if (!isDeleting && atWord) {
@@ -148,7 +167,9 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 backdrop-blur-sm"
             >
               <Zap className="w-4 h-4 text-purple-400" />
-              <span className="text-sm font-medium text-purple-300">Available for freelance</span>
+              <span className="text-sm font-medium text-purple-300">
+                Available for freelance
+              </span>
             </motion.div>
 
             {/* Main Heading */}
@@ -163,7 +184,7 @@ export default function Hero() {
                   Delowar Hossain
                 </span>
               </motion.h1>
-              
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -182,8 +203,9 @@ export default function Hero() {
                 transition={{ delay: 0.5 }}
                 className="text-lg text-slate-400 max-w-xl leading-relaxed"
               >
-                Passionate about creating exceptional web experiences with modern technologies.
-                Specializing in React, TypeScript, and full-stack development.
+                Passionate about creating exceptional web experiences with
+                modern technologies. Specializing in React, TypeScript, and
+                full-stack development.
               </motion.p>
             </div>
 
@@ -203,7 +225,7 @@ export default function Hero() {
                 View My Work
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -256,7 +278,9 @@ export default function Hero() {
                   <div className="flex justify-center mb-2">
                     <stat.icon className="w-6 h-6 text-purple-400" />
                   </div>
-                  <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
+                  <p className="text-3xl font-bold text-white mb-1">
+                    {stat.value}
+                  </p>
                   <p className="text-sm text-slate-400">{stat.label}</p>
                 </motion.div>
               ))}
@@ -279,13 +303,15 @@ export default function Hero() {
             >
               {/* Glow effect */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/10 to-cyan-500/10 blur-2xl" />
-              
+
               <div className="relative space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-purple-400" />
-                    <span className="text-sm font-medium text-purple-300">Featured Project</span>
+                    <span className="text-sm font-medium text-purple-300">
+                      Featured Project
+                    </span>
                   </div>
                   <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                     Live
@@ -298,8 +324,9 @@ export default function Hero() {
                     Modern Portfolio Platform
                   </h3>
                   <p className="text-slate-400 leading-relaxed">
-                    A cutting-edge portfolio built with React, TypeScript, and modern design principles.
-                    Features include real-time updates, animations, and responsive design.
+                    A cutting-edge portfolio built with React, TypeScript, and
+                    modern design principles. Features include real-time
+                    updates, animations, and responsive design.
                   </p>
                 </div>
 
@@ -324,8 +351,12 @@ export default function Hero() {
                     { label: "Best Practices", value: "100" },
                   ].map((metric) => (
                     <div key={metric.label} className="text-center">
-                      <p className="text-2xl font-bold text-purple-400">{metric.value}</p>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide">{metric.label}</p>
+                      <p className="text-2xl font-bold text-purple-400">
+                        {metric.value}
+                      </p>
+                      <p className="text-xs text-slate-500 uppercase tracking-wide">
+                        {metric.label}
+                      </p>
                     </div>
                   ))}
                 </div>

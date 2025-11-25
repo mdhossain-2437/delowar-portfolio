@@ -28,13 +28,15 @@ const allProjects: Project[] = [
   {
     id: 1,
     title: "E-Commerce Platform",
-    description: "Full-stack e-commerce solution with real-time inventory, payment processing, and admin dashboard.",
+    description:
+      "Full-stack e-commerce solution with real-time inventory, payment processing, and admin dashboard.",
     outcome: "Increased sales by 150% in first quarter",
     category: "web",
     tags: ["React", "Node.js", "MongoDB", "Stripe"],
     featured: true,
     status: "live",
-    image: "https://images.unsplash.com/photo-1661956602116-aa6865609028?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1661956602116-aa6865609028?w=800&h=600&fit=crop",
     links: {
       demo: "#",
       github: "#",
@@ -48,12 +50,14 @@ const allProjects: Project[] = [
   {
     id: 2,
     title: "AI Chat Application",
-    description: "Modern chat app with AI-powered responses, real-time messaging, and smart notifications.",
+    description:
+      "Modern chat app with AI-powered responses, real-time messaging, and smart notifications.",
     category: "ai",
     tags: ["Next.js", "OpenAI", "WebSocket", "Redis"],
     featured: true,
     status: "live",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop",
     links: {
       demo: "#",
       github: "#",
@@ -67,12 +71,14 @@ const allProjects: Project[] = [
   {
     id: 3,
     title: "Portfolio CMS",
-    description: "Headless CMS for portfolio websites with drag-and-drop builder and SEO optimization.",
+    description:
+      "Headless CMS for portfolio websites with drag-and-drop builder and SEO optimization.",
     category: "web",
     tags: ["TypeScript", "GraphQL", "PostgreSQL", "Next.js"],
     featured: false,
     status: "live",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
     links: {
       demo: "#",
       github: "#",
@@ -81,12 +87,14 @@ const allProjects: Project[] = [
   {
     id: 4,
     title: "Design System",
-    description: "Comprehensive design system with 100+ components, documentation, and Figma integration.",
+    description:
+      "Comprehensive design system with 100+ components, documentation, and Figma integration.",
     category: "design",
     tags: ["React", "Storybook", "Tailwind", "Figma"],
     featured: false,
     status: "live",
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop",
     links: {
       demo: "#",
       github: "#",
@@ -95,12 +103,14 @@ const allProjects: Project[] = [
   {
     id: 5,
     title: "Task Management App",
-    description: "Collaborative task manager with Kanban boards, time tracking, and team analytics.",
+    description:
+      "Collaborative task manager with Kanban boards, time tracking, and team analytics.",
     category: "web",
     tags: ["React", "Firebase", "Material-UI", "Charts"],
     featured: false,
     status: "wip",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
     links: {
       demo: null,
       github: "#",
@@ -109,12 +119,14 @@ const allProjects: Project[] = [
   {
     id: 6,
     title: "Weather Dashboard",
-    description: "Real-time weather tracking with beautiful visualizations and location-based alerts.",
+    description:
+      "Real-time weather tracking with beautiful visualizations and location-based alerts.",
     category: "web",
     tags: ["Vue.js", "D3.js", "Weather API", "Tailwind"],
     featured: false,
     status: "live",
-    image: "https://images.unsplash.com/photo-1592210454359-9043f067919b?w=800&h=600&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1592210454359-9043f067919b?w=800&h=600&fit=crop",
     links: {
       demo: "#",
       github: "#",
@@ -163,7 +175,9 @@ export default function ProjectsNew() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20"
           >
             <Star className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-medium text-purple-300">Featured Work</span>
+            <span className="text-sm font-medium text-purple-300">
+              Featured Work
+            </span>
           </motion.div>
 
           <h2 className="text-4xl md:text-6xl font-bold">
@@ -172,7 +186,8 @@ export default function ProjectsNew() {
             </span>
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            A collection of projects showcasing my expertise in web development, AI integration, and design.
+            A collection of projects showcasing my expertise in web development,
+            AI integration, and design.
           </p>
         </motion.div>
 
@@ -246,7 +261,9 @@ export default function ProjectsNew() {
                           <div className="space-y-3">
                             <div className="flex items-center gap-3">
                               <Badge className="bg-green-500/20 text-green-300 border-green-500/30 uppercase text-xs">
-                                {project.status === "live" ? "Live" : "In Progress"}
+                                {project.status === "live"
+                                  ? "Live"
+                                  : "In Progress"}
                               </Badge>
                               <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 uppercase text-xs">
                                 Featured
@@ -261,7 +278,9 @@ export default function ProjectsNew() {
                             {project.outcome && (
                               <div className="flex items-start gap-2 p-3 rounded-xl bg-purple-500/5 border border-purple-500/20">
                                 <TrendingUp className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                                <p className="text-sm text-purple-300">{project.outcome}</p>
+                                <p className="text-sm text-purple-300">
+                                  {project.outcome}
+                                </p>
                               </div>
                             )}
                           </div>
