@@ -1868,6 +1868,7 @@ if ($script:Config.ENABLE_GUI) {
     $btnStart.Add_Click({
         if (-not $script:running) {
             $script:running = $true
+            $script:sessionStartTime = Get-Date
             $btnStart.Enabled = $false
             $btnStop.Enabled = $true
             $lbl.Text = "Status: Starting..."
@@ -1880,61 +1881,31 @@ if ($script:Config.ENABLE_GUI) {
             $runspace.ThreadOptions = "ReuseThread"
             $runspace.Open()
             
-            # Pass variables to runspace
-            $runspace.SessionStateProxy.SetVariable("LOGFILE", $LOGFILE)
-            $runspace.SessionStateProxy.SetVariable("AUTO_BRANCH", $AUTO_BRANCH)
-            $runspace.SessionStateProxy.SetVariable("DELAY_SECONDS", $DELAY_SECONDS)
-            $runspace.SessionStateProxy.SetVariable("COOLDOWN_SECONDS", $COOLDOWN_SECONDS)
-            $runspace.SessionStateProxy.SetVariable("STRICT_SAFE_MODE", $STRICT_SAFE_MODE)
-            $runspace.SessionStateProxy.SetVariable("AUTO_PUSH_ENABLED", $AUTO_PUSH_ENABLED)
-            $runspace.SessionStateProxy.SetVariable("SAFE_PULL_BEFORE_PUSH", $SAFE_PULL_BEFORE_PUSH)
-            $runspace.SessionStateProxy.SetVariable("SQUASH_ENABLED", $SQUASH_ENABLED)
-            $runspace.SessionStateProxy.SetVariable("SQUASH_AFTER_COMMITS", $SQUASH_AFTER_COMMITS)
-            $runspace.SessionStateProxy.SetVariable("SQUASH_FORCE_PUSH", $SQUASH_FORCE_PUSH)
-            $runspace.SessionStateProxy.SetVariable("BACKUP_WEEKLY_ENABLED", $BACKUP_WEEKLY_ENABLED)
-            $runspace.SessionStateProxy.SetVariable("BACKUP_FOLDER", $BACKUP_FOLDER)
-            $runspace.SessionStateProxy.SetVariable("BACKUP_ROTATE_KEEP", $BACKUP_ROTATE_KEEP)
-            $runspace.SessionStateProxy.SetVariable("IGNORE_PATTERNS", $IGNORE_PATTERNS)
-            $runspace.SessionStateProxy.SetVariable("LLM_ENABLED", $LLM_ENABLED)
-            $runspace.SessionStateProxy.SetVariable("LLM_MODEL", $LLM_MODEL)
-            $runspace.SessionStateProxy.SetVariable("LLM_MAX_DIFF_CHARS", $LLM_MAX_DIFF_CHARS)
-            $runspace.SessionStateProxy.SetVariable("INLINE_KEYS", $INLINE_KEYS)
-            $runspace.SessionStateProxy.SetVariable("REMOTE_API_ENABLED", $REMOTE_API_ENABLED)
-            $runspace.SessionStateProxy.SetVariable("REMOTE_API_PORT", $REMOTE_API_PORT)
-            $runspace.SessionStateProxy.SetVariable("REMOTE_API_TOKEN", $REMOTE_API_TOKEN)
+            # Pass config to runspace
+            $runspace.SessionStateProxy.SetVariable("script:Config", $script:Config)
             
             $powershell = [powershell]::Create()
             $powershell.Runspace = $runspace
             
-            # Copy current function definitions into the background runspace so GUI and console share one engine
-            $functionsToCopy = @(
-                "Write-Log",
-                "Is-Ignored",
-                "Call-Gemini",
-                "Build-Heuristic",
-                "Build-CommitMessage",
-                "Ensure-AutoBranch",
-                "Safe-Checkout",
-                "Safe-Return",
-                "PushIfOnline",
-                "Auto-Squash-IfNeeded",
-                "Weekly-Backup",
-                "Start-RemoteAPI",
-                "Stop-RemoteAPI",
-                "Engine-Loop"
-            )
-
-            $functionDefs = $functionsToCopy | ForEach-Object {
-                $fn = Get-Command $_ -CommandType Function -ErrorAction SilentlyContinue
-                if ($fn) { $fn.Definition } else { "" }
-            } | Where-Object { $_ -and $_.Trim() }
+            # Copy all function definitions
+            $allFunctions = Get-ChildItem function: | Where-Object { 
+                $_.Name -notmatch '^[A-Z]:$' -and 
+                $_.Name -notmatch '^prompt$' -and
+                $_.Name -notmatch '^TabExpansion' -and
+                $_.Name -notmatch '^Clear-Host'
+            }
+            
+            $functionDefs = $allFunctions | ForEach-Object {
+                "function $($_.Name) { $($_.Definition) }"
+            }
 
             $engineScript = ($functionDefs -join "`n`n") + "`n`nEngine-Loop"
             [void]$powershell.AddScript($engineScript)
             
             $script:engineJob = $powershell.BeginInvoke()
             $timer.Start()
-            UI-Log "Engine started successfully!"
+            UI-Log "Engine started successfully! Monitoring repo..."
+            Show-Toast "Engine Started" "Auto-commit engine is now running" "success"
         }
     })
 
@@ -1947,21 +1918,42 @@ if ($script:Config.ENABLE_GUI) {
             $lbl.Text = "Status: Stopped"
             $lbl.ForeColor = [System.Drawing.Color]::Gray
             UI-Log "Engine stopped."
+            Show-Toast "Engine Stopped" "Auto-commit engine stopped" "warning"
         }
     })
-
-    $btnInstallTask.Add_Click({
-        $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-        if (-not $isAdmin) {
-            [System.Windows.Forms.MessageBox]::Show("Please run PowerShell as Administrator to install scheduled task.", $APP_NAME, "OK", "Warning")
-        } else {
-            if (Install-ScheduledTask) {
-                UI-Log "Scheduled task installed successfully!"
-                [System.Windows.Forms.MessageBox]::Show("Scheduled task installed! The app will start automatically on login.", $APP_NAME, "OK", "Information")
+    
+    $btnRollback.Add_Click({
+        $result = [System.Windows.Forms.MessageBox]::Show("Rollback the last auto-commit? This cannot be undone.", "Rollback", "YesNo", "Warning")
+        if ($result -eq "Yes") {
+            if (Rollback-Commits 1) {
+                UI-Log "Successfully rolled back last commit!"
+                [System.Windows.Forms.MessageBox]::Show("Last commit has been rolled back successfully!", "Success", "OK", "Information")
             } else {
-                [System.Windows.Forms.MessageBox]::Show("Failed to install scheduled task. Check log for details.", $APP_NAME, "OK", "Error")
+                [System.Windows.Forms.MessageBox]::Show("Rollback failed. Check logs for details.", "Error", "OK", "Error")
             }
         }
+    })
+    
+    $btnExport.Add_Click({
+        $saveDialog = New-Object System.Windows.Forms.SaveFileDialog
+        $saveDialog.Filter = "JSON files (*.json)|*.json|CSV files (*.csv)|*.csv|All files (*.*)|*.*"
+        $saveDialog.Title = "Export Activity Log"
+        $saveDialog.FileName = "tct_activity_export_$(Get-Date -Format 'yyyyMMdd').json"
+        
+        if ($saveDialog.ShowDialog() -eq "OK") {
+            $format = if ($saveDialog.FileName -match '\.csv$') { "csv" } else { "json" }
+            $exportPath = Export-ActivityLog $format $saveDialog.FileName
+            if ($exportPath) {
+                UI-Log "Activity log exported to $exportPath"
+                [System.Windows.Forms.MessageBox]::Show("Activity log exported successfully to:`n$exportPath", "Export Complete", "OK", "Information")
+            }
+        }
+    })
+    
+    $btnTheme.Add_Click({
+        $script:Config.THEME = if ($script:Config.THEME -eq "dark") { "light" } else { "dark" }
+        Save-Config
+        [System.Windows.Forms.MessageBox]::Show("Theme will change on next restart.", "Theme Changed", "OK", "Information")
     })
     
     $btnClear.Add_Click({
