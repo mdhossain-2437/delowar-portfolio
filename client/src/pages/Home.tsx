@@ -101,6 +101,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [phase1Ready, setPhase1Ready] = useState(false);
   const [phase2Ready, setPhase2Ready] = useState(false);
+  const enableLabs = import.meta.env.VITE_ENABLE_LABS === "true";
 
   const handleLoadComplete = () => {
     setIsLoading(false);
@@ -170,23 +171,31 @@ export default function Home() {
         <SectionLoader>
           <DynamicStoryProgression />
         </SectionLoader>
-        <SectionLoader>
-          <ARPortal />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader>
+            <ARPortal />
+          </SectionLoader>
+        )}
         <SectionLoader>
           <ScrollStory />
         </SectionLoader>
-        <SectionLoader minHeight="20rem">
-          <P2PIntroVideo />
-        </SectionLoader>
-        <SectionLoader>
-          <DeviceMotionScene />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader minHeight="20rem">
+            <P2PIntroVideo />
+          </SectionLoader>
+        )}
+        {enableLabs && (
+          <SectionLoader>
+            <DeviceMotionScene />
+          </SectionLoader>
+        )}
         <Skills />
-        <SectionLoader>
-          <AvatarCustomizer />
-        </SectionLoader>
-        {phase1Ready && (
+        {enableLabs && (
+          <SectionLoader>
+            <AvatarCustomizer />
+          </SectionLoader>
+        )}
+        {enableLabs && phase1Ready && (
           <>
             <SectionLoader minHeight="18rem">
               <AudioReactiveCanvas />
@@ -220,9 +229,11 @@ export default function Home() {
         <SectionLoader>
           <Experience />
         </SectionLoader>
-        <SectionLoader>
-          <AvailabilityGlobe />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader>
+            <AvailabilityGlobe />
+          </SectionLoader>
+        )}
         <SectionLoader>
           <Projects />
         </SectionLoader>
@@ -259,15 +270,21 @@ export default function Home() {
         <SectionLoader>
           <ThemeBuilder />
         </SectionLoader>
-        <SectionLoader>
-          <PricingCalculator />
-        </SectionLoader>
-        <SectionLoader>
-          <AIQuickEstimate />
-        </SectionLoader>
-        <SectionLoader>
-          <WasmImageLab />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader>
+            <PricingCalculator />
+          </SectionLoader>
+        )}
+        {enableLabs && (
+          <SectionLoader>
+            <AIQuickEstimate />
+          </SectionLoader>
+        )}
+        {enableLabs && (
+          <SectionLoader>
+            <WasmImageLab />
+          </SectionLoader>
+        )}
         <SectionLoader>
           <DigitalGarden />
         </SectionLoader>
@@ -307,15 +324,19 @@ export default function Home() {
         <SectionLoader>
           <CTASection />
         </SectionLoader>
-        <SectionLoader>
-          <WebAuthnDemo />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader>
+            <WebAuthnDemo />
+          </SectionLoader>
+        )}
         <SectionLoader>
           <InteractiveContact />
         </SectionLoader>
-        <SectionLoader>
-          <TimeTravelSlider />
-        </SectionLoader>
+        {enableLabs && (
+          <SectionLoader>
+            <TimeTravelSlider />
+          </SectionLoader>
+        )}
         <SectionLoader minHeight="12rem">
           <Footer />
         </SectionLoader>
