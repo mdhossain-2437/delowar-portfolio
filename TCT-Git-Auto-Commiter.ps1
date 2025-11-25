@@ -884,12 +884,19 @@ function Build-Heuristic($added,$modified,$deleted,$untracked,$renamed) {
 # Build final commit message (LLM preferred if available and enabled)
 function Build-CommitMessage($added,$modified,$deleted,$untracked,$renamed) {
     $heur = Build-Heuristic $added $modified $deleted $untracked $renamed
-    if (-not $LLM_ENABLED) { return $heur }
+    if (-not $script:Config.LLM_ENABLED) { return $heur }
     
-    # get inline key
-    $apiKey = $INLINE_KEYS["GEMINI_API_KEY"]
-    if (-not $apiKey -or $apiKey -match "AI_WILL_FILL" -or $apiKey -match "YOUR_API_KEY") {
-        Write-Log "LLM requested but inline API key not set; falling back to heuristic."
+    # get API key based on provider
+    $apiKey = switch ($script:Config.LLM_PROVIDER) {
+        "gemini" { $script:Config.GEMINI_API_KEY; if (-not $_) { $INLINE_KEYS["GEMINI_API_KEY"] } }
+        "openai" { $script:Config.OPENAI_API_KEY }
+        "claude" { $script:Config.CLAUDE_API_KEY }
+        "ollama" { "local" }
+        default { $INLINE_KEYS["GEMINI_API_KEY"] }
+    }
+    
+    if (-not $apiKey -or $apiKey -match "YOUR_API_KEY") {
+        Write-Log "LLM requested but API key not set; falling back to heuristic." "WARN"
         return $heur
     }
     
@@ -897,8 +904,8 @@ function Build-CommitMessage($added,$modified,$deleted,$untracked,$renamed) {
     try { 
         $diff = git diff --staged --stat 2>$null | Out-String 
         $diffContent = git diff --staged 2>$null | Out-String
-        if ($diffContent.Length -gt $LLM_MAX_DIFF_CHARS) { 
-            $diffContent = $diffContent.Substring(0,$LLM_MAX_DIFF_CHARS) + "`n... (truncated)"
+        if ($diffContent.Length -gt $script:Config.LLM_MAX_DIFF_CHARS) { 
+            $diffContent = $diffContent.Substring(0, $script:Config.LLM_MAX_DIFF_CHARS) + "`n... (truncated)"
         }
     } catch { 
         $diff = "" 
@@ -924,7 +931,7 @@ $diffContent
 Return ONLY the commit message, nothing else.
 "@
 
-    $res = Call-Gemini $apiKey $LLM_MODEL $prompt
+    $res = Call-LLM $prompt
     if ($res -and $res.Trim().Length -gt 5 -and $res.Trim().Length -lt 200) {
         $cleanMsg = $res.Trim() -replace "`n.*","" -replace "^[`"']","" -replace "[`"']$",""
         if ($cleanMsg.Length -gt 5) {
@@ -934,24 +941,22 @@ Return ONLY the commit message, nothing else.
     return $heur
 }
 
-# Ensure auto branch exists (SINGLE DEFINITION)
+# Ensure auto branch exists
 function Ensure-AutoBranch {
-    $b = $AUTO_BRANCH
+    $b = $script:Config.AUTO_BRANCH
     $exists = git branch --list $b 2>$null
     if (-not $exists) {
         try {
-            # Create branch from current HEAD
             git branch $b 2>$null
             if ($LASTEXITCODE -eq 0) {
-                Write-Log "Created auto-branch: $b"
+                Write-Log "Created auto-branch: $b" "INFO"
             } else {
-                # If no commits yet, create initial commit first
                 git commit --allow-empty -m "Initial commit for auto-branch" 2>$null
                 git branch $b 2>$null
-                Write-Log "Created auto-branch with initial commit: $b"
+                Write-Log "Created auto-branch with initial commit: $b" "INFO"
             }
         } catch {
-            Write-Log "Failed to create auto-branch: $_"
+            Write-Log "Failed to create auto-branch: $_" "ERROR"
         }
     }
 }
