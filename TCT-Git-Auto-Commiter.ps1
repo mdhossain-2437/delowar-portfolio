@@ -290,6 +290,354 @@ function Get-MemoryUsage {
     return [math]::Round($process.WorkingSet64 / 1MB, 2)
 }
 
+# ========================= ERROR RECOVERY =========================
+function Invoke-WithRetry {
+    param(
+        [ScriptBlock]$Action,
+        [string]$ActionName = "Operation",
+        [int]$MaxRetries = $script:Config.ERROR_RETRY_MAX,
+        [double]$BackoffMultiplier = $script:Config.ERROR_RETRY_BACKOFF
+    )
+    
+    if (-not $script:Config.ERROR_RETRY_ENABLED) {
+        return & $Action
+    }
+    
+    $attempt = 0
+    $delay = 1
+    
+    while ($attempt -lt $MaxRetries) {
+        try {
+            $attempt++
+            $result = & $Action
+            if ($attempt -gt 1) {
+                Write-Log "[+] $ActionName succeeded after $attempt attempts" "SUCCESS"
+            }
+            return $result
+        }
+        catch {
+            $errorMsg = $_.Exception.Message
+            
+            # Check if error is retryable
+            $isRetryable = $errorMsg -match "network|timeout|rate limit|503|502|504|connection|refused"
+            
+            if ($attempt -ge $MaxRetries -or -not $isRetryable) {
+                Write-Log "[-] $ActionName failed after $attempt attempts: $errorMsg" "ERROR"
+                throw
+            }
+            
+            Write-Log "[!] $ActionName failed (attempt $attempt/$MaxRetries), retrying in $($delay)s..." "WARN"
+            Start-Sleep -Seconds $delay
+            $delay = [Math]::Min($delay * $BackoffMultiplier, 60)
+        }
+    }
+}
+
+# ========================= PR AUTOMATION =========================
+function Test-ShouldCreatePR {
+    try {
+        if (-not $script:Config.PR_AUTO_ENABLED) { return $false }
+        
+        # Check commit count on auto branch vs main
+        $autoBranch = $script:Config.AUTO_BRANCH
+        $commitCount = (git rev-list --count "$autoBranch" --not main 2>$null)
+        
+        if ([string]::IsNullOrWhiteSpace($commitCount)) { return $false }
+        
+        $count = [int]$commitCount
+        return $count -ge $script:Config.PR_AUTO_THRESHOLD
+    }
+    catch {
+        return $false
+    }
+}
+
+function New-AutoPullRequest {
+    try {
+        $autoBranch = $script:Config.AUTO_BRANCH
+        $commitCount = (git rev-list --count "$autoBranch" --not main 2>$null)
+        
+        # Get GitHub repo info from remote
+        $remoteUrl = git config --get remote.origin.url
+        if ($remoteUrl -match "github\.com[:/](.+?)/(.+?)(\.git)?$") {
+            $owner = $matches[1]
+            $repo = $matches[2]
+        }
+        else {
+            Write-Log "[-] Cannot determine GitHub repo from remote URL" "ERROR"
+            return $false
+        }
+        
+        # Prepare PR details
+        $title = $script:Config.PR_AUTO_TITLE -replace '\{branch\}', $autoBranch
+        $body = $script:Config.PR_AUTO_BODY -replace '\{count\}', $commitCount
+        
+        # Create PR using GitHub CLI (if available)
+        $ghPath = Get-Command gh -ErrorAction SilentlyContinue
+        if ($ghPath) {
+            Write-Log "[*] Creating auto-PR: $autoBranch -> main ($commitCount commits)" "INFO"
+            $prCmd = "gh pr create --base main --head $autoBranch --title `"$title`" --body `"$body`""
+            $result = Invoke-Expression $prCmd 2>&1
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Log "[+] Auto-PR created successfully: $result" "SUCCESS"
+                Show-Toast "PR Created" "Auto-PR created: $autoBranch -> main"
+                return $true
+            }
+            else {
+                Write-Log "[-] Failed to create PR: $result" "ERROR"
+            }
+        }
+        else {
+            Write-Log "[!] GitHub CLI (gh) not found. Install it for auto-PR: https://cli.github.com/" "WARN"
+        }
+        
+        return $false
+    }
+    catch {
+        Write-Log "[-] PR creation error: $($_.Exception.Message)" "ERROR"
+        return $false
+    }
+}
+
+# ========================= COMMIT TEMPLATES =========================
+function Get-CommitMessageFromTemplate {
+    param(
+        [string[]]$Files,
+        [string]$AISummary
+    )
+    
+    if (-not $script:Config.TEMPLATE_ENABLED) {
+        return $AISummary
+    }
+    
+    $templateName = $script:Config.TEMPLATE_CURRENT
+    $template = $script:Config.COMMIT_TEMPLATES[$templateName]
+    
+    if ([string]::IsNullOrWhiteSpace($template)) {
+        return $AISummary
+    }
+    
+    # Get current branch
+    $branch = git rev-parse --abbrev-ref HEAD 2>$null
+    if ([string]::IsNullOrWhiteSpace($branch)) { $branch = "unknown" }
+    
+    # Get timestamp
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    
+    # Get username
+    $username = git config user.name 2>$null
+    if ([string]::IsNullOrWhiteSpace($username)) { $username = $env:USERNAME }
+    
+    # File list
+    $fileList = $Files -join ", "
+    if ($fileList.Length -gt 100) { $fileList = $fileList.Substring(0, 97) + "..." }
+    
+    # Determine commit type from AI summary
+    $type = "feat"
+    if ($AISummary -match "fix|bug|error") { $type = "fix" }
+    elseif ($AISummary -match "doc|readme|comment") { $type = "docs" }
+    elseif ($AISummary -match "style|format|lint") { $type = "style" }
+    elseif ($AISummary -match "refactor|restructure") { $type = "refactor" }
+    elseif ($AISummary -match "test|spec") { $type = "test" }
+    
+    # Replace placeholders
+    $message = $template
+    $message = $message -replace '\{summary\}', $AISummary
+    $message = $message -replace '\{timestamp\}', $timestamp
+    $message = $message -replace '\{branch\}', $branch
+    $message = $message -replace '\{username\}', $username
+    $message = $message -replace '\{files\}', $fileList
+    $message = $message -replace '\{type\}', $type
+    $message = $message -replace '\{count\}', $Files.Count
+    
+    return $message
+}
+
+# ========================= WEB DASHBOARD =========================
+$script:WebServer = $null
+$script:WebListener = $null
+
+function Start-WebDashboard {
+    if (-not $script:Config.WEB_ENABLED) { return }
+    
+    try {
+        $host = $script:Config.WEB_HOST
+        $port = $script:Config.WEB_PORT
+        $prefix = "http://$host`:$port/"
+        
+        $script:WebListener = New-Object System.Net.HttpListener
+        $script:WebListener.Prefixes.Add($prefix)
+        $script:WebListener.Start()
+        
+        Write-Log "[+] Web dashboard started at $prefix" "SUCCESS"
+        
+        # Start async listener in background runspace
+        $script:WebServer = [PowerShell]::Create()
+        $script:WebServer.AddScript({
+            param($listener, $configFile)
+            
+            while ($listener.IsListening) {
+                try {
+                    $context = $listener.GetContext()
+                    $request = $context.Request
+                    $response = $context.Response
+                    
+                    $path = $request.Url.AbsolutePath
+                    $method = $request.HttpMethod
+                    
+                    # CORS headers
+                    $response.AddHeader("Access-Control-Allow-Origin", "*")
+                    $response.ContentType = "application/json"
+                    
+                    $responseData = @{ success = $false; error = "Unknown endpoint" }
+                    
+                    # Load config
+                    $config = if (Test-Path $configFile) { Get-Content $configFile | ConvertFrom-Json } else { @{} }
+                    
+                    # API Endpoints
+                    if ($path -eq "/api/status" -and $method -eq "GET") {
+                        $process = [System.Diagnostics.Process]::GetCurrentProcess()
+                        $responseData = @{
+                            success = $true
+                            status = "running"
+                            version = "3.1"
+                            memory = [Math]::Round($process.WorkingSet64 / 1MB, 2)
+                            uptime = [Math]::Round((New-TimeSpan -Start $process.StartTime).TotalMinutes, 1)
+                        }
+                    }
+                    elseif ($path -eq "/api/logs" -and $method -eq "GET") {
+                        $logs = if (Test-Path "tct_activity.log") { Get-Content "tct_activity.log" -Tail 100 } else { @("No logs yet") }
+                        $responseData = @{ success = $true; logs = $logs }
+                    }
+                    elseif ($path -eq "/api/config" -and $method -eq "GET") {
+                        $responseData = @{ success = $true; config = $config }
+                    }
+                    elseif ($path -eq "/" -and $method -eq "GET") {
+                        # Serve HTML dashboard
+                        $html = @"
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>TCT Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Consolas', 'Courier New', monospace; background: #000; color: #0f0; padding: 20px; overflow-x: hidden; }
+.container { max-width: 1400px; margin: 0 auto; }
+h1 { color: #0ff; text-shadow: 0 0 15px #0ff; margin-bottom: 30px; text-align: center; font-size: 2em; }
+h2 { color: #0ff; margin: 15px 0; border-bottom: 2px solid #0f0; padding-bottom: 5px; }
+.card { background: #001100; border: 2px solid #0f0; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.metric { background: #002200; padding: 15px; border: 1px solid #0f0; border-radius: 5px; text-align: center; }
+.label { color: #0ff; font-size: 0.9em; text-transform: uppercase; }
+.value { color: #0f0; font-size: 1.8em; font-weight: bold; margin-top: 5px; text-shadow: 0 0 10px #0f0; }
+button { background: #0f0; color: #000; border: 2px solid #0f0; padding: 12px 24px; cursor: pointer; margin: 5px; font-weight: bold; border-radius: 5px; transition: all 0.3s; }
+button:hover { background: #0ff; border-color: #0ff; box-shadow: 0 0 15px #0ff; }
+#logs { background: #000; border: 2px solid #0f0; padding: 15px; max-height: 500px; overflow-y: auto; font-size: 0.85em; line-height: 1.6; }
+.log-line { padding: 2px 0; }
+.log-success { color: #0f0; }
+.log-error { color: #f00; }
+.log-warn { color: #ff0; }
+.status-running { color: #0f0; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #001100; }
+::-webkit-scrollbar-thumb { background: #0f0; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #0ff; }
+</style>
+</head><body>
+<div class="container">
+<h1>▓▓▒░ TCT-GIT-AUTO-COMMITER ░▒▓▓ HACKER TERMINAL DASHBOARD</h1>
+<div class="card">
+<h2>► SYSTEM STATUS</h2>
+<div class="metrics">
+<div class="metric"><div class="label">Status</div><div class="value status-running" id="status">LOADING</div></div>
+<div class="metric"><div class="label">Version</div><div class="value" id="version">-</div></div>
+<div class="metric"><div class="label">Uptime (min)</div><div class="value" id="uptime">-</div></div>
+<div class="metric"><div class="label">Memory (MB)</div><div class="value" id="memory">-</div></div>
+</div>
+</div>
+<div class="card">
+<h2>► ACTIVITY LOGS</h2>
+<div id="logs"><div class="log-line">Initializing...</div></div>
+</div>
+<div class="card" style="text-align:center;">
+<button onclick="refreshData()">↺ REFRESH DATA</button>
+<button onclick="window.open('/api/status', '_blank')">📊 VIEW RAW API</button>
+<button onclick="window.open('/api/config', '_blank')">⚙ VIEW CONFIG</button>
+</div>
+</div>
+<script>
+function refreshData() {
+  fetch('/api/status').then(r=>r.json()).then(d=>{
+    if(d.success){
+      document.getElementById('status').textContent='ONLINE';
+      document.getElementById('version').textContent='v'+d.version;
+      document.getElementById('uptime').textContent=d.uptime;
+      document.getElementById('memory').textContent=d.memory;
+    }
+  }).catch(()=>{
+    document.getElementById('status').textContent='ERROR';
+    document.getElementById('status').style.color='#f00';
+  });
+  
+  fetch('/api/logs').then(r=>r.json()).then(d=>{
+    if(d.success){
+      const logsDiv = document.getElementById('logs');
+      logsDiv.innerHTML = d.logs.map(line => {
+        let cls = 'log-line';
+        if(line.includes('SUCCESS')) cls += ' log-success';
+        else if(line.includes('ERROR')) cls += ' log-error';
+        else if(line.includes('WARN')) cls += ' log-warn';
+        return `<div class="${cls}">${line}</div>`;
+      }).join('');
+      logsDiv.scrollTop = logsDiv.scrollHeight;
+    }
+  });
+}
+setInterval(refreshData, 3000);
+refreshData();
+</script>
+</body></html>
+"@
+                        $response.ContentType = "text/html; charset=utf-8"
+                        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html)
+                        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+                        $response.Close()
+                        continue
+                    }
+                    
+                    # Send JSON response
+                    $json = ConvertTo-Json $responseData -Depth 10
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+                    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+                    $response.Close()
+                }
+                catch { }
+            }
+        }).AddArgument($script:WebListener).AddArgument($CONFIG_FILE)
+        
+        $script:WebServer.BeginInvoke() | Out-Null
+    }
+    catch {
+        Write-Log "[-] Failed to start web dashboard: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Stop-WebDashboard {
+    if ($script:WebListener) {
+        try {
+            $script:WebListener.Stop()
+            $script:WebListener.Close()
+            Write-Log "[+] Web dashboard stopped" "SUCCESS"
+        } catch { }
+    }
+    if ($script:WebServer) {
+        try {
+            $script:WebServer.Stop()
+            $script:WebServer.Dispose()
+        } catch { }
+    }
+}
+
 # ========================= LOGGING =========================
 function Write-Log([string]$text, [string]$level = "INFO") {
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
