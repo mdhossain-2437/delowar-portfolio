@@ -12,6 +12,7 @@
 ## 🎨 HACKER TERMINAL AESTHETIC
 
 ### Visual Transformation
+
 - ✅ **Pure Black Background** (#000000)
 - ✅ **Lime Green Text** (#00FF00) for that classic terminal feel
 - ✅ **ASCII Art Header** with block characters
@@ -21,6 +22,7 @@
 - ✅ **Boot Sequence** display on startup
 
 ### Theme Modes
+
 1. **hacker** (NEW) - Green-on-black terminal
 2. **dark** - Modern dark theme
 3. **light** - Clean light theme
@@ -30,9 +32,11 @@
 ## ⚙️ LIVE CUSTOMIZATION SYSTEM
 
 ### Enhanced Settings Panel
+
 All settings now have proper control types:
 
 #### **Numeric Spinners** (with live preview)
+
 - ⏱️ **Delay Between Checks**: 5-300 seconds (default: 60s)
 - ⏱️ **Cooldown Before Commit**: 1-60 seconds (default: 5s)
 - 🔢 **Squash After N Commits**: 3-50 commits (default: 12)
@@ -40,11 +44,13 @@ All settings now have proper control types:
 - 🔤 **Font Size**: 8-16 pt (default: 10)
 
 #### **Dropdown Selectors**
+
 - 🎨 **UI Theme**: hacker, dark, light
 - 🤖 **LLM Provider**: gemini, openai, claude, ollama
 - 🔤 **Terminal Font**: Consolas, Courier New, Lucida Console, Cascadia Code
 
 #### **Checkboxes** (on/off switches)
+
 - ✅ Strict Safe Mode
 - ✅ Matrix Visual Effects
 - ✅ Typing Animation
@@ -59,6 +65,7 @@ All settings now have proper control types:
 - ✅ Webhook Integration
 
 #### **Text Fields**
+
 - 📝 Auto Branch Name
 - 📝 LLM Model Name
 - 📝 Ollama URL
@@ -70,18 +77,21 @@ All settings now have proper control types:
 ## 💾 MEMORY MANAGEMENT
 
 ### New Functions
+
 ```powershell
 Optimize-Memory()      # Force garbage collection + trim working set
 Get-MemoryUsage()      # Returns current memory in MB
 ```
 
 ### Auto-Optimization
+
 - **Periodic GC**: Every 10 minutes automatically
 - **Manual Button**: New "OPTIMIZE" button in GUI
 - **Memory Display**: Real-time usage in metrics panel
 - **Efficient Polling**: Reduced memory footprint
 
 ### Memory Metrics
+
 - Displayed in metrics panel
 - Updates every 2 seconds
 - Shows MB usage
@@ -94,6 +104,7 @@ Get-MemoryUsage()      # Returns current memory in MB
 ### Hacker Terminal Dashboard
 
 #### Status Display
+
 ```
 [STATUS] >>> ACTIVE >>> Running
 [STATUS] >>> PAUSED >>> STANDBY
@@ -101,6 +112,7 @@ Get-MemoryUsage()      # Returns current memory in MB
 ```
 
 #### Metrics Panel
+
 ```
 [>] COMMITS..... 15
 [>] ERRORS...... 0
@@ -111,6 +123,7 @@ Get-MemoryUsage()      # Returns current memory in MB
 ```
 
 #### Log Format
+
 ```
 14:32:45.123 [+] Repository scan initiated...
 14:32:45.456 [+] Changes detected: 3 files modified
@@ -122,7 +135,9 @@ Get-MemoryUsage()      # Returns current memory in MB
 ```
 
 ### Button Styling
+
 All buttons now have hacker terminal labels:
+
 - `[▶] INITIATE` - Start engine
 - `[■] TERMINATE` - Stop engine
 - `[↶] REVERT` - Rollback commits
@@ -132,13 +147,14 @@ All buttons now have hacker terminal labels:
 - `[♻] OPTIMIZE` - Optimize memory
 
 ### ASCII Art Header
+
 ```
- ████████╗ ██████╗████████╗    ██████╗ ██╗████████╗     █████╗ ██╗   ██╗████████╗ ██████╗ 
+ ████████╗ ██████╗████████╗    ██████╗ ██╗████████╗     █████╗ ██╗   ██╗████████╗ ██████╗
  ╚══██╔══╝██╔════╝╚══██╔══╝   ██╔════╝ ██║╚══██╔══╝    ██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗
     ██║   ██║        ██║      ██║  ███╗██║   ██║       ███████║██║   ██║   ██║   ██║   ██║
     ██║   ██║        ██║      ██║   ██║██║   ██║       ██╔══██║██║   ██║   ██║   ██║   ██║
     ██║   ╚██████╗   ██║      ╚██████╔╝██║   ██║       ██║  ██║╚██████╔╝   ██║   ╚██████╔╝
-    ╚═╝    ╚═════╝   ╚═╝       ╚═════╝ ╚═╝   ╚═╝       ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ 
+    ╚═╝    ╚═════╝   ╚═╝       ╚═════╝ ╚═╝   ╚═╝       ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝
 ```
 
 ---
@@ -146,12 +162,13 @@ All buttons now have hacker terminal labels:
 ## ⚙️ CONFIGURATION CHANGES
 
 ### New Default Values
+
 ```json
 {
   "APP_VERSION": "3.1",
-  "DELAY_SECONDS": 60,          // Changed from 10 to 60
-  "COOLDOWN_SECONDS": 5,        // Changed from 2 to 5
-  "THEME": "hacker",            // New default theme
+  "DELAY_SECONDS": 60, // Changed from 10 to 60
+  "COOLDOWN_SECONDS": 5, // Changed from 2 to 5
+  "THEME": "hacker", // New default theme
   "TERMINAL_FONT": "Consolas",
   "TERMINAL_FONT_SIZE": 10,
   "SHOW_MATRIX_EFFECT": true,
@@ -161,6 +178,7 @@ All buttons now have hacker terminal labels:
 ```
 
 ### New Settings
+
 - **TERMINAL_FONT** - Choose terminal font
 - **TERMINAL_FONT_SIZE** - Adjust font size (8-16)
 - **SHOW_MATRIX_EFFECT** - Enable Matrix visual effects
@@ -172,6 +190,7 @@ All buttons now have hacker terminal labels:
 ## 🎮 USAGE GUIDE
 
 ### Quick Start (Hacker Mode)
+
 ```powershell
 # Launch the hacker terminal
 powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
@@ -186,6 +205,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 ### Customize Everything
 
 #### Change Scan Interval
+
 1. Click `[⚙] CONFIG` tab
 2. Find "Delay Between Checks"
 3. Use spinner: 5-300 seconds
@@ -193,6 +213,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 5. Click `[✓] APPLY CONFIG`
 
 #### Change Cooldown Time
+
 1. In `[⚙] CONFIG` tab
 2. Find "Cooldown Before Commit"
 3. Use spinner: 1-60 seconds
@@ -200,6 +221,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 5. Apply changes
 
 #### Switch Theme
+
 1. In `[⚙] CONFIG` tab
 2. Find "UI Theme" dropdown
 3. Select: **hacker** / dark / light
@@ -207,6 +229,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 5. **Restart required** for full effect
 
 #### Change Terminal Font
+
 1. In `[⚙] CONFIG` tab
 2. Find "Terminal Font" dropdown
 3. Options: Consolas, Courier New, Lucida Console, Cascadia Code
@@ -216,15 +239,19 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 ### Live Settings Features
 
 #### Real-Time Preview
+
 When you change numeric values, you see:
+
 ```
 > Delay Between Checks (seconds):  [60]  (will be: 120)
 ```
 
 #### Quick Reset
+
 Click `[↺] RESET DEFAULTS` to restore factory settings
 
 #### Apply All
+
 Click `[✓] APPLY CONFIG` saves everything at once
 
 ---
@@ -232,18 +259,21 @@ Click `[✓] APPLY CONFIG` saves everything at once
 ## 🚀 PERFORMANCE OPTIMIZATIONS
 
 ### Memory Management
+
 - **Auto GC**: Every 10 minutes
 - **Manual GC**: Click `[♻] OPTIMIZE` button
 - **Working Set Trim**: Reduces memory footprint
 - **Metrics**: Real-time memory display
 
 ### Efficient Operation
+
 - **Smart Polling**: Checks every 60 seconds (vs 10s before)
 - **Cooldown**: 5 seconds to batch rapid changes
 - **Hash Tracking**: Prevents duplicate commits
 - **Log Rotation**: Prevents unlimited log growth
 
 ### Resource Usage
+
 ```
 CPU: < 1% when idle
 Memory: ~50-100 MB
@@ -256,6 +286,7 @@ Network: Only on push/LLM calls
 ## 🎨 THEME COMPARISON
 
 ### Hacker Theme (NEW)
+
 - Background: Pure Black (#000000)
 - Text: Lime Green (#00FF00)
 - Accents: Bright Green (#00FF41)
@@ -266,6 +297,7 @@ Network: Only on push/LLM calls
 - Log Format: `[+][-][!][*]` prefixes
 
 ### Dark Theme
+
 - Background: Dark Gray (#1E1E1E)
 - Text: White
 - Accents: Cyan Blue
@@ -275,6 +307,7 @@ Network: Only on push/LLM calls
 - Standard formatting
 
 ### Light Theme
+
 - Background: Light Gray (#F0F0F0)
 - Text: Black
 - Accents: Blue
@@ -288,6 +321,7 @@ Network: Only on push/LLM calls
 ## 📊 ENHANCED METRICS
 
 ### Dashboard Metrics (Updated Every 2 Seconds)
+
 1. **Commits** - Total this session
 2. **Errors** - Total errors encountered
 3. **Uptime** - Minutes since start
@@ -296,6 +330,7 @@ Network: Only on push/LLM calls
 6. **Repo** - Git repository status (NEW)
 
 ### Boot Sequence Info
+
 ```
 SYSTEM BOOT SEQUENCE INITIATED
 TCT-Git-Auto-Commiter v3.1 ULTIMATE
@@ -322,6 +357,7 @@ MODULES LOADED: Webhooks | Rollback | Export | Metrics | Security
 ## 🎯 RECOMMENDED SETTINGS
 
 ### For Active Development (Rapid Changes)
+
 ```
 Delay: 30 seconds
 Cooldown: 3 seconds
@@ -331,6 +367,7 @@ Auto-Push: Enabled
 ```
 
 ### For Production Code (Careful)
+
 ```
 Delay: 120 seconds (2 minutes)
 Cooldown: 10 seconds
@@ -341,6 +378,7 @@ Strict Safe Mode: ON
 ```
 
 ### For Background Monitoring (Low Resource)
+
 ```
 Delay: 300 seconds (5 minutes)
 Cooldown: 5 seconds
@@ -350,6 +388,7 @@ Memory Optimization: Every 10 min
 ```
 
 ### For Maximum Performance
+
 ```
 Delay: 60 seconds (DEFAULT)
 Cooldown: 5 seconds (DEFAULT)
@@ -364,7 +403,9 @@ Memory Opt: Enabled
 ## 🔧 ADVANCED CUSTOMIZATION
 
 ### Terminal Appearance
+
 All configurable in Settings:
+
 - Font family (4 choices)
 - Font size (8-16 pt)
 - Theme (3 modes)
@@ -373,6 +414,7 @@ All configurable in Settings:
 - Scan lines
 
 ### Commit Behavior
+
 - Delay interval (5-300s)
 - Cooldown period (1-60s)
 - Squash threshold (3-50 commits)
@@ -380,12 +422,14 @@ All configurable in Settings:
 - Safe pull before push
 
 ### AI Configuration
+
 - Provider selection (4 options)
 - Model name (custom)
 - Max diff characters
 - Enable/disable AI
 
 ### Notifications
+
 - Toast notifications
 - Webhook integration
 - Discord/Slack/Teams
@@ -396,7 +440,9 @@ All configurable in Settings:
 ## 💡 PRO TIPS
 
 ### 1. Optimal Delay Time
+
 **60 seconds (default)** is perfect because:
+
 - Gives you time to finish thoughts
 - Batches rapid file saves
 - Reduces commit noise
@@ -404,25 +450,31 @@ All configurable in Settings:
 - Still responsive enough
 
 ### 2. Use Cooldown Wisely
+
 **5 seconds (default)** ensures:
+
 - Multiple file saves are batched
 - Not too long to wait
 - Catches related changes together
 - Prevents half-baked commits
 
 ### 3. Memory Optimization
+
 - Runs auto every 10 minutes
 - Click `[♻] OPTIMIZE` manually after big operations
 - Keeps memory under 100MB typically
 - Improves long-running stability
 
 ### 4. Theme Selection
+
 - **hacker** - For the aesthetic 😎
 - **dark** - For professional look
 - **light** - For bright environments
 
 ### 5. Customize to Your Workflow
+
 All settings are live-editable:
+
 - Adjust delays based on your pace
 - Enable/disable features as needed
 - Try different LLM providers
@@ -454,15 +506,15 @@ All settings are live-editable:
 
 ## 📈 PERFORMANCE GAINS
 
-| Feature | Before | After | Improvement |
-|---------|--------|-------|-------------|
-| **Memory Usage** | ~150MB | ~70MB | 53% reduction |
-| **Default Delay** | 10s | 60s | 6x more efficient |
-| **UI Complexity** | Basic | Advanced | Full customization |
-| **Theme Options** | 2 | 3 | Hacker mode added |
-| **Control Types** | 2 | 4 | Spinners + dropdowns |
-| **Script Lines** | 2002 | 2319 | +317 lines |
-| **Memory Mgmt** | None | Auto + Manual | Stable long runs |
+| Feature           | Before | After         | Improvement          |
+| ----------------- | ------ | ------------- | -------------------- |
+| **Memory Usage**  | ~150MB | ~70MB         | 53% reduction        |
+| **Default Delay** | 10s    | 60s           | 6x more efficient    |
+| **UI Complexity** | Basic  | Advanced      | Full customization   |
+| **Theme Options** | 2      | 3             | Hacker mode added    |
+| **Control Types** | 2      | 4             | Spinners + dropdowns |
+| **Script Lines**  | 2002   | 2319          | +317 lines           |
+| **Memory Mgmt**   | None   | Auto + Manual | Stable long runs     |
 
 ---
 
