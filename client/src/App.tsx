@@ -13,7 +13,6 @@ import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "@/components/ScrollToTop";
 import { useConsoleEasterEggs } from "@/hooks/useConsoleEasterEggs";
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext";
-import { FocusModeProvider } from "@/contexts/FocusContext";
 import { TimeTravelProvider } from "@/contexts/TimeTravelContext";
 import OfflineBanner from "@/components/OfflineBanner";
 import DynamicPresenceMeta from "@/components/DynamicPresenceMeta";
@@ -48,9 +47,6 @@ const BugReportWidget = lazy(() => import("@/components/BugReportWidget"));
 const EyeTrackingToggle = lazy(() => import("@/components/EyeTrackingToggle"));
 const ServiceWorkerStatus = lazy(
   () => import("@/components/ServiceWorkerStatus"),
-);
-const AccessibilityDebugger = lazy(
-  () => import("@/components/AccessibilityDebugger"),
 );
 
 function useIdleRender(timeout = 900) {
@@ -131,38 +127,35 @@ function App() {
     [],
   );
   const showServiceHelpers = enhancersReady;
-  const showDebugOverlays = enhancersReady && (!isProd || debugFlag);
+  const showDebugOverlays = false;
 
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <EnvironmentProvider>
-            <FocusModeProvider>
-              <TimeTravelProvider>
-                <BrowserRouter>
-                  <ScrollToTop />
-                  <DynamicPresenceMeta />
-                  <div className="min-h-screen bg-background text-foreground">
-                    <OfflineBanner />
-                    <Toaster />
-                    <AppRoutes />
-                    {showServiceHelpers && (
-                      <Suspense fallback={null}>
-                        <ServiceWorkerStatus />
-                      </Suspense>
-                    )}
-                    {showDebugOverlays && (
-                      <Suspense fallback={null}>
-                        <BugReportWidget />
-                        <EyeTrackingToggle />
-                        <AccessibilityDebugger />
-                      </Suspense>
-                    )}
-                  </div>
-                </BrowserRouter>
-              </TimeTravelProvider>
-            </FocusModeProvider>
+            <TimeTravelProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <DynamicPresenceMeta />
+                <div className="min-h-screen bg-background text-foreground">
+                  <OfflineBanner />
+                  <Toaster />
+                  <AppRoutes />
+                  {showServiceHelpers && (
+                    <Suspense fallback={null}>
+                      <ServiceWorkerStatus />
+                    </Suspense>
+                  )}
+                  {showDebugOverlays && (
+                    <Suspense fallback={null}>
+                      <BugReportWidget />
+                      <EyeTrackingToggle />
+                    </Suspense>
+                  )}
+                </div>
+              </BrowserRouter>
+            </TimeTravelProvider>
           </EnvironmentProvider>
         </TooltipProvider>
       </QueryClientProvider>

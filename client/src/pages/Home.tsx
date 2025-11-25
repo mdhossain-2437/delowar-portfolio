@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useInView } from "react-intersection-observer";
 import Navigation from "@/components/Navigation";
+import SideNavRail from "@/components/SideNavRail";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import PersonalJourney from "@/components/PersonalJourney";
@@ -60,9 +61,6 @@ const CICDStatusWidget = lazy(() => import("@/components/CICDStatusWidget"));
 const AudioReactiveCanvas = lazy(
   () => import("@/components/AudioReactiveCanvas")
 );
-const PersonalizationBanner = lazy(
-  () => import("@/components/PersonalizationBanner")
-);
 const BrowserFingerprintDemo = lazy(
   () => import("@/components/BrowserFingerprintDemo")
 );
@@ -71,23 +69,18 @@ const CodeReviewHeatmap = lazy(() => import("@/components/CodeReviewHeatmap"));
 const GitBranchVisualizer = lazy(
   () => import("@/components/GitBranchVisualizer")
 );
-const AIQuickEstimate = lazy(() => import("@/components/AIQuickEstimate"));
 const TechDebtTracker = lazy(() => import("@/components/TechDebtTracker"));
 const DailyTimeCapsule = lazy(() => import("@/components/DailyTimeCapsule"));
 const AchievementsPanel = lazy(() => import("@/components/AchievementsPanel"));
 const DynamicStoryProgression = lazy(
   () => import("@/components/DynamicStoryProgression")
 );
-const AvatarCustomizer = lazy(() => import("@/components/AvatarCustomizer"));
 const DeveloperBattleGame = lazy(
   () => import("@/components/DeveloperBattleGame")
 );
 const IsometricSiteMap = lazy(() => import("@/components/IsometricSiteMap"));
 const PhysicsDragGallery = lazy(
   () => import("@/components/PhysicsDragGallery")
-);
-const MicroFrontendShowcase = lazy(
-  () => import("@/components/MicroFrontendShowcase")
 );
 const PrecacheStrategyDemo = lazy(
   () => import("@/components/PrecacheStrategyDemo")
@@ -116,11 +109,26 @@ export default function Home() {
     };
   }, []);
 
+  const sideNavSections = [
+    { id: "home", label: "Home" },
+    { id: "about", label: "About" },
+    { id: "skills", label: "Skills" },
+    { id: "projects", label: "Projects" },
+    { id: "stack", label: "Stack" },
+    { id: "blog", label: "Blog" },
+    { id: "timeline", label: "Timeline" },
+    { id: "achievements", label: "Achievements" },
+    { id: "playground", label: "Playground" },
+    { id: "tasks", label: "Tasks" },
+    { id: "contact", label: "Contact" },
+  ];
+
   return (
     <>
       {isLoading && <LoadingScreen onLoadComplete={handleLoadComplete} />}
 
       <div className="overflow-x-hidden">
+        <SideNavRail sections={sideNavSections} />
         <Helmet>
           <title>Delowar Hossain | Product Engineer & AI Explorer</title>
           <meta
@@ -150,23 +158,22 @@ export default function Home() {
         <Navigation />
         <Hero />
         <SectionLoader minHeight="9rem">
-          <PersonalizationBanner />
-        </SectionLoader>
-        <SectionLoader minHeight="9rem">
           <WelcomeBackBanner />
         </SectionLoader>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
-          <SectionLoader minHeight="8rem">
+          <SectionLoader minHeight="8rem" id="status">
             <AmbientStatusWidget />
           </SectionLoader>
         </div>
-        <SectionLoader>
+        <SectionLoader id="tasks">
           <MissionControl />
         </SectionLoader>
-        <SectionLoader>
+        <SectionLoader id="playground">
           <WorkspaceShowcase />
         </SectionLoader>
-        <About />
+        <SectionLoader id="about" minHeight="14rem">
+          <About />
+        </SectionLoader>
         <PersonalJourney />
         <SectionLoader>
           <DynamicStoryProgression />
@@ -189,12 +196,9 @@ export default function Home() {
             <DeviceMotionScene />
           </SectionLoader>
         )}
-        <Skills />
-        {enableLabs && (
-          <SectionLoader>
-            <AvatarCustomizer />
-          </SectionLoader>
-        )}
+        <SectionLoader id="skills" minHeight="16rem">
+          <Skills />
+        </SectionLoader>
         {enableLabs && phase1Ready && (
           <>
             <SectionLoader minHeight="18rem">
@@ -212,12 +216,9 @@ export default function Home() {
             <SectionLoader>
               <PrecacheStrategyDemo />
             </SectionLoader>
-            <SectionLoader>
-              <MicroFrontendShowcase />
-            </SectionLoader>
           </>
         )}
-        <SectionLoader>
+        <SectionLoader id="stack">
           <TechStackVisualization />
         </SectionLoader>
         <SectionLoader>
@@ -234,13 +235,13 @@ export default function Home() {
             <AvailabilityGlobe />
           </SectionLoader>
         )}
-        <SectionLoader>
+        <SectionLoader id="projects">
           <Projects />
         </SectionLoader>
         <SectionLoader>
           <ComparisonSlider />
         </SectionLoader>
-        <SectionLoader>
+        <SectionLoader id="blog">
           <BlogPreview />
         </SectionLoader>
         <SectionLoader>
@@ -258,7 +259,7 @@ export default function Home() {
         <SectionLoader>
           <StatsDashboard />
         </SectionLoader>
-        <SectionLoader>
+        <SectionLoader id="timeline">
           <WorkProcess />
         </SectionLoader>
         <SectionLoader>
@@ -273,11 +274,6 @@ export default function Home() {
         {enableLabs && (
           <SectionLoader>
             <PricingCalculator />
-          </SectionLoader>
-        )}
-        {enableLabs && (
-          <SectionLoader>
-            <AIQuickEstimate />
           </SectionLoader>
         )}
         {enableLabs && (
@@ -309,7 +305,7 @@ export default function Home() {
         <SectionLoader>
           <KnowledgeGraph />
         </SectionLoader>
-        <SectionLoader>
+        <SectionLoader id="achievements">
           <AchievementsPanel />
         </SectionLoader>
         <SectionLoader>
@@ -329,7 +325,7 @@ export default function Home() {
             <WebAuthnDemo />
           </SectionLoader>
         )}
-        <SectionLoader>
+        <SectionLoader id="contact">
           <InteractiveContact />
         </SectionLoader>
         {enableLabs && (
@@ -348,11 +344,13 @@ export default function Home() {
 function SectionLoader({
   children,
   minHeight = "24rem",
-  rootMargin = "320px",
+  rootMargin = "200px",
+  id,
 }: {
   children: ReactNode;
   minHeight?: string;
   rootMargin?: string;
+  id?: string;
 }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -363,6 +361,7 @@ function SectionLoader({
     return (
       <div
         ref={ref}
+        id={id}
         className="w-full rounded-3xl border border-white/10 bg-white/5 animate-pulse"
         style={{ minHeight }}
       />
@@ -370,7 +369,7 @@ function SectionLoader({
   }
 
   return (
-    <div ref={ref}>
+    <div ref={ref} id={id}>
       <Suspense
         fallback={
           <div

@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import VoiceCommandToggle from "@/components/VoiceCommandToggle";
 import InstallPWAButton from "@/components/InstallPWAButton";
-import FocusModeToggle from "@/components/FocusModeToggle";
 import SoundToggle from "@/components/SoundToggle";
 import LocaleToggle from "@/components/LocaleToggle";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -28,7 +27,7 @@ export default function Navigation() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
 
-      const sections = ["home", "about", "skills", "projects", "blog", "contact"];
+    const sections = ["home", "about", "skills", "projects", "blog", "contact"];
       const scrollPosition = window.scrollY + 150;
 
       for (const section of sections) {
@@ -93,27 +92,6 @@ export default function Navigation() {
             </motion.button>
 
             <div className="hidden md:flex items-center space-x-3">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
-                  activeSection === item.id
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                data-testid={`nav-${item.id}`}
-              >
-                {item.label}
-                {activeSection === item.id && (
-                  <motion.div
-                    layoutId="activeSection"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </button>
-            ))}
             <button
               onClick={() => navigate("/guestbook")}
               className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
@@ -123,14 +101,6 @@ export default function Navigation() {
               <Users className="w-4 h-4" />
             </button>
             <button
-              onClick={() => navigate("/blog")}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
-              type="button"
-            >
-              <BookOpen className="w-4 h-4" />
-              {t("nav.blog")}
-            </button>
-            <button
               onClick={() => navigate("/uses")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               type="button"
@@ -138,10 +108,9 @@ export default function Navigation() {
               {t("nav.uses")}
             </button>
             <InstallPWAButton />
-            <FocusModeToggle />
-            <SoundToggle />
-            <LocaleToggle />
-          </div>
+          <SoundToggle />
+          <LocaleToggle />
+        </div>
           <div className="hidden lg:block">
             <VoiceCommandToggle />
           </div>
@@ -208,7 +177,6 @@ export default function Navigation() {
           </div>
         </div>
         <div className="mt-2 flex justify-end gap-2 max-w-md mx-auto">
-          <FocusModeToggle />
           <SoundToggle />
           <LocaleToggle />
         </div>

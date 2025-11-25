@@ -10,13 +10,20 @@ type SecurityProfile = {
 const PROD_CSP = {
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
-    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+    scriptSrc: ["'self'", "https://www.googletagmanager.com"],
+    styleSrc: ["'self'", "https://fonts.googleapis.com"],
     fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
     imgSrc: ["'self'", "data:", "https://*"],
-    connectSrc: ["'self'", "https://api.delowarhossain.dev", "https://*.ingest.sentry.io"],
+    connectSrc: [
+      "'self'",
+      "https://api.delowarhossain.dev",
+      "https://*.ingest.sentry.io",
+    ],
     frameSrc: ["'self'"],
     objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    formAction: ["'self'"],
+    frameAncestors: ["'none'"],
     upgradeInsecureRequests: [],
   },
 };
@@ -57,8 +64,8 @@ export function applySecurity(app: Express) {
   app.use(
     helmet({
       contentSecurityPolicy: csp,
-      crossOriginEmbedderPolicy: false,
-      crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+      crossOriginEmbedderPolicy: isProduction ? true : false,
+      crossOriginOpenerPolicy: { policy: "same-origin" },
       crossOriginResourcePolicy: { policy: "same-origin" },
       referrerPolicy: { policy: "strict-origin-when-cross-origin" },
       dnsPrefetchControl: { allow: false },
@@ -75,7 +82,23 @@ export function applySecurity(app: Express) {
   );
 
   app.use((_req: Request, res: Response, next: NextFunction) => {
-    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader(
+      "Permissions-Policy",
+      [
+        "accelerometer=()",
+        "autoplay=()",
+        "camera=()",
+        "display-capture=()",
+        "document-domain=()",
+        "encrypted-media=()",
+        "fullscreen=(self)",
+        "geolocation=()",
+        "gyroscope=()",
+        "microphone=()",
+        "payment=()",
+        "usb=()",
+      ].join(", "),
+    );
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
     res.setHeader("X-DNS-Prefetch-Control", "off");

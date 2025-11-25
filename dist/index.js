@@ -909,8 +909,12 @@ var DbStorage = class {
   }
   // ==================== SEED DATA ====================
   async seedDatabase() {
+    const shouldLog = process.env.NODE_ENV !== "production";
+    const log2 = (...args) => {
+      if (shouldLog) console.log(...args);
+    };
     try {
-      console.log("\u{1F331} Starting database seed...");
+      log2("\u{1F331} Starting database seed...");
       const hashedPassword = await bcrypt.hash("admin123", 10);
       const [adminUser] = await db.insert(users).values({
         username: "admin",
@@ -920,7 +924,7 @@ var DbStorage = class {
         role: "admin"
       }).onConflictDoNothing().returning();
       if (adminUser) {
-        console.log("\u2705 Admin user created");
+        log2("\u2705 Admin user created");
       }
       await db.insert(projects).values([
         {
@@ -975,7 +979,7 @@ var DbStorage = class {
           status: "completed"
         }
       ]).onConflictDoNothing();
-      console.log("\u2705 Projects seeded");
+      log2("\u2705 Projects seeded");
       await db.insert(blogPosts).values([
         {
           title: "Building Scalable APIs with Node.js",
@@ -1011,7 +1015,7 @@ var DbStorage = class {
           readingTime: 15
         }
       ]).onConflictDoNothing();
-      console.log("\u2705 Blog posts seeded");
+      log2("\u2705 Blog posts seeded");
       await db.insert(skills).values([
         { name: "JavaScript", category: "frontend", proficiency: 95, icon: "SiJavascript", order: 1 },
         { name: "TypeScript", category: "frontend", proficiency: 90, icon: "SiTypescript", order: 2 },
@@ -1024,7 +1028,7 @@ var DbStorage = class {
         { name: "Tailwind CSS", category: "frontend", proficiency: 87, icon: "SiTailwindcss", order: 9 },
         { name: "MongoDB", category: "backend", proficiency: 80, icon: "SiMongodb", order: 10 }
       ]).onConflictDoNothing();
-      console.log("\u2705 Skills seeded");
+      log2("\u2705 Skills seeded");
       await db.insert(timelineEvents).values([
         {
           year: 2024,
@@ -1051,7 +1055,7 @@ var DbStorage = class {
           order: 1
         }
       ]).onConflictDoNothing();
-      console.log("\u2705 Timeline events seeded");
+      log2("\u2705 Timeline events seeded");
       await db.insert(testimonials).values([
         {
           name: "Sarah Johnson",
@@ -1070,8 +1074,8 @@ var DbStorage = class {
           featured: true
         }
       ]).onConflictDoNothing();
-      console.log("\u2705 Testimonials seeded");
-      console.log("\u{1F389} Database seeding completed successfully!");
+      log2("\u2705 Testimonials seeded");
+      log2("\u{1F389} Database seeding completed successfully!");
     } catch (error) {
       console.error("\u274C Error seeding database:", error);
       throw error;
@@ -1344,13 +1348,20 @@ import helmet from "helmet";
 var PROD_CSP = {
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
-    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+    scriptSrc: ["'self'", "https://www.googletagmanager.com"],
+    styleSrc: ["'self'", "https://fonts.googleapis.com"],
     fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
     imgSrc: ["'self'", "data:", "https://*"],
-    connectSrc: ["'self'", "https://api.delowarhossain.dev", "https://*.ingest.sentry.io"],
+    connectSrc: [
+      "'self'",
+      "https://api.delowarhossain.dev",
+      "https://*.ingest.sentry.io"
+    ],
     frameSrc: ["'self'"],
     objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    formAction: ["'self'"],
+    frameAncestors: ["'none'"],
     upgradeInsecureRequests: []
   }
 };
@@ -1384,8 +1395,8 @@ function applySecurity(app2) {
   app2.use(
     helmet({
       contentSecurityPolicy: csp,
-      crossOriginEmbedderPolicy: false,
-      crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+      crossOriginEmbedderPolicy: isProduction ? true : false,
+      crossOriginOpenerPolicy: { policy: "same-origin" },
       crossOriginResourcePolicy: { policy: "same-origin" },
       referrerPolicy: { policy: "strict-origin-when-cross-origin" },
       dnsPrefetchControl: { allow: false },
@@ -1399,7 +1410,23 @@ function applySecurity(app2) {
     })
   );
   app2.use((_req, res, next) => {
-    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader(
+      "Permissions-Policy",
+      [
+        "accelerometer=()",
+        "autoplay=()",
+        "camera=()",
+        "display-capture=()",
+        "document-domain=()",
+        "encrypted-media=()",
+        "fullscreen=(self)",
+        "geolocation=()",
+        "gyroscope=()",
+        "microphone=()",
+        "payment=()",
+        "usb=()"
+      ].join(", ")
+    );
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
     res.setHeader("X-DNS-Prefetch-Control", "off");
@@ -1579,83 +1606,6 @@ async function getServerlessMetrics() {
       updatedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
   }
-}
-
-// server/services/personalization.ts
-var localeConfig = [
-  {
-    countries: ["BD", "IN"],
-    language: "bn",
-    greeting: "\u09B8\u09CD\u09AC\u09BE\u0997\u09A4\u09AE! \u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09DF \u099F\u09CD\u09B0\u09BE\u09AB\u09BF\u0995\u0995\u09C7 \u0985\u0997\u09CD\u09B0\u09BE\u09A7\u09BF\u0995\u09BE\u09B0 \u09A6\u09C7\u0993\u09DF\u09BE \u09B9\u09DF\u09C7\u099B\u09C7\u0964",
-    message: "Bangladesh visitors see Bengali copy and Dhaka-centric case studies first."
-  },
-  {
-    countries: ["US", "CA", "GB", "AU"],
-    language: "en",
-    greeting: "Hello from the edge!",
-    message: "US visitors get fast routes via CDG and IAD regions with English hero copy."
-  }
-];
-function resolveEdgeProfile(req) {
-  const headerCountry = req.headers["cf-ipcountry"] || req.headers["x-vercel-ip-country"] || req.headers["x-country"] || req.headers["x-geo-country"];
-  const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim();
-  const matched = localeConfig.find(
-    (profile2) => profile2.countries.includes((headerCountry ?? "").toUpperCase())
-  ) ?? localeConfig[1];
-  return {
-    country: headerCountry ?? "US",
-    ip,
-    primaryLanguage: matched.language,
-    greeting: matched.greeting,
-    message: matched.message,
-    regions: headerCountry?.toUpperCase() === "BD" ? ["SIN1", "MUM1"] : ["CDG1", "IAD1"]
-  };
-}
-
-// server/services/aiEstimator.ts
-var baseRates = [
-  { tag: "ai", multiplier: 1.4 },
-  { tag: "realtime", multiplier: 1.2 },
-  { tag: "mobile", multiplier: 1.15 },
-  { tag: "dashboard", multiplier: 1.1 },
-  { tag: "ecommerce", multiplier: 1.25 }
-];
-var keywords = {
-  ai: ["ai", "ml", "machine learning", "llm", "gpt"],
-  realtime: ["websocket", "live", "chat", "stream"],
-  mobile: ["mobile", "react native", "pwa"],
-  dashboard: ["dashboard", "analytics", "admin"],
-  ecommerce: ["checkout", "cart", "payment", "shop"]
-};
-function estimateFromBrief(brief) {
-  const normalized = brief.toLowerCase();
-  const tags = Object.entries(keywords).filter(([, terms]) => terms.some((term) => normalized.includes(term))).map(([tag]) => tag);
-  let timeline = 4;
-  let budget = 8e3;
-  if (brief.length > 400) {
-    timeline += 4;
-    budget += 6e3;
-  } else if (brief.length > 200) {
-    timeline += 2;
-    budget += 3e3;
-  }
-  tags.forEach((tag) => {
-    const mod = baseRates.find((rate) => rate.tag === tag);
-    if (mod) {
-      budget *= mod.multiplier;
-      timeline += 1;
-    }
-  });
-  if (!tags.length) {
-    tags.push("web-app");
-  }
-  return {
-    timelineWeeks: Math.round(timeline),
-    budgetUSD: Math.round(budget / 100) * 100,
-    confidence: Math.max(0.6, 1 - tags.length * 0.05),
-    tags,
-    rationale: `Detected ${tags.join(", ")} scope in brief of ${brief.length} chars.`
-  };
 }
 
 // server/services/engineeringInsights.ts
@@ -2779,25 +2729,6 @@ Source: ${parsed.data.source ?? "home newsletter"}`
     const metrics = await getServerlessMetrics();
     res.json(metrics);
   });
-  app2.get("/api/personalization/profile", (req, res) => {
-    res.json({
-      profile: resolveEdgeProfile(req),
-      servedAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  });
-  app2.post("/api/ai/estimate", (req, res) => {
-    const brief = String(req.body?.brief ?? "");
-    if (!brief || brief.length < 20) {
-      return res.status(400).json({
-        message: "Please describe the project in at least 20 characters."
-      });
-    }
-    res.json({
-      brief,
-      estimate: estimateFromBrief(brief),
-      generatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  });
   app2.get("/api/engineering/code-reviews", (_req, res) => {
     res.json(getCodeReviewHeatmap());
   });
@@ -2903,7 +2834,9 @@ var vite_config_default = defineConfig(async () => {
 // server/vite.ts
 import { nanoid } from "nanoid";
 var viteLogger = createLogger();
+var isProd = process.env.NODE_ENV === "production";
 function log(message, source = "express") {
+  if (isProd) return;
   const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
