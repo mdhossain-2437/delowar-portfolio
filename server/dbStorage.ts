@@ -1,10 +1,6 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { Pool, neonConfig } from "@neondatabase/serverless";
 import { eq, and, desc, asc, or, sql, like } from "drizzle-orm";
 import bcrypt from "bcrypt";
-import ws from "ws";
-
-neonConfig.webSocketConstructor = ws;
+import { getDbConnection } from "./lib/mongoConnection";
 import {
   users,
   projects,
@@ -57,15 +53,8 @@ import {
   type IncomeEntry, type InsertIncomeEntry,
 } from "@shared/schema";
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error(
-    "DATABASE_URL is not set. Provision the Neon serverless instance and set the environment variable before starting the server.",
-  );
-}
-
-const pool = new Pool({ connectionString });
-const db = drizzle(pool);
+// Use serverless-optimized connection
+const { db } = getDbConnection();
 
 export class DbStorage {
   // ==================== USER METHODS ====================
