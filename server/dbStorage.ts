@@ -632,8 +632,13 @@ export class DbStorage {
 
   // ==================== SEED DATA ====================
   async seedDatabase(): Promise<void> {
+    const shouldLog = process.env.NODE_ENV !== "production";
+    const log = (...args: unknown[]) => {
+      if (shouldLog) console.log(...args);
+    };
+
     try {
-      console.log("🌱 Starting database seed...");
+      log("🌱 Starting database seed...");
 
       const hashedPassword = await bcrypt.hash("admin123", 10);
       const [adminUser] = await db
@@ -649,7 +654,7 @@ export class DbStorage {
         .returning();
 
       if (adminUser) {
-        console.log("✅ Admin user created");
+        log("✅ Admin user created");
       }
 
       await db
@@ -708,7 +713,7 @@ export class DbStorage {
           },
         ])
         .onConflictDoNothing();
-      console.log("✅ Projects seeded");
+      log("✅ Projects seeded");
 
       await db
         .insert(blogPosts)
@@ -748,7 +753,7 @@ export class DbStorage {
           },
         ])
         .onConflictDoNothing();
-      console.log("✅ Blog posts seeded");
+      log("✅ Blog posts seeded");
 
       await db
         .insert(skills)
@@ -765,7 +770,7 @@ export class DbStorage {
           { name: "MongoDB", category: "backend", proficiency: 80, icon: "SiMongodb", order: 10 },
         ])
         .onConflictDoNothing();
-      console.log("✅ Skills seeded");
+      log("✅ Skills seeded");
 
       await db
         .insert(timelineEvents)
@@ -796,7 +801,7 @@ export class DbStorage {
           },
         ])
         .onConflictDoNothing();
-      console.log("✅ Timeline events seeded");
+      log("✅ Timeline events seeded");
 
       await db
         .insert(testimonials)
@@ -819,9 +824,9 @@ export class DbStorage {
           },
         ])
         .onConflictDoNothing();
-      console.log("✅ Testimonials seeded");
+      log("✅ Testimonials seeded");
 
-      console.log("🎉 Database seeding completed successfully!");
+      log("🎉 Database seeding completed successfully!");
     } catch (error) {
       console.error("❌ Error seeding database:", error);
       throw error;

@@ -18,10 +18,9 @@ const shouldEnableInDev =
     ? import.meta.env.VITE_ENABLE_DEV_KONAMI === "true"
     : false;
 
-const shouldEnable =
-  import.meta.env.PROD ||
-  import.meta.env.VITE_ENABLE_KONAMI === "true" ||
-  shouldEnableInDev;
+const shouldEnable = import.meta.env.DEV
+  ? shouldEnableInDev
+  : import.meta.env.VITE_ENABLE_KONAMI === "true";
 
 export function useConsoleEasterEggs() {
   useEffect(() => {
@@ -37,7 +36,7 @@ export function useConsoleEasterEggs() {
 ██║     ███████╗███████╗╚██████╔╝╚███╔███╔╝██║  ██║██████╔╝
 ╚═╝     ╚══════╝╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝ `;
 
-    if (import.meta.env.PROD || shouldEnableInDev) {
+    if (import.meta.env.DEV && shouldEnableInDev) {
       console.log(`%c${asciiArt}`, "color:#a855f7;font-weight:bold;");
       console.log(
         "%cPsst! Try the Konami code for a secret neon theme.",
@@ -60,7 +59,9 @@ export function useConsoleEasterEggs() {
 
       if (pressed.length === KONAMI_SEQUENCE.length) {
         document.body.classList.toggle("konami-theme");
-        console.info("%cKonami mode toggled!", "color:#34d399;");
+        if (import.meta.env.DEV && shouldEnableInDev) {
+          console.info("%cKonami mode toggled!", "color:#34d399;");
+        }
         pressed.length = 0;
       }
     };
