@@ -1097,121 +1097,31 @@ if ($ENABLE_GUI) {
             $powershell = [powershell]::Create()
             $powershell.Runspace = $runspace
             
-            # Add all functions to runspace
-            [void]$powershell.AddScript({
-                # Re-define functions in runspace context
-                function Write-Log([string]$text) {
-                    $line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | $text"
-                    Write-Host $line
-                    try { Add-Content -Path $LOGFILE -Value $line -ErrorAction SilentlyContinue } catch { }
-                }
-                
-                function Is-Ignored([string]$path) {
-                    foreach ($p in $IGNORE_PATTERNS) { if ($path -like "*$p*") { return $true } }
-                    return $false
-                }
-                
-                function Call-Gemini($apiKey, $model, $prompt) {
-                    try {
-                        $url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}"
-                        $payload = @{ contents = @(@{ parts = @(@{ text = $prompt }) }); generationConfig = @{ maxOutputTokens = 200; temperature = 0.3 } } | ConvertTo-Json -Depth 10
-                        $resp = Invoke-RestMethod -Uri $url -Method Post -ContentType "application/json" -Body $payload -ErrorAction Stop
-                        if ($resp.candidates -and $resp.candidates[0].content.parts) {
-                            return $resp.candidates[0].content.parts[0].text.Trim()
-                        }
-                        return $null
-                    } catch { Write-Log "Gemini error: $_"; return $null }
-                }
-                
-                function Build-Heuristic($added,$modified,$deleted,$untracked,$renamed) {
-                    $total = $added.Count + $modified.Count + $deleted.Count + $untracked.Count + $renamed.Count
-                    $parts = @()
-                    if ($modified.Count -gt 0) { $parts += "update($($modified.Count))" }
-                    if ($added.Count -gt 0) { $parts += "add($($added.Count))" }
-                    if ($deleted.Count -gt 0) { $parts += "remove($($deleted.Count))" }
-                    if ($untracked.Count -gt 0) { $parts += "new($($untracked.Count))" }
-                    return "chore: $total file(s) - " + ($parts -join " | ")
-                }
-                
-                function Build-CommitMessage($added,$modified,$deleted,$untracked,$renamed) {
-                    $heur = Build-Heuristic $added $modified $deleted $untracked $renamed
-                    if (-not $LLM_ENABLED) { return $heur }
-                    $apiKey = $INLINE_KEYS["GEMINI_API_KEY"]
-                    if (-not $apiKey -or $apiKey -match "YOUR_API_KEY") { return $heur }
-                    try {
-                        $diff = git diff --staged --stat 2>$null | Out-String
-                        $prompt = "Generate a concise git commit message (under 72 chars) for: $heur`nDiff: $diff`nReturn ONLY the message."
-                        $res = Call-Gemini $apiKey $LLM_MODEL $prompt
-                        if ($res -and $res.Length -gt 5 -and $res.Length -lt 200) { return $res -replace "`n.*","" }
-                    } catch { }
-                    return $heur
-                }
-                
-                function Ensure-AutoBranch {
-                    $exists = git branch --list $AUTO_BRANCH 2>$null
-                    if (-not $exists) {
-                        git branch $AUTO_BRANCH 2>$null
-                        Write-Log "Created auto-branch: $AUTO_BRANCH"
-                    }
-                }
-                
-                function PushIfOnline {
-                    if (-not $AUTO_PUSH_ENABLED) { return }
-                    try {
-                        git push -u origin $AUTO_BRANCH 2>$null
-                        Write-Log "Pushed to origin."
-                    } catch { Write-Log "Push failed." }
-                }
-                
-                # Main loop
-                Ensure-AutoBranch
-                
-                while ($true) {
-                    if (Test-Path ".tct_stop") { Start-Sleep -Seconds $DELAY_SECONDS; continue }
-                    if (-not (Test-Path ".git")) { Start-Sleep -Seconds $DELAY_SECONDS; continue }
-                    
-                    $porc = git status --porcelain --untracked-files=all 2>$null
-                    if (-not $porc) { Start-Sleep -Seconds $DELAY_SECONDS; continue }
-                    
-                    $lines = $porc -split "`n" | Where-Object { $_ -and $_.Trim() }
-                    $added=@(); $modified=@(); $deleted=@(); $untracked=@(); $renamed=@()
-                    
-                    foreach ($l in $lines) {
-                        if ($l.Length -lt 3) { continue }
-                        $code = $l.Substring(0,2).Trim()
-                        $path = $l.Substring(3).Trim()
-                        if (Is-Ignored $path) { continue }
-                        switch -Regex ($code) { 
-                            "^\?\?" { $untracked += $path }
-                            "M" { $modified += $path }
-                            "A" { $added += $path }
-                            "D" { $deleted += $path }
-                            default { $modified += $path }
-                        }
-                    }
-                    
-                    $total = $added.Count + $modified.Count + $deleted.Count + $untracked.Count
-                    if ($total -eq 0) { Start-Sleep -Seconds $DELAY_SECONDS; continue }
-                    
-                    Start-Sleep -Seconds $COOLDOWN_SECONDS
-                    
-                    if ($STRICT_SAFE_MODE) { git checkout $AUTO_BRANCH 2>$null }
-                    
-                    git add -A 2>$null
-                    $msg = Build-CommitMessage $added $modified $deleted $untracked $renamed
-                    $staged = git diff --cached --name-only 2>$null
-                    
-                    if ($staged) {
-                        git commit -m "AutoCommit: $msg" 2>$null
-                        if ($LASTEXITCODE -eq 0) {
-                            Write-Log "Committed: $msg"
-                            PushIfOnline
-                        }
-                    }
-                    
-                    Start-Sleep -Seconds $DELAY_SECONDS
-                }
-            })
+            # Copy current function definitions into the background runspace so GUI and console share one engine
+            $functionsToCopy = @(
+                "Write-Log",
+                "Is-Ignored",
+                "Call-Gemini",
+                "Build-Heuristic",
+                "Build-CommitMessage",
+                "Ensure-AutoBranch",
+                "Safe-Checkout",
+                "Safe-Return",
+                "PushIfOnline",
+                "Auto-Squash-IfNeeded",
+                "Weekly-Backup",
+                "Start-RemoteAPI",
+                "Stop-RemoteAPI",
+                "Engine-Loop"
+            )
+
+            $functionDefs = $functionsToCopy | ForEach-Object {
+                $fn = Get-Command $_ -CommandType Function -ErrorAction SilentlyContinue
+                if ($fn) { $fn.Definition } else { "" }
+            } | Where-Object { $_ -and $_.Trim() }
+
+            $engineScript = ($functionDefs -join "`n`n") + "`n`nEngine-Loop"
+            [void]$powershell.AddScript($engineScript)
             
             $script:engineJob = $powershell.BeginInvoke()
             $timer.Start()
