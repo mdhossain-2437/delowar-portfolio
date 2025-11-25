@@ -1469,18 +1469,33 @@ function Engine-Loop {
     }
 }
 
-# GUI + tray minimal polished UI - FIXED with proper threading
-if ($ENABLE_GUI) {
+# GUI + tray ULTIMATE UI with Settings Panel, Dashboard, Multi-repo support
+if ($script:Config.ENABLE_GUI) {
     # Remove stop file on fresh start
     Remove-Item -Path ".tct_stop" -ErrorAction SilentlyContinue
     
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "$APP_NAME v2.0"
-    $form.Size = New-Object System.Drawing.Size(780,480)
+    $form.Text = "$($script:Config.APP_NAME) v$($script:Config.APP_VERSION)"
+    $form.Size = New-Object System.Drawing.Size(1000,650)
     $form.StartPosition = "CenterScreen"
     $form.Font = New-Object System.Drawing.Font("Segoe UI",9)
-    $form.BackColor = [System.Drawing.Color]::FromArgb(30,30,30)
-    $form.ForeColor = [System.Drawing.Color]::White
+    
+    # Apply theme
+    $isDark = $script:Config.THEME -eq "dark"
+    $form.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(30,30,30) } else { [System.Drawing.Color]::FromArgb(240,240,240) }
+    $form.ForeColor = if ($isDark) { [System.Drawing.Color]::White } else { [System.Drawing.Color]::Black }
+    
+    # Create tab control for main views
+    $tabControl = New-Object System.Windows.Forms.TabControl
+    $tabControl.Location = New-Object System.Drawing.Point(10,10)
+    $tabControl.Size = New-Object System.Drawing.Size(970,550)
+    $form.Controls.Add($tabControl)
+    
+    # ============ TAB 1: Main Dashboard ============
+    $tabMain = New-Object System.Windows.Forms.TabPage
+    $tabMain.Text = "📊 Dashboard"
+    $tabMain.BackColor = $form.BackColor
+    $tabControl.Controls.Add($tabMain)
     
     # Header label
     $lbl = New-Object System.Windows.Forms.Label
@@ -1489,68 +1504,96 @@ if ($ENABLE_GUI) {
     $lbl.AutoSize = $true
     $lbl.ForeColor = [System.Drawing.Color]::LightGreen
     $lbl.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
-    $form.Controls.Add($lbl)
+    $tabMain.Controls.Add($lbl)
+    
+    # Metrics panel (top right)
+    $metricsPanel = New-Object System.Windows.Forms.Panel
+    $metricsPanel.Location = New-Object System.Drawing.Point(650,10)
+    $metricsPanel.Size = New-Object System.Drawing.Size(300,140)
+    $metricsPanel.BorderStyle = "FixedSingle"
+    $metricsPanel.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(40,40,40) } else { [System.Drawing.Color]::White }
+    $tabMain.Controls.Add($metricsPanel)
+    
+    $lblMetricsTitle = New-Object System.Windows.Forms.Label
+    $lblMetricsTitle.Text = "📈 Session Metrics"
+    $lblMetricsTitle.Location = New-Object System.Drawing.Point(10,5)
+    $lblMetricsTitle.AutoSize = $true
+    $lblMetricsTitle.Font = New-Object System.Drawing.Font("Segoe UI",10,[System.Drawing.FontStyle]::Bold)
+    $metricsPanel.Controls.Add($lblMetricsTitle)
+    
+    $lblMetrics = New-Object System.Windows.Forms.Label
+    $lblMetrics.Location = New-Object System.Drawing.Point(10,30)
+    $lblMetrics.Size = New-Object System.Drawing.Size(280,100)
+    $lblMetrics.Text = "Commits: 0`r`nErrors: 0`r`nUptime: 0m`r`nLast Commit: Never"
+    $metricsPanel.Controls.Add($lblMetrics)
     
     # Log textbox
     $txtLog = New-Object System.Windows.Forms.TextBox
     $txtLog.Multiline = $true
     $txtLog.ScrollBars = "Both"
     $txtLog.ReadOnly = $true
-    $txtLog.Size = New-Object System.Drawing.Size(740,300)
-    $txtLog.Location = New-Object System.Drawing.Point(12,45)
-    $txtLog.BackColor = [System.Drawing.Color]::FromArgb(20,20,20)
-    $txtLog.ForeColor = [System.Drawing.Color]::LightGray
+    $txtLog.Size = New-Object System.Drawing.Size(940,300)
+    $txtLog.Location = New-Object System.Drawing.Point(12,160)
+    $txtLog.BackColor = if ($isDark) { [System.Drawing.Color]::FromArgb(20,20,20) } else { [System.Drawing.Color]::White }
+    $txtLog.ForeColor = if ($isDark) { [System.Drawing.Color]::LightGray } else { [System.Drawing.Color]::Black }
     $txtLog.Font = New-Object System.Drawing.Font("Consolas",9)
-    $form.Controls.Add($txtLog)
+    $tabMain.Controls.Add($txtLog)
     
-    # Start button
+    # Control buttons
     $btnStart = New-Object System.Windows.Forms.Button
     $btnStart.Text = "▶ Start"
     $btnStart.Size = New-Object System.Drawing.Size(100,36)
-    $btnStart.Location = New-Object System.Drawing.Point(12,360)
+    $btnStart.Location = New-Object System.Drawing.Point(12,470)
     $btnStart.BackColor = [System.Drawing.Color]::FromArgb(40,120,40)
     $btnStart.ForeColor = [System.Drawing.Color]::White
     $btnStart.FlatStyle = "Flat"
-    $form.Controls.Add($btnStart)
+    $tabMain.Controls.Add($btnStart)
     
-    # Stop button
     $btnStop = New-Object System.Windows.Forms.Button
     $btnStop.Text = "⏹ Stop"
     $btnStop.Size = New-Object System.Drawing.Size(100,36)
-    $btnStop.Location = New-Object System.Drawing.Point(122,360)
+    $btnStop.Location = New-Object System.Drawing.Point(122,470)
     $btnStop.Enabled = $false
     $btnStop.BackColor = [System.Drawing.Color]::FromArgb(120,40,40)
     $btnStop.ForeColor = [System.Drawing.Color]::White
     $btnStop.FlatStyle = "Flat"
-    $form.Controls.Add($btnStop)
+    $tabMain.Controls.Add($btnStop)
     
-    # Install task button
-    $btnInstallTask = New-Object System.Windows.Forms.Button
-    $btnInstallTask.Text = "📅 Install Start-on-Boot"
-    $btnInstallTask.Size = New-Object System.Drawing.Size(180,36)
-    $btnInstallTask.Location = New-Object System.Drawing.Point(232,360)
-    $btnInstallTask.BackColor = [System.Drawing.Color]::FromArgb(60,60,100)
-    $btnInstallTask.ForeColor = [System.Drawing.Color]::White
-    $btnInstallTask.FlatStyle = "Flat"
-    $form.Controls.Add($btnInstallTask)
+    $btnRollback = New-Object System.Windows.Forms.Button
+    $btnRollback.Text = "↶ Rollback"
+    $btnRollback.Size = New-Object System.Drawing.Size(100,36)
+    $btnRollback.Location = New-Object System.Drawing.Point(232,470)
+    $btnRollback.BackColor = [System.Drawing.Color]::FromArgb(100,60,60)
+    $btnRollback.ForeColor = [System.Drawing.Color]::White
+    $btnRollback.FlatStyle = "Flat"
+    $tabMain.Controls.Add($btnRollback)
     
-    # Clear log button
+    $btnExport = New-Object System.Windows.Forms.Button
+    $btnExport.Text = "📄 Export Log"
+    $btnExport.Size = New-Object System.Drawing.Size(110,36)
+    $btnExport.Location = New-Object System.Drawing.Point(342,470)
+    $btnExport.BackColor = [System.Drawing.Color]::FromArgb(60,60,100)
+    $btnExport.ForeColor = [System.Drawing.Color]::White
+    $btnExport.FlatStyle = "Flat"
+    $tabMain.Controls.Add($btnExport)
+    
+    $btnTheme = New-Object System.Windows.Forms.Button
+    $btnTheme.Text = "🎨 Toggle Theme"
+    $btnTheme.Size = New-Object System.Drawing.Size(130,36)
+    $btnTheme.Location = New-Object System.Drawing.Point(462,470)
+    $btnTheme.BackColor = [System.Drawing.Color]::FromArgb(80,80,80)
+    $btnTheme.ForeColor = [System.Drawing.Color]::White
+    $btnTheme.FlatStyle = "Flat"
+    $tabMain.Controls.Add($btnTheme)
+    
     $btnClear = New-Object System.Windows.Forms.Button
-    $btnClear.Text = "🗑 Clear Log"
-    $btnClear.Size = New-Object System.Drawing.Size(100,36)
-    $btnClear.Location = New-Object System.Drawing.Point(422,360)
+    $btnClear.Text = "🗑 Clear"
+    $btnClear.Size = New-Object System.Drawing.Size(80,36)
+    $btnClear.Location = New-Object System.Drawing.Point(602,470)
     $btnClear.BackColor = [System.Drawing.Color]::FromArgb(60,60,60)
     $btnClear.ForeColor = [System.Drawing.Color]::White
     $btnClear.FlatStyle = "Flat"
-    $form.Controls.Add($btnClear)
-    
-    # Stats label
-    $lblStats = New-Object System.Windows.Forms.Label
-    $lblStats.Location = New-Object System.Drawing.Point(12,410)
-    $lblStats.Size = New-Object System.Drawing.Size(740,30)
-    $lblStats.Text = "Commits: 0 | Errors: 0 | Branch: $AUTO_BRANCH | Delay: ${DELAY_SECONDS}s"
-    $lblStats.ForeColor = [System.Drawing.Color]::Cyan
-    $form.Controls.Add($lblStats)
+    $tabMain.Controls.Add($btnClear)
 
     # Timer for UI updates
     $timer = New-Object System.Windows.Forms.Timer
