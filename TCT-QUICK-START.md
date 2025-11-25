@@ -3,6 +3,7 @@
 ## ⚡ 5-Minute Setup
 
 ### Step 1: Run the Script
+
 ```powershell
 cd "c:\Users\mdhos\Projects\portfolio-up\delowar-portfolio"
 powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
@@ -11,11 +12,13 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 ### Step 2: Setup API Key (Choose ONE)
 
 **Option A: Gemini (Recommended - Free)**
+
 1. Click "🔑 API Keys" tab
 2. Enter your Gemini API key: `AIzaSyDaOLc6V1EqNpErmwhwUueTMOYriIScJVo` (or get yours from https://makersuite.google.com/app/apikey)
 3. Click "💾 Save"
 
 **Option B: OpenAI**
+
 1. Click "🔑 API Keys" tab
 2. Enter your OpenAI API key
 3. Click "💾 Save"
@@ -24,6 +27,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 6. Click "💾 Save All Settings"
 
 **Option C: Ollama (Local, No API Key)**
+
 1. Install Ollama: https://ollama.ai
 2. Run: `ollama serve`
 3. Go to "⚙️ Settings" tab
@@ -32,6 +36,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 6. Click "💾 Save All Settings"
 
 ### Step 3: Start Auto-Committing
+
 1. Click "📊 Dashboard" tab
 2. Click "▶ Start" button
 3. **Done!** The engine will now monitor your repo and create smart commits automatically
@@ -47,6 +52,7 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 ## 🎨 GUI Overview
 
 ### 📊 Dashboard Tab
+
 - **Green Status**: Engine running
 - **Metrics Panel**: Shows commits, errors, uptime, last commit
 - **Activity Log**: Real-time log of all operations
@@ -59,7 +65,9 @@ powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
   - 🗑 Clear: Clear log display
 
 ### ⚙️ Settings Tab
+
 Configure everything here:
+
 - **Auto Branch Name**: Branch for auto-commits (default: `dage/auto`)
 - **Delay**: Time between checks (default: 10s)
 - **Cooldown**: Wait before commit (default: 2s)
@@ -67,7 +75,9 @@ Configure everything here:
 - **Quiet Hours**: Pause commits during specified times
 
 ### 🔑 API Keys Tab
+
 Store your API keys securely:
+
 - Gemini API Key
 - OpenAI API Key
 - Claude API Key
@@ -77,6 +87,7 @@ Store your API keys securely:
 ## 🔔 System Tray Features
 
 Minimize to tray and use these options:
+
 - **📂 Open Window**: Restore GUI
 - **⏹ Stop Engine**: Pause commits
 - **▶ Start Engine**: Resume commits
@@ -87,13 +98,17 @@ Minimize to tray and use these options:
 ## 💡 Pro Tips
 
 ### Tip 1: Install Start-on-Boot
+
 Want auto-commit to start with Windows?
+
 1. Run PowerShell **as Administrator**
 2. Launch the script
 3. Click "📅 Install Start-on-Boot" button
 
 ### Tip 2: Use Quiet Hours
+
 Don't want commits at night?
+
 1. Go to Settings tab
 2. Check "Enable Quiet Hours"
 3. Set start time: `22:00`
@@ -101,7 +116,9 @@ Don't want commits at night?
 5. Save settings
 
 ### Tip 3: Enable Webhooks
+
 Get commit notifications in Discord/Slack:
+
 1. Create webhook in Discord/Slack
 2. Copy webhook URL
 3. Go to Settings tab
@@ -111,13 +128,17 @@ Get commit notifications in Discord/Slack:
 7. Save settings
 
 ### Tip 4: Rollback Mistakes
+
 Made a bad commit?
+
 1. Click "↶ Rollback" button
 2. Confirm dialog
 3. Last commit is undone (changes preserved)
 
 ### Tip 5: Export Your History
+
 Want to analyze commits?
+
 1. Click "📄 Export Log"
 2. Choose JSON or CSV format
 3. Save file
@@ -126,6 +147,7 @@ Want to analyze commits?
 ## ⚙️ Common Configurations
 
 ### Fast Mode (for rapid development)
+
 ```
 Delay: 5 seconds
 Cooldown: 1 second
@@ -133,6 +155,7 @@ Squash After: 20 commits
 ```
 
 ### Safe Mode (for production)
+
 ```
 Delay: 30 seconds
 Cooldown: 5 seconds
@@ -141,6 +164,7 @@ Squash After: 5 commits
 ```
 
 ### Silent Mode (minimal notifications)
+
 ```
 Toast Notifications: OFF
 Webhook Notifications: OFF
@@ -175,26 +199,34 @@ Invoke-RestMethod -Uri "http://localhost:8701/rollback" `
 ## 🐛 Quick Fixes
 
 ### Problem: "Script won't run"
+
 **Fix**: Run PowerShell with execution policy bypass:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
 ```
 
 ### Problem: "LLM API error"
-**Fix**: 
+
+**Fix**:
+
 1. Check API key in 🔑 API Keys tab
 2. Test with different provider
 3. Disable LLM temporarily (uses smart heuristic messages)
 
 ### Problem: "No commits happening"
+
 **Fix**:
+
 1. Check status shows "Running"
 2. Make sure files aren't in ignore patterns
 3. Verify not in quiet hours
 4. Check log for specific errors
 
 ### Problem: "Too many commits"
+
 **Fix**:
+
 1. Increase delay (e.g., 30s instead of 10s)
 2. Increase cooldown (e.g., 5s instead of 2s)
 3. Lower squash threshold (e.g., 5 instead of 12)
@@ -231,6 +263,7 @@ your-repo/
 ## 🎉 You're Ready!
 
 **TCT-Git-Auto-Commiter v3.0 ULTIMATE** is now running and will:
+
 - ✅ Monitor your files 24/7
 - ✅ Create smart AI-generated commit messages
 - ✅ Auto-push to remote
@@ -244,6 +277,7 @@ your-repo/
 ---
 
 **Quick Links**:
+
 - Full Documentation: `TCT-UPGRADE-DOCUMENTATION.md`
 - Settings Location: `tct_config.json`
 - Logs: `tct_autogit.log`

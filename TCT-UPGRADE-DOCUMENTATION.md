@@ -7,6 +7,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 ## ✅ Completed Features (16/20)
 
 ### 1. ✨ Smart Change Detection
+
 - **File hash tracking** to prevent duplicate commits
 - `Get-FileContentHash()` function for MD5-based change detection
 - `Has-RealChanges()` filters out files with identical content
@@ -14,6 +15,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Prevents meaningless commits from save-without-change scenarios
 
 ### 2. 🔧 Conflict Detection & Resolution
+
 - `Detect-Conflicts()` function scans for merge markers
 - `Check-MergeConflicts()` validates git status
 - `Resolve-Conflicts()` provides interactive resolution assistance
@@ -21,6 +23,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Engine pauses when conflicts detected
 
 ### 3. 🔒 Secure Credential Storage
+
 - Windows Credential Manager integration
 - `Get-SecureCredential()` / `Set-SecureCredential()` functions
 - Encrypted storage in `%APPDATA%\TCT-Credentials`
@@ -29,6 +32,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Dedicated "🔑 API Keys" tab in GUI
 
 ### 4. ↶ Rollback Feature
+
 - `Rollback-Commits(count)` function
 - Undo last N commits with `git reset --soft`
 - GUI button with confirmation dialog
@@ -36,6 +40,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Preserves working directory changes
 
 ### 5. 📊 Dashboard View
+
 - Enhanced main GUI with metrics panel
 - Real-time display of:
   - Total commits this session
@@ -45,6 +50,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - 2-second auto-refresh timer
 
 ### 6. 🔔 Toast Notifications
+
 - `Show-Toast()` function with BurntToast module support
 - Fallback to Windows Forms balloon tips
 - Notification types: success, error, warning, info
@@ -52,6 +58,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - System tray integration
 
 ### 7. ⚙️ Settings Panel GUI
+
 - **Complete in-app configuration editor**
 - No script editing required!
 - Tabbed interface with sections:
@@ -64,6 +71,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Persists to `tct_config.json`
 
 ### 8. 🤖 Multi-LLM Support
+
 - Support for **4 LLM providers**:
   1. **Gemini** (gemini-2.0-flash)
   2. **OpenAI** (gpt-4, gpt-3.5-turbo)
@@ -74,6 +82,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Configurable via Settings Panel
 
 ### 9. 🔗 Webhook Notifications
+
 - `Send-Webhook()` function
 - Support for **3 platforms**:
   - Discord (rich embeds)
@@ -84,6 +93,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Enable/disable in Settings Panel
 
 ### 10. 📄 Activity Log Export
+
 - `Export-ActivityLog(format, path)` function
 - Export formats: **JSON** and **CSV**
 - Includes: timestamp, commits, errors, uptime, last commit
@@ -91,6 +101,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Remote API endpoint: `GET /export?format=json`
 
 ### 11. ⏰ Smart Scheduling (Quiet Hours)
+
 - `Is-QuietHours()` function
 - Configurable start/end times (e.g., 22:00 - 08:00)
 - Engine pauses during quiet hours
@@ -99,6 +110,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Prevents late-night commits
 
 ### 12. 🎨 Theme Toggle
+
 - Dark and Light theme support
 - `$script:Config.THEME` setting
 - Applies to form, panels, textboxes, labels
@@ -106,6 +118,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Persists across sessions
 
 ### 13. 📈 Performance Metrics
+
 - `$script:metrics` hashtable tracking:
   - Total commits
   - Total errors
@@ -116,12 +129,14 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - Real-time metrics display in Dashboard
 
 ### 14. 🔑 GPG Commit Signing
+
 - Optional GPG signature on commits
 - `GPG_SIGNING` and `GPG_KEY_ID` config settings
 - Automatic `-S` flag when enabled
 - Verified commits on GitHub/GitLab
 
 ### 15. 🌐 Enhanced Remote API
+
 - New endpoints added:
   - `POST /rollback` - Rollback commits
   - `GET /export?format=json|csv` - Export activity log
@@ -132,6 +147,7 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 - JSON responses
 
 ### 16. 📋 Enhanced Logging
+
 - 4 log levels: INFO, WARN, ERROR, DEBUG
 - `Write-Log(message, level)` updated
 - Automatic log rotation when > 10MB
@@ -141,30 +157,35 @@ The TCT-Git-Auto-Commiter has been **completely upgraded** from v2.0 to v3.0 ULT
 ## 🚧 Remaining Features (4/20 - Not Yet Implemented)
 
 ### 14. Multi-Repo Support
+
 - Monitor multiple repositories simultaneously
 - Repo selector in GUI
 - Separate state tracking per repo
 - **Status**: Structure added but not fully integrated
 
 ### 17. Error Recovery
+
 - Automatic retry with exponential backoff
 - Transient error detection
 - Recovery strategies
 - **Status**: Not started
 
 ### 18. Branch Sync Suggestions
+
 - Detect when `dage/auto` is ahead of `main`
 - Suggest PR creation
 - Auto-merge option
 - **Status**: Not started
 
 ### 19. Commit Templates
+
 - Customizable message templates
 - Placeholder variables
 - Per-project templates
 - **Status**: Not started
 
 ### 20. Web Dashboard
+
 - Optional web UI
 - Remote monitoring
 - Control interface
@@ -182,66 +203,66 @@ $script:Config = @{
     AUTO_BRANCH           = "dage/auto"
     DELAY_SECONDS         = 10
     COOLDOWN_SECONDS      = 2
-    
+
     # Squash
     SQUASH_ENABLED        = $true
     SQUASH_AFTER_COMMITS  = 12
     SQUASH_FORCE_PUSH     = $false
-    
+
     # Safety
     STRICT_SAFE_MODE      = $true
-    
+
     # Backup
     BACKUP_ENABLED        = $true
     BACKUP_FOLDER         = ".\tct_backups"
     BACKUP_ROTATE_KEEP    = 8
     BACKUP_INTERVAL_DAYS  = 7
-    
+
     # Logging
     LOGFILE               = ".\tct_autogit.log"
     LOG_MAX_SIZE_MB       = 10
-    
+
     # UI
     ENABLE_GUI            = $true
     ENABLE_TRAY           = $true
     THEME                 = "dark"
-    
+
     # Remote API
     REMOTE_API_ENABLED    = $true
     REMOTE_API_PORT       = 8701
-    
+
     # Push
     AUTO_PUSH_ENABLED     = $true
     SAFE_PULL_BEFORE_PUSH = $true
-    
+
     # LLM
     LLM_ENABLED           = $true
     LLM_PROVIDER          = "gemini"
     LLM_MODEL             = "gemini-2.0-flash"
     LLM_MAX_DIFF_CHARS    = 3600
     OLLAMA_URL            = "http://localhost:11434"
-    
+
     # Smart Features
     SMART_DETECTION       = $true
     CONFLICT_NOTIFY       = $true
     GPG_SIGNING           = $false
     GPG_KEY_ID            = ""
-    
+
     # Scheduling
     QUIET_HOURS_ENABLED   = $false
     QUIET_HOURS_START     = "22:00"
     QUIET_HOURS_END       = "08:00"
-    
+
     # Notifications
     TOAST_ENABLED         = $true
     WEBHOOK_ENABLED       = $false
     WEBHOOK_URL           = ""
     WEBHOOK_TYPE          = "discord"
-    
+
     # Multi-repo
     MULTI_REPO_ENABLED    = $false
     REPO_PATHS            = @()
-    
+
     # Metrics
     METRICS_ENABLED       = $true
 }
@@ -252,6 +273,7 @@ $script:Config = @{
 ### New Tabbed Interface
 
 1. **📊 Dashboard Tab**
+
    - Status indicator
    - Real-time metrics panel
    - Activity log viewer
@@ -259,6 +281,7 @@ $script:Config = @{
    - Session statistics
 
 2. **⚙️ Settings Tab**
+
    - In-app configuration editor
    - Organized sections:
      - Basic Settings
@@ -288,29 +311,29 @@ $script:Config = @{
 
 ## 🔧 New Functions Added
 
-| Function | Purpose |
-|----------|---------|
-| `Get-FileContentHash()` | Calculate MD5 hash of file content |
-| `Save-FileHashes()` | Store current file hashes |
-| `Filter-RealChanges()` | Filter out unchanged files |
-| `Has-RealChanges()` | Check if file truly changed |
-| `Detect-Conflicts()` | Scan files for merge markers |
-| `Check-MergeConflicts()` | Validate git conflict status |
-| `Resolve-Conflicts()` | Interactive conflict resolution |
-| `Get-SecureCredential()` | Retrieve encrypted credential |
-| `Set-SecureCredential()` | Store encrypted credential |
-| `Remove-SecureCredential()` | Delete credential |
-| `Rollback-Commits()` | Undo last N commits |
-| `Call-OpenAI()` | Generate commit message via OpenAI |
-| `Call-Claude()` | Generate commit message via Claude |
-| `Call-Ollama()` | Generate commit message via Ollama |
-| `Send-Webhook()` | Send notification to webhook |
-| `Is-QuietHours()` | Check if in quiet hours period |
-| `Export-ActivityLog()` | Export activity to JSON/CSV |
-| `Update-Metrics()` | Update performance metrics |
-| `Show-Toast()` | Display Windows toast notification |
-| `Load-Config()` | Load config from JSON file |
-| `Save-Config()` | Save config to JSON file |
+| Function                    | Purpose                            |
+| --------------------------- | ---------------------------------- |
+| `Get-FileContentHash()`     | Calculate MD5 hash of file content |
+| `Save-FileHashes()`         | Store current file hashes          |
+| `Filter-RealChanges()`      | Filter out unchanged files         |
+| `Has-RealChanges()`         | Check if file truly changed        |
+| `Detect-Conflicts()`        | Scan files for merge markers       |
+| `Check-MergeConflicts()`    | Validate git conflict status       |
+| `Resolve-Conflicts()`       | Interactive conflict resolution    |
+| `Get-SecureCredential()`    | Retrieve encrypted credential      |
+| `Set-SecureCredential()`    | Store encrypted credential         |
+| `Remove-SecureCredential()` | Delete credential                  |
+| `Rollback-Commits()`        | Undo last N commits                |
+| `Call-OpenAI()`             | Generate commit message via OpenAI |
+| `Call-Claude()`             | Generate commit message via Claude |
+| `Call-Ollama()`             | Generate commit message via Ollama |
+| `Send-Webhook()`            | Send notification to webhook       |
+| `Is-QuietHours()`           | Check if in quiet hours period     |
+| `Export-ActivityLog()`      | Export activity to JSON/CSV        |
+| `Update-Metrics()`          | Update performance metrics         |
+| `Show-Toast()`              | Display Windows toast notification |
+| `Load-Config()`             | Load config from JSON file         |
+| `Save-Config()`             | Save config to JSON file           |
 
 ## 📝 Configuration File
 
@@ -340,16 +363,19 @@ Settings are now saved to `tct_config.json`:
 ### First-Time Setup
 
 1. **Run the script**:
+
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\TCT-Git-Auto-Commiter.ps1
    ```
 
 2. **Configure API Keys** (🔑 API Keys tab):
+
    - Enter your Gemini/OpenAI/Claude API key
    - Click "💾 Save" for each key
    - Keys are encrypted and stored securely
 
 3. **Configure Settings** (⚙️ Settings tab):
+
    - Adjust auto-branch name, delays, etc.
    - Enable/disable features
    - Configure quiet hours if desired
@@ -420,6 +446,7 @@ curl -X POST http://localhost:8701/config \
    - Rollbacks
 
 **Discord Webhook Example**:
+
 ```
 https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
 ```
@@ -461,6 +488,7 @@ The Dashboard displays:
 - **Last Commit**: Time since last successful commit
 
 Export activity log for deeper analysis:
+
 - JSON format for programmatic access
 - CSV format for Excel/spreadsheet analysis
 
@@ -474,26 +502,34 @@ Export activity log for deeper analysis:
 ## 🐛 Troubleshooting
 
 ### Issue: Toast notifications not working
+
 **Solution**: Install BurntToast module:
+
 ```powershell
 Install-Module -Name BurntToast -Scope CurrentUser
 ```
 
 ### Issue: LLM API calls failing
+
 **Solution**:
+
 1. Check API key in 🔑 API Keys tab
 2. Verify internet connection
 3. Check log file for specific error
 4. Try switching to different LLM provider
 
 ### Issue: Remote API not starting
+
 **Solution**:
+
 1. Check if port 8701 is in use: `netstat -ano | findstr 8701`
 2. Change port in Settings tab
 3. Run PowerShell as Administrator
 
 ### Issue: Commits not happening
+
 **Solution**:
+
 1. Check log for errors
 2. Verify not in quiet hours
 3. Check for `.tct_stop` file
@@ -547,6 +583,7 @@ Install-Module -Name BurntToast -Scope CurrentUser
 ✅ Zero syntax errors
 
 **What's Next?**
+
 - Test all features in real-world usage
 - Implement remaining 4 features if needed
 - Create installer/setup script
