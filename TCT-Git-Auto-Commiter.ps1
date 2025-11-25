@@ -1595,16 +1595,188 @@ if ($script:Config.ENABLE_GUI) {
     $btnClear.FlatStyle = "Flat"
     $tabMain.Controls.Add($btnClear)
 
+    # ============ TAB 2: Settings Panel ============
+    $tabSettings = New-Object System.Windows.Forms.TabPage
+    $tabSettings.Text = "⚙️ Settings"
+    $tabSettings.BackColor = $form.BackColor
+    $tabSettings.AutoScroll = $true
+    $tabControl.Controls.Add($tabSettings)
+    
+    # Settings scroll panel
+    $settingsPanel = New-Object System.Windows.Forms.Panel
+    $settingsPanel.Location = New-Object System.Drawing.Point(10,10)
+    $settingsPanel.Size = New-Object System.Drawing.Size(930,450)
+    $settingsPanel.AutoScroll = $true
+    $tabSettings.Controls.Add($settingsPanel)
+    
+    $settingsY = 10
+    function Add-SettingLabel([string]$text) {
+        $lbl = New-Object System.Windows.Forms.Label
+        $lbl.Text = $text
+        $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
+        $lbl.Size = New-Object System.Drawing.Size(200, 20)
+        $lbl.Font = New-Object System.Drawing.Font("Segoe UI",9,[System.Drawing.FontStyle]::Bold)
+        $settingsPanel.Controls.Add($lbl)
+        $script:settingsY += 25
+    }
+    
+    function Add-SettingTextBox([string]$configKey, [string]$label) {
+        $lbl = New-Object System.Windows.Forms.Label
+        $lbl.Text = $label
+        $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
+        $lbl.Size = New-Object System.Drawing.Size(200, 20)
+        $settingsPanel.Controls.Add($lbl)
+        
+        $txt = New-Object System.Windows.Forms.TextBox
+        $txt.Location = New-Object System.Drawing.Point(220, $script:settingsY)
+        $txt.Size = New-Object System.Drawing.Size(300, 20)
+        $txt.Text = $script:Config[$configKey]
+        $txt.Tag = $configKey
+        $settingsPanel.Controls.Add($txt)
+        $script:settingsY += 30
+        return $txt
+    }
+    
+    function Add-SettingCheckBox([string]$configKey, [string]$label) {
+        $chk = New-Object System.Windows.Forms.CheckBox
+        $chk.Text = $label
+        $chk.Location = New-Object System.Drawing.Point(10, $script:settingsY)
+        $chk.Size = New-Object System.Drawing.Size(400, 20)
+        $chk.Checked = $script:Config[$configKey]
+        $chk.Tag = $configKey
+        $settingsPanel.Controls.Add($chk)
+        $script:settingsY += 30
+        return $chk
+    }
+    
+    # Basic Settings
+    Add-SettingLabel "⚙️ BASIC SETTINGS"
+    $txtAutoBranch = Add-SettingTextBox "AUTO_BRANCH" "Auto Branch Name:"
+    $txtDelay = Add-SettingTextBox "DELAY_SECONDS" "Delay Between Checks (seconds):"
+    $txtCooldown = Add-SettingTextBox "COOLDOWN_SECONDS" "Cooldown Before Commit (seconds):"
+    $chkStrictMode = Add-SettingCheckBox "STRICT_SAFE_MODE" "Enable Strict Safe Mode"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "🤖 LLM SETTINGS"
+    $chkLLM = Add-SettingCheckBox "LLM_ENABLED" "Enable AI Commit Messages"
+    $txtLLMProvider = Add-SettingTextBox "LLM_PROVIDER" "Provider (gemini/openai/ollama):"
+    $txtLLMModel = Add-SettingTextBox "LLM_MODEL" "Model Name:"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "📦 BACKUP SETTINGS"
+    $chkBackup = Add-SettingCheckBox "BACKUP_ENABLED" "Enable Weekly Backups"
+    $txtBackupDays = Add-SettingTextBox "BACKUP_INTERVAL_DAYS" "Backup Interval (days):"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "🔔 NOTIFICATIONS"
+    $chkToast = Add-SettingCheckBox "TOAST_ENABLED" "Enable Toast Notifications"
+    $chkWebhook = Add-SettingCheckBox "WEBHOOK_ENABLED" "Enable Webhook Notifications"
+    $txtWebhookURL = Add-SettingTextBox "WEBHOOK_URL" "Webhook URL:"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "⏰ SCHEDULING"
+    $chkQuiet = Add-SettingCheckBox "QUIET_HOURS_ENABLED" "Enable Quiet Hours"
+    $txtQuietStart = Add-SettingTextBox "QUIET_HOURS_START" "Quiet Hours Start (HH:MM):"
+    $txtQuietEnd = Add-SettingTextBox "QUIET_HOURS_END" "Quiet Hours End (HH:MM):"
+    
+    # Save Settings button
+    $btnSaveSettings = New-Object System.Windows.Forms.Button
+    $btnSaveSettings.Text = "💾 Save All Settings"
+    $btnSaveSettings.Size = New-Object System.Drawing.Size(150,36)
+    $btnSaveSettings.Location = New-Object System.Drawing.Point(10,470)
+    $btnSaveSettings.BackColor = [System.Drawing.Color]::FromArgb(40,100,120)
+    $btnSaveSettings.ForeColor = [System.Drawing.Color]::White
+    $btnSaveSettings.FlatStyle = "Flat"
+    $tabSettings.Controls.Add($btnSaveSettings)
+    
+    $btnSaveSettings.Add_Click({
+        # Collect all settings
+        foreach ($ctrl in $settingsPanel.Controls) {
+            if ($ctrl.Tag -and $script:Config.ContainsKey($ctrl.Tag)) {
+                if ($ctrl -is [System.Windows.Forms.TextBox]) {
+                    $script:Config[$ctrl.Tag] = $ctrl.Text
+                } elseif ($ctrl -is [System.Windows.Forms.CheckBox]) {
+                    $script:Config[$ctrl.Tag] = $ctrl.Checked
+                }
+            }
+        }
+        
+        if (Save-Config) {
+            [System.Windows.Forms.MessageBox]::Show("Settings saved successfully!", "Settings", "OK", "Information")
+            UI-Log "Settings saved to $CONFIG_FILE"
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("Failed to save settings!", "Error", "OK", "Error")
+        }
+    })
+    
+    # ============ TAB 3: API Keys ============
+    $tabKeys = New-Object System.Windows.Forms.TabPage
+    $tabKeys.Text = "🔑 API Keys"
+    $tabKeys.BackColor = $form.BackColor
+    $tabControl.Controls.Add($tabKeys)
+    
+    $lblKeysInfo = New-Object System.Windows.Forms.Label
+    $lblKeysInfo.Text = "Store your API keys securely. They will be encrypted in Windows Credential Manager."
+    $lblKeysInfo.Location = New-Object System.Drawing.Point(10,10)
+    $lblKeysInfo.Size = New-Object System.Drawing.Size(900,30)
+    $tabKeys.Controls.Add($lblKeysInfo)
+    
+    $keysY = 50
+    function Add-KeyInput([string]$name, [string]$label) {
+        $lbl = New-Object System.Windows.Forms.Label
+        $lbl.Text = $label
+        $lbl.Location = New-Object System.Drawing.Point(10, $script:keysY)
+        $lbl.Size = New-Object System.Drawing.Size(150, 20)
+        $tabKeys.Controls.Add($lbl)
+        
+        $txt = New-Object System.Windows.Forms.TextBox
+        $txt.Location = New-Object System.Drawing.Point(170, $script:keysY)
+        $txt.Size = New-Object System.Drawing.Size(400, 20)
+        $txt.UseSystemPasswordChar = $true
+        $txt.Tag = $name
+        $existing = Get-SecureCredential $name
+        if ($existing) { $txt.Text = $existing }
+        $tabKeys.Controls.Add($txt)
+        
+        $btnSave = New-Object System.Windows.Forms.Button
+        $btnSave.Text = "💾 Save"
+        $btnSave.Size = New-Object System.Drawing.Size(60,24)
+        $btnSave.Location = New-Object System.Drawing.Point(580, $script:keysY - 2)
+        $btnSave.FlatStyle = "Flat"
+        $btnSave.Add_Click({
+            if (Set-SecureCredential $name $txt.Text) {
+                [System.Windows.Forms.MessageBox]::Show("$label saved securely!", "Success", "OK", "Information")
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Failed to save $label", "Error", "OK", "Error")
+            }
+        }.GetNewClosure())
+        $tabKeys.Controls.Add($btnSave)
+        
+        $script:keysY += 35
+    }
+    
+    Add-KeyInput "GEMINI_API_KEY" "Gemini API Key:"
+    Add-KeyInput "OPENAI_API_KEY" "OpenAI API Key:"
+    Add-KeyInput "CLAUDE_API_KEY" "Claude API Key:"
+    Add-KeyInput "WEBHOOK_TOKEN" "Webhook Token:"
+    Add-KeyInput "REMOTE_API_TOKEN" "Remote API Token:"
+    
     # Timer for UI updates
     $timer = New-Object System.Windows.Forms.Timer
     $timer.Interval = 2000  # 2 seconds
     $timer.Add_Tick({
-        # Update stats
-        $lblStats.Text = "Commits: $($script:commitCount) | Errors: $($script:errorCount) | Branch: $AUTO_BRANCH | Status: $($script:lastStatus)"
+        # Update metrics
+        $uptime = ((Get-Date) - $script:sessionStartTime).TotalMinutes
+        $lastCommitText = if ($script:lastCommitTime) { 
+            $ago = ((Get-Date) - $script:lastCommitTime).TotalMinutes
+            "$([math]::Round($ago,1))m ago" 
+        } else { "Never" }
         
-        # Update log from file if exists
-        if (Test-Path $LOGFILE) {
-            $lastLines = Get-Content $LOGFILE -Tail 50 -ErrorAction SilentlyContinue
+        $lblMetrics.Text = "Commits: $($script:commitCount)`r`nErrors: $($script:errorCount)`r`nUptime: $([math]::Round($uptime,1))m`r`nLast Commit: $lastCommitText"
+        
+        # Update log from file
+        if (Test-Path $script:Config.LOGFILE) {
+            $lastLines = Get-Content $script:Config.LOGFILE -Tail 50 -ErrorAction SilentlyContinue
             if ($lastLines) {
                 $newLog = $lastLines -join "`r`n"
                 if ($txtLog.Text -ne $newLog -and $newLog.Length -gt $txtLog.Text.Length) {
@@ -1615,9 +1787,9 @@ if ($script:Config.ENABLE_GUI) {
             }
         }
         
-        # Update status color
+        # Update status
         if ($script:running) {
-            $lbl.Text = "Status: Running"
+            $lbl.Text = "Status: Running - $($script:lastStatus)"
             $lbl.ForeColor = [System.Drawing.Color]::LightGreen
         } elseif (Test-Path ".tct_stop") {
             $lbl.Text = "Status: Paused"
