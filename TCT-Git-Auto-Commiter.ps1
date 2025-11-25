@@ -234,12 +234,419 @@ $script:lastCommitTime = $null
 $script:sessionStartTime = Get-Date
 $script:pausedByQuietHours = $false
 
-function Write-Log([string]$text) {
-    $line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | $text"
+# ========================= LOGGING =========================
+function Write-Log([string]$text, [string]$level = "INFO") {
+    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $line = "$timestamp | [$level] $text"
     Write-Host $line
     try {
-        Add-Content -Path $LOGFILE -Value $line -ErrorAction SilentlyContinue
+        $logFile = $script:Config.LOGFILE
+        
+        # Rotate log if too large
+        if (Test-Path $logFile) {
+            $size = (Get-Item $logFile).Length / 1MB
+            if ($size -gt $script:Config.LOG_MAX_SIZE_MB) {
+                $backupLog = $logFile -replace '\.log$', "_$(Get-Date -Format 'yyyyMMdd').log"
+                Move-Item $logFile $backupLog -Force
+            }
+        }
+        
+        Add-Content -Path $logFile -Value $line -ErrorAction SilentlyContinue
     } catch { }
+}
+
+# ========================= TOAST NOTIFICATIONS =========================
+function Show-Toast([string]$title, [string]$message, [string]$type = "info") {
+    if (-not $script:Config.TOAST_ENABLED) { return }
+    
+    try {
+        # Try BurntToast module first
+        if (Get-Module -ListAvailable -Name BurntToast) {
+            Import-Module BurntToast -ErrorAction SilentlyContinue
+            $icon = switch ($type) {
+                "success" { "✅" }
+                "error" { "❌" }
+                "warning" { "⚠️" }
+                default { "ℹ️" }
+            }
+            New-BurntToastNotification -Text "$icon $title", $message -ErrorAction SilentlyContinue
+        } else {
+            # Fallback to Windows Forms notification
+            if ($script:trayIcon) {
+                $iconType = switch ($type) {
+                    "success" { [System.Windows.Forms.ToolTipIcon]::Info }
+                    "error" { [System.Windows.Forms.ToolTipIcon]::Error }
+                    "warning" { [System.Windows.Forms.ToolTipIcon]::Warning }
+                    default { [System.Windows.Forms.ToolTipIcon]::None }
+                }
+                $script:trayIcon.ShowBalloonTip(3000, $title, $message, $iconType)
+            }
+        }
+    } catch { }
+}
+
+# ========================= WEBHOOK NOTIFICATIONS =========================
+function Send-Webhook([string]$title, [string]$message, [string]$type = "info") {
+    if (-not $script:Config.WEBHOOK_ENABLED -or -not $script:Config.WEBHOOK_URL) { return }
+    
+    try {
+        $color = switch ($type) {
+            "success" { 3066993 }   # Green
+            "error" { 15158332 }    # Red
+            "warning" { 15105570 }  # Orange
+            default { 3447003 }     # Blue
+        }
+        
+        $payload = switch ($script:Config.WEBHOOK_TYPE) {
+            "discord" {
+                @{
+                    embeds = @(@{
+                        title = $title
+                        description = $message
+                        color = $color
+                        timestamp = (Get-Date).ToUniversalTime().ToString("o")
+                        footer = @{ text = "TCT-Git-Auto-Commiter v$($script:Config.APP_VERSION)" }
+                    })
+                } | ConvertTo-Json -Depth 5
+            }
+            "slack" {
+                @{
+                    attachments = @(@{
+                        title = $title
+                        text = $message
+                        color = switch ($type) { "success" { "good" } "error" { "danger" } "warning" { "warning" } default { "#3498db" } }
+                        ts = [int][double]::Parse((Get-Date -UFormat %s))
+                    })
+                } | ConvertTo-Json -Depth 5
+            }
+            "teams" {
+                @{
+                    "@type" = "MessageCard"
+                    "@context" = "http://schema.org/extensions"
+                    themeColor = switch ($type) { "success" { "00FF00" } "error" { "FF0000" } "warning" { "FFA500" } default { "0078D7" } }
+                    summary = $title
+                    sections = @(@{
+                        activityTitle = $title
+                        facts = @(@{ name = "Message"; value = $message })
+                    })
+                } | ConvertTo-Json -Depth 5
+            }
+        }
+        
+        Invoke-RestMethod -Uri $script:Config.WEBHOOK_URL -Method Post -Body $payload -ContentType "application/json" -ErrorAction SilentlyContinue
+    } catch {
+        Write-Log "Webhook failed: $_" "WARN"
+    }
+}
+
+# ========================= SMART CHANGE DETECTION =========================
+$HASH_CACHE_FILE = ".\.tct_hashes.json"
+
+function Get-FileContentHash([string]$path) {
+    try {
+        if (Test-Path $path -PathType Leaf) {
+            $content = Get-Content $path -Raw -ErrorAction SilentlyContinue
+            if ($content) {
+                $bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+                $sha = [System.Security.Cryptography.SHA256]::Create()
+                $hash = [BitConverter]::ToString($sha.ComputeHash($bytes)) -replace '-',''
+                return $hash.Substring(0, 16)  # Short hash
+            }
+        }
+    } catch { }
+    return $null
+}
+
+function Load-FileHashes {
+    if (Test-Path $HASH_CACHE_FILE) {
+        try {
+            $script:fileHashes = Get-Content $HASH_CACHE_FILE -Raw | ConvertFrom-Json -AsHashtable
+        } catch {
+            $script:fileHashes = @{}
+        }
+    }
+}
+
+function Save-FileHashes {
+    try {
+        $script:fileHashes | ConvertTo-Json | Set-Content $HASH_CACHE_FILE -Force
+    } catch { }
+}
+
+function Has-FileChanged([string]$path) {
+    if (-not $script:Config.SMART_DETECTION) { return $true }
+    
+    $currentHash = Get-FileContentHash $path
+    if (-not $currentHash) { return $true }
+    
+    $cachedHash = $script:fileHashes[$path]
+    if ($cachedHash -eq $currentHash) {
+        return $false  # No real change
+    }
+    
+    # Update cache
+    $script:fileHashes[$path] = $currentHash
+    return $true
+}
+
+function Filter-RealChanges($files) {
+    if (-not $script:Config.SMART_DETECTION) { return $files }
+    
+    $realChanges = @()
+    foreach ($file in $files) {
+        if (Has-FileChanged $file) {
+            $realChanges += $file
+        }
+    }
+    return $realChanges
+}
+
+# ========================= CONFLICT DETECTION =========================
+function Check-MergeConflicts {
+    try {
+        $status = git status --porcelain 2>$null
+        if ($status -match "^UU|^AA|^DD") {
+            return $true
+        }
+        
+        # Check for conflict markers in files
+        $conflictFiles = git diff --name-only --diff-filter=U 2>$null
+        if ($conflictFiles) {
+            return $true
+        }
+    } catch { }
+    return $false
+}
+
+function Resolve-Conflicts {
+    if (-not (Check-MergeConflicts)) { return $true }
+    
+    Write-Log "Merge conflicts detected!" "WARN"
+    Show-Toast "Git Conflict" "Merge conflicts detected. Manual resolution required." "warning"
+    Send-Webhook "⚠️ Git Conflict" "Merge conflicts detected in repository. Manual resolution required." "warning"
+    
+    if ($script:Config.CONFLICT_NOTIFY) {
+        # Try to abort current operation
+        git merge --abort 2>$null
+        git rebase --abort 2>$null
+        git cherry-pick --abort 2>$null
+        
+        Write-Log "Attempted to abort conflicting operation" "INFO"
+    }
+    
+    return $false
+}
+
+# ========================= METRICS & ANALYTICS =========================
+$METRICS_FILE = ".\.tct_metrics.json"
+
+function Initialize-Metrics {
+    $script:metrics = @{
+        totalCommits = 0
+        totalErrors = 0
+        sessionsCount = 0
+        totalRuntime = 0
+        commitsByHour = @{}
+        commitsByDay = @{}
+        avgCommitSize = 0
+        lastSession = $null
+        commitSizes = @()
+    }
+    
+    if (Test-Path $METRICS_FILE) {
+        try {
+            $loaded = Get-Content $METRICS_FILE -Raw | ConvertFrom-Json -AsHashtable
+            foreach ($key in $loaded.Keys) {
+                $script:metrics[$key] = $loaded[$key]
+            }
+        } catch { }
+    }
+    
+    $script:metrics.sessionsCount++
+    $script:metrics.lastSession = (Get-Date).ToString("o")
+}
+
+function Update-Metrics([hashtable]$commitInfo) {
+    if (-not $script:Config.METRICS_ENABLED) { return }
+    
+    $script:metrics.totalCommits++
+    
+    $hour = (Get-Date).Hour.ToString()
+    $day = (Get-Date).DayOfWeek.ToString()
+    
+    if (-not $script:metrics.commitsByHour[$hour]) { $script:metrics.commitsByHour[$hour] = 0 }
+    $script:metrics.commitsByHour[$hour]++
+    
+    if (-not $script:metrics.commitsByDay[$day]) { $script:metrics.commitsByDay[$day] = 0 }
+    $script:metrics.commitsByDay[$day]++
+    
+    if ($commitInfo.filesCount) {
+        $script:metrics.commitSizes += $commitInfo.filesCount
+        $script:metrics.avgCommitSize = ($script:metrics.commitSizes | Measure-Object -Average).Average
+    }
+    
+    Save-Metrics
+}
+
+function Save-Metrics {
+    try {
+        $script:metrics.totalRuntime = ((Get-Date) - $script:sessionStartTime).TotalMinutes
+        $script:metrics | ConvertTo-Json -Depth 5 | Set-Content $METRICS_FILE -Force
+    } catch { }
+}
+
+function Get-MetricsSummary {
+    return @"
+📊 Performance Metrics
+━━━━━━━━━━━━━━━━━━━━━
+Total Commits: $($script:metrics.totalCommits)
+Total Errors: $($script:metrics.totalErrors)
+Sessions: $($script:metrics.sessionsCount)
+Avg Commit Size: $([math]::Round($script:metrics.avgCommitSize, 1)) files
+Runtime: $([math]::Round($script:metrics.totalRuntime, 1)) minutes
+
+Most Active Hour: $(($script:metrics.commitsByHour.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 1).Key):00
+Most Active Day: $(($script:metrics.commitsByDay.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 1).Key)
+"@
+}
+
+# ========================= ACTIVITY LOG EXPORT =========================
+function Export-ActivityLog([string]$format = "json", [string]$path = $null) {
+    if (-not $path) {
+        $path = ".\tct_activity_$(Get-Date -Format 'yyyyMMdd_HHmmss').$format"
+    }
+    
+    $logContent = @()
+    if (Test-Path $script:Config.LOGFILE) {
+        $logContent = Get-Content $script:Config.LOGFILE | ForEach-Object {
+            if ($_ -match '^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \| \[(\w+)\] (.+)$') {
+                @{
+                    timestamp = $Matches[1]
+                    level = $Matches[2]
+                    message = $Matches[3]
+                }
+            }
+        } | Where-Object { $_ }
+    }
+    
+    $export = @{
+        exportedAt = (Get-Date).ToString("o")
+        version = $script:Config.APP_VERSION
+        metrics = $script:metrics
+        logs = $logContent
+    }
+    
+    try {
+        switch ($format) {
+            "json" {
+                $export | ConvertTo-Json -Depth 10 | Set-Content $path -Force
+            }
+            "csv" {
+                $logContent | ForEach-Object {
+                    [PSCustomObject]$_
+                } | Export-Csv $path -NoTypeInformation
+            }
+        }
+        Write-Log "Activity exported to: $path" "INFO"
+        return $path
+    } catch {
+        Write-Log "Export failed: $_" "ERROR"
+        return $null
+    }
+}
+
+# ========================= SMART SCHEDULING =========================
+function Is-QuietHours {
+    if (-not $script:Config.QUIET_HOURS_ENABLED) { return $false }
+    
+    try {
+        $now = Get-Date
+        $start = [DateTime]::ParseExact($script:Config.QUIET_HOURS_START, "HH:mm", $null)
+        $end = [DateTime]::ParseExact($script:Config.QUIET_HOURS_END, "HH:mm", $null)
+        
+        $currentTime = $now.TimeOfDay
+        $startTime = $start.TimeOfDay
+        $endTime = $end.TimeOfDay
+        
+        if ($startTime -gt $endTime) {
+            # Overnight quiet hours (e.g., 22:00 - 08:00)
+            return ($currentTime -ge $startTime -or $currentTime -lt $endTime)
+        } else {
+            return ($currentTime -ge $startTime -and $currentTime -lt $endTime)
+        }
+    } catch {
+        return $false
+    }
+}
+
+# ========================= ROLLBACK FEATURE =========================
+function Get-RecentCommits([int]$count = 10) {
+    try {
+        $commits = git log --oneline -n $count 2>$null
+        return $commits | ForEach-Object {
+            if ($_ -match '^([a-f0-9]+)\s+(.+)$') {
+                @{ hash = $Matches[1]; message = $Matches[2] }
+            }
+        }
+    } catch { return @() }
+}
+
+function Rollback-Commits([int]$count = 1, [bool]$soft = $true) {
+    try {
+        # Create backup branch first
+        $backupBranch = "backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        git branch $backupBranch 2>$null
+        Write-Log "Created backup branch: $backupBranch" "INFO"
+        
+        if ($soft) {
+            git reset --soft HEAD~$count 2>$null
+        } else {
+            git reset --hard HEAD~$count 2>$null
+        }
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Rolled back $count commit(s)" "INFO"
+            Show-Toast "Rollback" "Successfully rolled back $count commit(s)" "success"
+            return $true
+        }
+    } catch {
+        Write-Log "Rollback failed: $_" "ERROR"
+    }
+    return $false
+}
+
+# ========================= GPG SIGNING =========================
+function Test-GPGAvailable {
+    try {
+        $gpg = Get-Command gpg -ErrorAction SilentlyContinue
+        return $null -ne $gpg
+    } catch { return $false }
+}
+
+function Get-GPGKeys {
+    if (-not (Test-GPGAvailable)) { return @() }
+    
+    try {
+        $keys = gpg --list-secret-keys --keyid-format SHORT 2>$null | 
+                Select-String -Pattern '^\s+([A-F0-9]+)' | 
+                ForEach-Object { $_.Matches[0].Groups[1].Value }
+        return $keys
+    } catch { return @() }
+}
+
+function Enable-GPGSigning([string]$keyId) {
+    try {
+        git config --local commit.gpgsign true
+        git config --local user.signingkey $keyId
+        $script:Config.GPG_SIGNING = $true
+        $script:Config.GPG_KEY_ID = $keyId
+        Save-Config
+        Write-Log "GPG signing enabled with key: $keyId" "INFO"
+        return $true
+    } catch {
+        Write-Log "Failed to enable GPG signing: $_" "ERROR"
+        return $false
+    }
 }
 
 function Ensure-Git {
