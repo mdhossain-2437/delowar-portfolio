@@ -1814,14 +1814,19 @@ function Engine-Loop {
                 continue 
             }
             
-            # Commit (with optional GPG signing)
+            # Apply commit template
+            $finalCommitMsg = Get-CommitMessageFromTemplate -Files $changedFiles -AISummary $commitMsg
+            
+            # Commit (with optional GPG signing and error recovery)
             $script:lastStatus = "Committing..."
-            $commitCommand = "git commit -m `"AutoCommit: $commitMsg`""
+            $commitCommand = "git commit -m `"$finalCommitMsg`""
             if ($script:Config.GPG_SIGNING -and $script:Config.GPG_KEY_ID) {
                 $commitCommand += " -S"
             }
             
-            $commitOut = Invoke-Expression $commitCommand 2>&1
+            $commitOut = Invoke-WithRetry -ActionName "Git Commit" -Action {
+                Invoke-Expression $commitCommand 2>&1
+            }
             
             if ($LASTEXITCODE -eq 0) {
                 $script:commitCount++
@@ -1855,6 +1860,12 @@ function Engine-Loop {
             PushIfOnline
             Weekly-Backup
             Auto-Squash-IfNeeded
+            
+            # Check if we should create auto-PR
+            if (Test-ShouldCreatePR) {
+                Write-Log "[*] PR threshold reached, creating auto-PR..." "INFO"
+                New-AutoPullRequest
+            }
             
             # Return to original branch if strict mode
             if ($script:Config.STRICT_SAFE_MODE -and $currentBranch -and $currentBranch -ne $script:Config.AUTO_BRANCH) { 
