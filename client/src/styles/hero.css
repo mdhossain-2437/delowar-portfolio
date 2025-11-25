@@ -119,6 +119,25 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-orb,
+  .hero-canvas,
+  .hero-canvas-fallback {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .hero-gradient,
+  .hero-noise,
+  .hero-orb {
+    background-attachment: initial;
+  }
+
+  .hero-canvas canvas {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .hero-orb-1,
   .hero-orb-2,
   .hero-canvas-fallback {
