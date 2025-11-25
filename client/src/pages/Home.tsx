@@ -2,12 +2,12 @@ import { lazy, Suspense, useState, type ReactNode } from "react";
 import { useInView } from "react-intersection-observer";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import ProjectsNew from "@/components/ProjectsNew";
-import SkillsNew from "@/components/SkillsNew";
-import ContactNew from "@/components/ContactNew";
-import About from "@/components/About";
-import CustomCursor from "@/components/CustomCursor";
-import LoadingScreen from "@/components/LoadingScreen";
+// Lazy load below-fold components for better initial load
+const About = lazy(() => import("@/components/About"));
+const ProjectsNew = lazy(() => import("@/components/ProjectsNew"));
+const SkillsNew = lazy(() => import("@/components/SkillsNew"));
+const ContactNew = lazy(() => import("@/components/ContactNew"));
+const CustomCursor = lazy(() => import("@/components/CustomCursor"));
 import { Helmet } from "react-helmet-async";
 const TechStackVisualization = lazy(
   () => import("@/components/TechStackVisualization")
@@ -19,16 +19,8 @@ const Footer = lazy(() => import("@/components/Footer"));
 const AchievementsPanel = lazy(() => import("@/components/AchievementsPanel"));
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLoadComplete = () => {
-    setIsLoading(false);
-  };
-
   return (
     <>
-      {isLoading && <LoadingScreen onLoadComplete={handleLoadComplete} />}
-
       <div className="overflow-x-hidden">
         <Helmet>
           <title>Delowar Hossain | Product Engineer & AI Explorer</title>

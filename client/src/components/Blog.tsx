@@ -34,7 +34,10 @@ export default function Blog() {
   ];
 
   return (
-    <section id="blog" className="py-20 bg-background">
+    <section
+      id="blog"
+      className="py-20 bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950 relative overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -43,7 +46,7 @@ export default function Blog() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
               Blog & Articles
             </span>
           </h2>
@@ -60,31 +63,31 @@ export default function Blog() {
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-w-16 aspect-h-9 bg-muted">
                     {/* Replace with your actual image */}
-                    <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-accent/20"></div>
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-500/20 to-cyan-500/20"></div>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center space-x-2 mb-4">
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-slate-500">
                         {post.category}
                       </span>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-slate-500">•</span>
+                      <span className="text-sm text-slate-500">
                         {post.readTime}
                       </span>
                     </div>
-                    <h3 className="text-xl font-semibold mb-3 hover:text-primary transition-colors">
+                    <h3 className="text-xl font-semibold mb-3 text-white hover:text-purple-300 transition-colors">
                       {post.title}
                     </h3>
-                    <p className="text-muted-foreground mb-4 line-clamp-3">
+                    <p className="text-slate-400 mb-4 line-clamp-3">
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-slate-500">
                         {post.date}
                       </span>
                       <Button
                         variant="ghost"
-                        className="text-primary hover:text-primary/80"
+                        className="text-purple-400 hover:text-purple-300"
                       >
                         Read More →
                       </Button>
@@ -99,7 +102,7 @@ export default function Blog() {
             <Button
               variant="outline"
               size="lg"
-              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="border-slate-700 text-slate-300 hover:border-purple-500 hover:text-purple-300 hover:bg-slate-800/50 transition-all"
             >
               View All Articles
             </Button>

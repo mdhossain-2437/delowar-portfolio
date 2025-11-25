@@ -11,6 +11,8 @@ import {
   Newspaper,
   Zap,
   Mic,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import InstallPWAButton from "@/components/InstallPWAButton";
 import LocaleToggle from "@/components/LocaleToggle";
@@ -44,7 +46,7 @@ export default function Navigation() {
   );
   const recognitionRef = useRef<any>(null);
   const { toggleTheme, setTheme } = useTheme();
-  const { muted, toggleMute, playSuccess } = useSoundboard();
+  const { muted, toggleMute, playSuccess, isMusicPlaying } = useSoundboard();
   const t = useTranslation();
 
   useEffect(() => {
@@ -128,12 +130,25 @@ export default function Navigation() {
   }, [voiceFeedback]);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.offsetTop - offset;
-      window.scrollTo({ top: elementPosition, behavior: "smooth" });
-    }
+    const attemptScroll = (attempts = 0) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.offsetTop - offset;
+        window.scrollTo({ top: elementPosition, behavior: "smooth" });
+      } else if (attempts < 10) {
+        // If element not found (lazy loading), scroll to bottom to trigger loading
+        if (attempts === 0) {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+        // Retry after a short delay
+        setTimeout(() => attemptScroll(attempts + 1), 200);
+      }
+    };
+    attemptScroll();
   };
 
   const navItems = useMemo(
@@ -379,129 +394,157 @@ export default function Navigation() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-[1000] transition-all duration-500 ${
-          isScrolled ? "w-[95%] max-w-5xl" : "w-[95%] max-w-6xl"
-        }`}
+        className="fixed top-0 left-0 right-0 z-[1000] transition-all duration-500"
         data-testid="navigation"
       >
         <div
-          className={`relative rounded-2xl transition-all duration-500 ${
-            isScrolled
-              ? "bg-slate-900/90 backdrop-blur-2xl border border-slate-700/50 shadow-2xl shadow-purple-500/10"
-              : "bg-slate-900/50 backdrop-blur-md border border-slate-800/50"
+          className={`max-w-7xl mx-auto transition-all duration-500 ${
+            isScrolled ? "px-4 py-2" : "px-4 py-4"
           }`}
         >
-          {/* Premium glow effect */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/5 via-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          <div className="relative px-6 py-4">
-            <div className="flex justify-between items-center">
-              {/* Logo */}
-              <motion.button
-                onClick={() => scrollToSection("home")}
-                className="relative group flex items-center gap-3"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
-                  <span className="text-white font-bold text-lg">D</span>
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-cyan-500/0 group-hover:from-purple-500/20 group-hover:to-cyan-500/20 transition-all duration-300" />
-                </div>
-                <span className="hidden sm:block text-xl font-bold">
-                  <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    Delowar
-                  </span>
-                </span>
-              </motion.button>
-
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center gap-2 bg-slate-800/30 rounded-xl px-2 py-2 border border-slate-700/30">
-                {navItems.slice(0, 6).map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeSection === item.id;
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        isActive
-                          ? "text-white"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      data-testid={`nav-${item.id}`}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="navActiveSection"
-                          className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg"
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                          }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        <span className="hidden xl:inline">{item.label}</span>
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                {/* Voice Button */}
+          <div
+            className={`relative rounded-2xl transition-all duration-500 ${
+              isScrolled
+                ? "bg-slate-900/90 backdrop-blur-2xl border border-slate-700/50 shadow-2xl shadow-purple-500/10"
+                : "bg-slate-900/50 backdrop-blur-md border border-slate-800/50"
+            }`}
+          >
+            <div className="relative px-6 py-4">
+              <div className="flex justify-between items-center">
+                {/* Logo */}
                 <motion.button
-                  onClick={toggleVoiceNav}
-                  className={`relative h-10 w-10 flex items-center justify-center rounded-xl border transition-all duration-300 ${
-                    isListening
-                      ? "border-purple-500 text-purple-400 bg-purple-500/10 shadow-lg shadow-purple-500/25"
-                      : "border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/5"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label="Voice navigation"
-                  type="button"
-                  disabled={!voiceSupported}
+                  onClick={() => scrollToSection("home")}
+                  className="relative group flex items-center gap-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {isListening && (
-                    <>
-                      <span className="absolute -inset-1 rounded-xl bg-purple-500/20 blur animate-pulse" />
-                      <span className="absolute inset-0 flex items-center justify-center gap-0.5">
-                        {[0, 1, 2].map((bar) => (
-                          <motion.span
-                            key={bar}
-                            className="w-0.5 rounded-full bg-purple-400"
-                            animate={{
-                              height: ["30%", "80%", "40%"],
-                              opacity: [0.6, 1, 0.6],
-                            }}
-                            transition={{
-                              duration: 1.2,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                              delay: bar * 0.1,
-                            }}
-                          />
-                        ))}
+                  <div className="hidden sm:flex relative">
+                    {/* Creative stacked logo design */}
+                    <div className="flex flex-col items-start space-y-[-8px]">
+                      {/* Line 1: Delowar - Same size as Hossain */}
+                      <span className="text-2xl font-bold tracking-wide bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-[shimmer_3s_linear_infinite] drop-shadow-[0_0_18px_rgba(168,85,247,0.6)] transform -rotate-1">
+                        Delowar
                       </span>
-                    </>
-                  )}
-                  <Mic
-                    className={`h-4 w-4 ${
-                      isListening ? "opacity-0" : "opacity-100"
-                    } transition-opacity`}
-                  />
+                    </div>
+                  </div>
                 </motion.button>
 
-                {/* Additional Tools */}
-                <div className="hidden md:flex items-center gap-2">
-                  <InstallPWAButton />
-                  <LocaleToggle />
+                {/* Desktop Navigation */}
+                <div className="hidden lg:flex items-center gap-2 bg-slate-800/30 rounded-xl px-2 py-2 border border-slate-700/30">
+                  {navItems
+                    .filter((_, index) => index < 7 && index !== 7)
+                    .concat(navItems[9])
+                    .map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeSection === item.id;
+                      return (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => scrollToSection(item.id)}
+                          className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                            isActive
+                              ? "text-white"
+                              : "text-slate-400 hover:text-white"
+                          }`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          data-testid={`nav-${item.id}`}
+                        >
+                          {isActive && (
+                            <motion.div
+                              layoutId="navActiveSection"
+                              className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg"
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
+                              }}
+                            />
+                          )}
+                          <span className="relative z-10 flex items-center gap-2">
+                            <Icon className="w-4 h-4" />
+                            <span className="hidden xl:inline">
+                              {item.label}
+                            </span>
+                          </span>
+                        </motion.button>
+                      );
+                    })}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                  {/* Voice Button */}
+                  <motion.button
+                    onClick={toggleVoiceNav}
+                    className={`relative h-10 w-10 flex items-center justify-center rounded-xl border transition-all duration-300 ${
+                      isListening
+                        ? "border-purple-500 text-purple-400 bg-purple-500/10 shadow-lg shadow-purple-500/25"
+                        : "border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/5"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Voice navigation"
+                    type="button"
+                    disabled={!voiceSupported}
+                  >
+                    {isListening && (
+                      <>
+                        <span className="absolute -inset-1 rounded-xl bg-purple-500/20 blur animate-pulse" />
+                        <span className="absolute inset-0 flex items-center justify-center gap-0.5">
+                          {[0, 1, 2].map((bar) => (
+                            <motion.span
+                              key={bar}
+                              className="w-0.5 rounded-full bg-purple-400"
+                              animate={{
+                                height: ["30%", "80%", "40%"],
+                                opacity: [0.6, 1, 0.6],
+                              }}
+                              transition={{
+                                duration: 1.2,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: bar * 0.1,
+                              }}
+                            />
+                          ))}
+                        </span>
+                      </>
+                    )}
+                    <Mic
+                      className={`h-4 w-4 ${
+                        isListening ? "opacity-0" : "opacity-100"
+                      } transition-opacity`}
+                    />
+                  </motion.button>
+
+                  {/* Music Toggle Button */}
+                  <motion.button
+                    onClick={toggleMute}
+                    className={`relative h-10 w-10 flex items-center justify-center rounded-xl border transition-all duration-300 ${
+                      !muted && isMusicPlaying
+                        ? "border-cyan-500 text-cyan-400 bg-cyan-500/10 shadow-lg shadow-cyan-500/25"
+                        : "border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 hover:bg-cyan-500/5"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label={muted ? "Unmute music" : "Mute music"}
+                    type="button"
+                  >
+                    {!muted && isMusicPlaying && (
+                      <span className="absolute -inset-1 rounded-xl bg-cyan-500/20 blur animate-pulse" />
+                    )}
+                    {muted ? (
+                      <VolumeX className="h-4 w-4 relative z-10" />
+                    ) : (
+                      <Volume2 className="h-4 w-4 relative z-10" />
+                    )}
+                  </motion.button>
+
+                  {/* Additional Tools */}
+                  <div className="hidden md:flex items-center gap-2">
+                    <LocaleToggle />
+                  </div>
                 </div>
               </div>
             </div>
@@ -560,7 +603,7 @@ export default function Navigation() {
         </div>
 
         {/* Mobile Action Buttons */}
-        <div className="mt-3 flex justify-between items-center">
+        <div className="mt-3 flex justify-between items-center gap-2">
           <motion.button
             onClick={toggleVoiceNav}
             className={`relative h-11 px-4 flex items-center gap-2 rounded-xl border transition-all duration-300 ${
@@ -579,6 +622,7 @@ export default function Navigation() {
             <Mic className="h-4 w-4" />
             <span className="text-xs font-medium">Voice</span>
           </motion.button>
+
           <LocaleToggle />
         </div>
       </motion.div>

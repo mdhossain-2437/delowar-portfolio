@@ -37,7 +37,7 @@ export default function BlogPreview() {
           <div className="flex md:flex-col lg:flex-row gap-3">
             <Link
               to="/blog"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-background transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-slate-700 px-6 py-3 text-sm font-semibold text-slate-300 hover:border-purple-500 hover:text-purple-300 hover:bg-slate-800/50 transition-all"
             >
               Browse all posts
               <ArrowRight className="h-4 w-4" />
@@ -53,7 +53,7 @@ export default function BlogPreview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group rounded-3xl border border-border/60 bg-card/80 backdrop-blur px-6 pt-6 pb-8 flex flex-col h-full"
+              className="group rounded-3xl border border-slate-700/60 bg-slate-900/50 backdrop-blur-sm px-6 pt-6 pb-8 flex flex-col h-full hover:border-purple-500/50 transition-all duration-300"
             >
               <div
                 className="h-40 rounded-2xl mb-6 overflow-hidden"

@@ -60,8 +60,8 @@ export default function ContactNew() {
     {
       icon: Mail,
       label: "Email",
-      value: "mdhossain2437@gmail.com",
-      href: "mailto:mdhossain2437@gmail.com",
+      value: "contact@delowarhossain.dev",
+      href: "mailto:contact@delowarhossain.dev",
       color: "from-purple-500 to-pink-500",
     },
     {
@@ -101,7 +101,8 @@ export default function ContactNew() {
   return (
     <section id="contact" className="relative py-24 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-purple-950/20 to-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(139,92,246,0.08),transparent_50%),radial-gradient(circle_at_85%_0%,rgba(34,211,238,0.08),transparent_55%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
       <div className="relative z-10 container-medium gutter">

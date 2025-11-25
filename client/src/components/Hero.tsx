@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/useTranslation";
+import gsap from "gsap";
+import { useGsapStagger, useGsapMagnetic } from "@/hooks/useGsapAnimations";
 
 const stats = [
   { label: "Projects", value: "50+", icon: Code2 },
@@ -35,6 +37,12 @@ const techStack = [
 export default function Hero() {
   const t = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const statsContainerRef = useGsapStagger({
+    stagger: 0.15,
+    animation: "fadeUp",
+    start: "top 85%",
+  });
+  const ctaButtonRef = useGsapMagnetic(0.4);
 
   const phrases = useMemo(
     () => [

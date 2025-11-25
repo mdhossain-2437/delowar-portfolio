@@ -76,6 +76,18 @@
   --accent: 190 95% 55%; /* Vibrant cyan */
   --accent-foreground: 0 0% 100%;
 
+  /* Brand Background - Hero gradient style */
+  --brand-bg-start: 222 47% 4%; /* slate-950 */
+  --brand-bg-via: 270 60% 10%; /* purple-950/30 */
+  --brand-bg-end: 222 47% 4%; /* slate-950 */
+
+  /* Brand Text Colors */
+  --brand-text-primary: 0 0% 100%; /* Pure white for headings */
+  --brand-text-secondary: 217 33% 67%; /* slate-300 for subheadings */
+  --brand-text-muted: 215 20% 65%; /* slate-400 for body text */
+  --brand-text-accent: 270 91% 65%; /* purple-400 for highlights */
+  --brand-text-accent-cyan: 190 95% 68%; /* cyan-400 for secondary highlights */
+
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
 
@@ -111,6 +123,14 @@
     135deg,
     hsl(222, 84%, 5%) 0%,
     hsl(230, 80%, 8%) 100%
+  );
+
+  /* Brand Gradient Background */
+  --brand-gradient-bg: linear-gradient(
+    to bottom right,
+    hsl(var(--brand-bg-start)) 0%,
+    hsl(var(--brand-bg-via)) 50%,
+    hsl(var(--brand-bg-end)) 100%
   );
 }
 
@@ -370,12 +390,30 @@
     text-transform: uppercase;
   }
 
-  body.brutalism-mode .hero-noise,
-  body.brutalism-mode .hero-orb,
-  body.brutalism-mode canvas,
-  body.brutalism-mode video {
-    opacity: 0 !important;
-  }
+body.brutalism-mode .hero-noise,
+body.brutalism-mode .hero-orb,
+body.brutalism-mode canvas,
+body.brutalism-mode video {
+  opacity: 0 !important;
+}
+
+body.perf-lite .hero-noise,
+body.perf-lite .hero-orb {
+  display: none !important;
+}
+
+body.perf-lite .glass-card,
+body.perf-lite .glass-card-light {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-color: hsla(220, 30%, 20%, 0.4) !important;
+}
+
+body.perf-lite [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
 
   .binary-title {
     display: inline-block;
@@ -1099,5 +1137,52 @@
   a::after {
     content: " (" attr(href) ")";
     font-size: 0.8em;
+  }
+}
+
+/* Brand Utilities */
+@layer utilities {
+  .brand-bg-section {
+    @apply bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950 relative overflow-hidden;
+  }
+
+  .brand-text-gradient {
+    @apply bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent;
+  }
+
+  .brand-text-heading {
+    @apply text-white;
+  }
+
+  .brand-text-body {
+    @apply text-slate-400;
+  }
+
+  .brand-text-subheading {
+    @apply text-slate-300;
+  }
+
+  .brand-text-accent {
+    @apply text-purple-400;
+  }
+
+  .brand-button-primary {
+    @apply bg-gradient-to-r from-purple-600 to-cyan-600 text-white hover:opacity-90 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40;
+  }
+
+  .brand-button-secondary {
+    @apply border-2 border-slate-700 text-slate-300 hover:border-purple-500 hover:text-purple-300 transition-all backdrop-blur-sm;
+  }
+
+  .brand-card {
+    @apply bg-slate-900/50 border border-slate-700/60 backdrop-blur-sm;
+  }
+
+  .brand-badge-accent {
+    @apply bg-purple-500/10 text-purple-300 border border-purple-500/20;
+  }
+
+  .brand-badge-status {
+    @apply bg-cyan-500/10 text-cyan-300 border border-cyan-500/20;
   }
 }

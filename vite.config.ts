@@ -8,11 +8,7 @@ const enableRuntimeOverlay = process.env.VITE_RUNTIME_OVERLAY === "true";
 export default defineConfig(async () => {
   const cartographerPlugins =
     process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
-      ? [
-          (
-            await import("@replit/vite-plugin-cartographer")
-          ).cartographer(),
-        ]
+      ? [(await import("@replit/vite-plugin-cartographer")).cartographer()]
       : [];
 
   return {
@@ -46,21 +42,58 @@ export default defineConfig(async () => {
       global: "globalThis",
     },
     optimizeDeps: {
-      include: ["react", "react-dom", "react-dom/client", "@jsquash/jpeg"],
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "@jsquash/jpeg",
+        "framer-motion",
+        "lucide-react",
+      ],
     },
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
       chunkSizeWarningLimit: 1500,
+      cssCodeSplit: true,
+      minify: "terser",
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ["console.log", "console.info", "console.debug"],
+        },
+      },
       rollupOptions: {
         output: {
+          experimentalMinChunkSize: 20000,
           manualChunks(id: string) {
             if (id.includes("node_modules")) {
+              // Separate Three.js and react-three for 3D features
               if (id.includes("three") || id.includes("@react-three"))
                 return "three-vendor";
+
+              // MediaPipe in separate chunk
               if (id.includes("@mediapipe")) return "mediapipe-vendor";
+
+              // Core React libraries
               if (id.includes("react") || id.includes("react-dom"))
                 return "react-vendor";
+
+              // Framer Motion animations
+              if (id.includes("framer-motion")) return "animation-vendor";
+
+              // UI component libraries
+              if (id.includes("@radix-ui")) return "ui-vendor";
+
+              // Icons
+              if (id.includes("lucide-react") || id.includes("react-icons"))
+                return "icons-vendor";
+
+              // Router
+              if (id.includes("react-router")) return "router-vendor";
+
+              // Rest of node_modules
               return "vendor";
             }
           },

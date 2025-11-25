@@ -12,7 +12,9 @@ if (typeof window !== "undefined") {
   (window as any).React = React;
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
   <ThemeProvider>
     <AchievementProvider>
       <SoundProvider>
@@ -21,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
         </LocaleProvider>
       </SoundProvider>
     </AchievementProvider>
-  </ThemeProvider>,
+  </ThemeProvider>
 );
 
 if (import.meta.env.PROD) {

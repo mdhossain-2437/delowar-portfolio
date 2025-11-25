@@ -1,9 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -16,9 +11,12 @@ import { EnvironmentProvider } from "@/contexts/EnvironmentContext";
 import { TimeTravelProvider } from "@/contexts/TimeTravelContext";
 import OfflineBanner from "@/components/OfflineBanner";
 import DynamicPresenceMeta from "@/components/DynamicPresenceMeta";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
+import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
+import Home from "@/pages/Home";
 
+// Lazy load all other routes - only load when navigating
 const MainLayout = lazy(() => import("@/components/layout/MainLayout"));
-const Home = lazy(() => import("@/pages/Home"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const SkillsPage = lazy(() => import("@/pages/SkillsPage"));
 const ProjectsPage = lazy(() => import("@/pages/ProjectsPage"));
@@ -46,7 +44,7 @@ const MediaKitPage = lazy(() => import("@/pages/MediaKitPage"));
 const BugReportWidget = lazy(() => import("@/components/BugReportWidget"));
 const EyeTrackingToggle = lazy(() => import("@/components/EyeTrackingToggle"));
 const ServiceWorkerStatus = lazy(
-  () => import("@/components/ServiceWorkerStatus"),
+  () => import("@/components/ServiceWorkerStatus")
 );
 
 function useIdleRender(timeout = 900) {
@@ -74,57 +72,109 @@ function useIdleRender(timeout = 900) {
 }
 
 function AppRoutes() {
+  // Call useRoutePrefetch here, inside Router context
+  useRoutePrefetch();
+
+  const LoadingFallback = (
+    <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-slate-400 animate-pulse">Loading page...</p>
+      </div>
+    </div>
+  );
+
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-          Loading experience...
-        </div>
-      }
-    >
-      <Routes>
-        <Route path="/" element={<Home />} />
+    <Routes>
+      {/* Home page loads immediately - no lazy loading */}
+      <Route path="/" element={<Home />} />
 
-        <Route element={<MainLayout />}>
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/skills" element={<SkillsPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/projects/:slug" element={<ProjectDetailPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:slug" element={<BlogPostPage />} />
-          <Route path="/playground" element={<PlaygroundPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/guestbook" element={<GuestbookPage />} />
-          <Route path="/resume" element={<ResumePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/auth/login" element={<LoginPage />} />
-          <Route path="/timeline" element={<TimelinePage />} />
-          <Route path="/achievements" element={<AchievementsPage />} />
-          <Route path="/stack" element={<StackPage />} />
-          <Route path="/workspace/tasks" element={<WorkspaceTasksPage />} />
-          <Route path="/uses" element={<UsesPage />} />
-          <Route path="media-kit" element={<MediaKitPage />} />
-        </Route>
-        <Route path="/admin" element={<AdminDashboard />} />
+      {/* All other routes lazy load on navigation */}
+      <Route
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <MainLayout />
+          </Suspense>
+        }
+      >
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/skills" element={<SkillsPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/guestbook" element={<GuestbookPage />} />
+        <Route path="/resume" element={<ResumePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/timeline" element={<TimelinePage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
+        <Route path="/stack" element={<StackPage />} />
+        <Route path="/workspace/tasks" element={<WorkspaceTasksPage />} />
+        <Route path="/uses" element={<UsesPage />} />
+        <Route path="media-kit" element={<MediaKitPage />} />
+      </Route>
 
-        <Route path="/maintenance" element={<MaintenancePage />} />
-        <Route path="/server-error" element={<ServerErrorPage />} />
-        <Route path="/ar-card" element={<ARCardPage />} />
+      <Route
+        path="/admin"
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <AdminDashboard />
+          </Suspense>
+        }
+      />
 
-        <Route path="/404" element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
-    </Suspense>
+      <Route
+        path="/maintenance"
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <MaintenancePage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path="/server-error"
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <ServerErrorPage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path="/ar-card"
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <ARCardPage />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path="/404"
+        element={
+          <Suspense fallback={LoadingFallback}>
+            <NotFoundPage />
+          </Suspense>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/404" replace />} />
+    </Routes>
   );
 }
 
 function App() {
   useConsoleEasterEggs();
+  usePerformanceMode();
   const enhancersReady = useIdleRender();
   const isProd = useMemo(() => import.meta.env.PROD, []);
   const debugFlag = useMemo(
     () => import.meta.env.VITE_ENABLE_DEBUG_OVERLAYS === "true",
-    [],
+    []
   );
   const showServiceHelpers = enhancersReady;
   const showDebugOverlays = false;
