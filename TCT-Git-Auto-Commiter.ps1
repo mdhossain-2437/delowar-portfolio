@@ -964,21 +964,18 @@ function Ensure-AutoBranch {
 # Safe branch checkout with stash
 function Safe-Checkout($branchName) {
     try {
-        # Check for uncommitted changes
         $status = git status --porcelain 2>$null
         $needStash = $false
         
         if ($status) {
-            # Stash changes before switching
             git stash push -m "TCT-AutoStash-$(Get-Date -Format 'yyyyMMdd-HHmmss')" 2>$null
             $needStash = $true
         }
         
         git checkout $branchName 2>$null
-        
         return $needStash
     } catch {
-        Write-Log "Safe checkout failed: $_"
+        Write-Log "Safe checkout failed: $_" "ERROR"
         return $false
     }
 }
@@ -991,60 +988,57 @@ function Safe-Return($previousBranch, $hadStash) {
             git stash pop 2>$null
         }
     } catch {
-        Write-Log "Safe return failed: $_"
+        Write-Log "Safe return failed: $_" "ERROR"
     }
 }
 
 # Push function on auto branch
 function PushIfOnline {
-    if (-not $AUTO_PUSH_ENABLED) { Write-Log "Auto push disabled"; return }
+    if (-not $script:Config.AUTO_PUSH_ENABLED) { Write-Log "Auto push disabled" "INFO"; return }
     
-    # Check network connectivity
     try {
         $testConnection = Test-NetConnection -ComputerName "github.com" -Port 443 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
         if (-not $testConnection.TcpTestSucceeded) {
-            # Fallback to ping test
             $ping = Test-Connection -ComputerName "github.com" -Count 1 -Quiet -ErrorAction SilentlyContinue
             if (-not $ping) {
-                Write-Log "Offline: skipping push"
+                Write-Log "Offline: skipping push" "WARN"
                 return
             }
         }
     } catch {
-        Write-Log "Network check failed, attempting push anyway..."
+        Write-Log "Network check failed, attempting push anyway..." "WARN"
     }
     
-    if ($SAFE_PULL_BEFORE_PUSH) {
+    if ($script:Config.SAFE_PULL_BEFORE_PUSH) {
         try {
             git fetch --prune 2>$null | Out-Null
             
-            # Check if remote branch exists
-            $remoteExists = git ls-remote --heads origin $AUTO_BRANCH 2>$null
+            $remoteExists = git ls-remote --heads origin $script:Config.AUTO_BRANCH 2>$null
             if ($remoteExists) {
-                $pull = git pull --rebase origin $AUTO_BRANCH 2>&1
+                $pull = git pull --rebase origin $script:Config.AUTO_BRANCH 2>&1
                 if ($LASTEXITCODE -ne 0) { 
-                    Write-Log "Safe pull failed: $pull"
-                    # Try to abort rebase if stuck
+                    Write-Log "Safe pull failed: $pull" "ERROR"
                     git rebase --abort 2>$null
                     return 
                 }
             }
         } catch { 
-            Write-Log "Safe pull exception: $_"
+            Write-Log "Safe pull exception: $_" "ERROR"
             git rebase --abort 2>$null
             return 
         }
     }
     
     try {
-        $pushResult = git push -u origin $AUTO_BRANCH 2>&1
+        $pushResult = git push -u origin $script:Config.AUTO_BRANCH 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Log "Pushed $AUTO_BRANCH to origin."
+            Write-Log "Pushed $($script:Config.AUTO_BRANCH) to origin." "INFO"
+            Show-Toast "Git Push" "Successfully pushed to origin" "success"
         } else {
-            Write-Log "Push warning: $pushResult"
+            Write-Log "Push warning: $pushResult" "WARN"
         }
     } catch { 
-        Write-Log "Push error: $_" 
+        Write-Log "Push error: $_" "ERROR"
     }
 }
 
