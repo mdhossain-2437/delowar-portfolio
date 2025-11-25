@@ -25,6 +25,18 @@ export default function AvatarCustomizer() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setState(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     if ((state.glasses || state.hat) && !unlocked.has("avatar-stylist")) {
       unlock("avatar-stylist");
