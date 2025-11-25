@@ -12,9 +12,9 @@ import { useTranslation } from "@/hooks/useTranslation";
 const CanvasHero = lazy(() => import("./3d/CanvasHero"));
 
 const heroStats = [
-  { value: "18+", label: "Products shipped" },
-  { value: "6", label: "Industries touched" },
-  { value: "100%", label: "Remote-ready" },
+  { value: "24", label: "Launches shipped" },
+  { value: "6", label: "Industries served" },
+  { value: "98%", label: "On-time delivery" },
 ];
 
 const heroTech = ["React", "Next.js", "TypeScript", "Node.js", "Postgres", "Drizzle ORM"];
@@ -87,7 +87,7 @@ export default function Hero() {
               className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground"
             >
               <MousePointerClick className="h-4 w-4 text-accent" />
-              Product Engineer • Remote Friendly
+              Product Engineer • Ships AI-first products
             </motion.div>
 
             <motion.div
