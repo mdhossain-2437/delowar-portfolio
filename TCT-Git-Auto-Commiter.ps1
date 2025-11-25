@@ -1630,128 +1630,244 @@ if ($script:Config.ENABLE_GUI) {
     }
     $tabMain.Controls.Add($txtLog)
     
-    # Control buttons
+    # Control buttons - Hacker terminal style
     $btnStart = New-Object System.Windows.Forms.Button
-    $btnStart.Text = "▶ Start"
-    $btnStart.Size = New-Object System.Drawing.Size(100,36)
-    $btnStart.Location = New-Object System.Drawing.Point(12,470)
-    $btnStart.BackColor = [System.Drawing.Color]::FromArgb(40,120,40)
-    $btnStart.ForeColor = [System.Drawing.Color]::White
+    $btnStart.Text = if ($isHacker) { "[►] INITIATE" } else { "▶ Start" }
+    $btnStart.Size = New-Object System.Drawing.Size(110,40)
+    $btnStart.Location = New-Object System.Drawing.Point(12,600)
+    $btnStart.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(0,80,0) } else { [System.Drawing.Color]::FromArgb(40,120,40) }
+    $btnStart.ForeColor = if ($isHacker) { $accentColor } else { [System.Drawing.Color]::White }
     $btnStart.FlatStyle = "Flat"
+    $btnStart.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnStart)
     
     $btnStop = New-Object System.Windows.Forms.Button
-    $btnStop.Text = "⏹ Stop"
-    $btnStop.Size = New-Object System.Drawing.Size(100,36)
-    $btnStop.Location = New-Object System.Drawing.Point(122,470)
+    $btnStop.Text = if ($isHacker) { "[■] TERMINATE" } else { "⏹ Stop" }
+    $btnStop.Size = New-Object System.Drawing.Size(120,40)
+    $btnStop.Location = New-Object System.Drawing.Point(132,600)
     $btnStop.Enabled = $false
-    $btnStop.BackColor = [System.Drawing.Color]::FromArgb(120,40,40)
-    $btnStop.ForeColor = [System.Drawing.Color]::White
+    $btnStop.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(80,0,0) } else { [System.Drawing.Color]::FromArgb(120,40,40) }
+    $btnStop.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(255,50,50) } else { [System.Drawing.Color]::White }
     $btnStop.FlatStyle = "Flat"
+    $btnStop.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnStop)
     
     $btnRollback = New-Object System.Windows.Forms.Button
-    $btnRollback.Text = "↶ Rollback"
-    $btnRollback.Size = New-Object System.Drawing.Size(100,36)
-    $btnRollback.Location = New-Object System.Drawing.Point(232,470)
-    $btnRollback.BackColor = [System.Drawing.Color]::FromArgb(100,60,60)
-    $btnRollback.ForeColor = [System.Drawing.Color]::White
+    $btnRollback.Text = if ($isHacker) { "[↶] REVERT" } else { "↶ Rollback" }
+    $btnRollback.Size = New-Object System.Drawing.Size(110,40)
+    $btnRollback.Location = New-Object System.Drawing.Point(262,600)
+    $btnRollback.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(80,60,0) } else { [System.Drawing.Color]::FromArgb(100,60,60) }
+    $btnRollback.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(255,200,0) } else { [System.Drawing.Color]::White }
     $btnRollback.FlatStyle = "Flat"
+    $btnRollback.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnRollback)
     
     $btnExport = New-Object System.Windows.Forms.Button
-    $btnExport.Text = "📄 Export Log"
-    $btnExport.Size = New-Object System.Drawing.Size(110,36)
-    $btnExport.Location = New-Object System.Drawing.Point(342,470)
-    $btnExport.BackColor = [System.Drawing.Color]::FromArgb(60,60,100)
-    $btnExport.ForeColor = [System.Drawing.Color]::White
+    $btnExport.Text = if ($isHacker) { "[↓] EXPORT" } else { "📄 Export Log" }
+    $btnExport.Size = New-Object System.Drawing.Size(110,40)
+    $btnExport.Location = New-Object System.Drawing.Point(382,600)
+    $btnExport.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(0,60,80) } else { [System.Drawing.Color]::FromArgb(60,60,100) }
+    $btnExport.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(0,200,255) } else { [System.Drawing.Color]::White }
     $btnExport.FlatStyle = "Flat"
+    $btnExport.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnExport)
     
     $btnTheme = New-Object System.Windows.Forms.Button
-    $btnTheme.Text = "🎨 Toggle Theme"
-    $btnTheme.Size = New-Object System.Drawing.Size(130,36)
-    $btnTheme.Location = New-Object System.Drawing.Point(462,470)
-    $btnTheme.BackColor = [System.Drawing.Color]::FromArgb(80,80,80)
-    $btnTheme.ForeColor = [System.Drawing.Color]::White
+    $btnTheme.Text = if ($isHacker) { "[☼] THEME" } else { "🎨 Toggle Theme" }
+    $btnTheme.Size = New-Object System.Drawing.Size(120,40)
+    $btnTheme.Location = New-Object System.Drawing.Point(502,600)
+    $btnTheme.BackColor = $buttonBg
+    $btnTheme.ForeColor = $fgColor
     $btnTheme.FlatStyle = "Flat"
+    $btnTheme.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnTheme)
     
     $btnClear = New-Object System.Windows.Forms.Button
-    $btnClear.Text = "🗑 Clear"
-    $btnClear.Size = New-Object System.Drawing.Size(80,36)
-    $btnClear.Location = New-Object System.Drawing.Point(602,470)
-    $btnClear.BackColor = [System.Drawing.Color]::FromArgb(60,60,60)
-    $btnClear.ForeColor = [System.Drawing.Color]::White
+    $btnClear.Text = if ($isHacker) { "[✕] PURGE" } else { "🗑 Clear" }
+    $btnClear.Size = New-Object System.Drawing.Size(100,40)
+    $btnClear.Location = New-Object System.Drawing.Point(632,600)
+    $btnClear.BackColor = $buttonBg
+    $btnClear.ForeColor = $fgColor
     $btnClear.FlatStyle = "Flat"
+    $btnClear.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
     $tabMain.Controls.Add($btnClear)
+    
+    $btnMemOpt = New-Object System.Windows.Forms.Button
+    $btnMemOpt.Text = if ($isHacker) { "[♻] OPTIMIZE" } else { "♻ Optimize" }
+    $btnMemOpt.Size = New-Object System.Drawing.Size(120,40)
+    $btnMemOpt.Location = New-Object System.Drawing.Point(742,600)
+    $btnMemOpt.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(40,40,80) } else { $buttonBg }
+    $btnMemOpt.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(150,150,255) } else { $fgColor }
+    $btnMemOpt.FlatStyle = "Flat"
+    $btnMemOpt.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9,[System.Drawing.FontStyle]::Bold)
+    $tabMain.Controls.Add($btnMemOpt)
+    
+    $btnMemOpt.Add_Click({
+        Optimize-Memory
+        UI-Log "Memory optimization executed. Current usage: $(Get-MemoryUsage) MB"
+        Show-Toast "Memory Optimized" "Garbage collection completed" "success"
+    })
 
-    # ============ TAB 2: Settings Panel ============
+    # ============ TAB 2: LIVE SETTINGS CONTROL CENTER ============
     $tabSettings = New-Object System.Windows.Forms.TabPage
-    $tabSettings.Text = "⚙️ Settings"
-    $tabSettings.BackColor = $form.BackColor
+    $tabSettings.Text = if ($isHacker) { "[⚙] CONFIG" } else { "⚙️ Settings" }
+    $tabSettings.BackColor = $bgColor
+    $tabSettings.ForeColor = $fgColor
     $tabSettings.AutoScroll = $true
     $tabControl.Controls.Add($tabSettings)
     
     # Settings scroll panel
     $settingsPanel = New-Object System.Windows.Forms.Panel
     $settingsPanel.Location = New-Object System.Drawing.Point(10,10)
-    $settingsPanel.Size = New-Object System.Drawing.Size(930,450)
+    $settingsPanel.Size = New-Object System.Drawing.Size(1140,540)
+    $settingsPanel.BackColor = $bgColor
+    $settingsPanel.ForeColor = $fgColor
     $settingsPanel.AutoScroll = $true
     $tabSettings.Controls.Add($settingsPanel)
     
     $settingsY = 10
     function Add-SettingLabel([string]$text) {
         $lbl = New-Object System.Windows.Forms.Label
-        $lbl.Text = $text
+        $lbl.Text = if ($isHacker) { "[██] $text" } else { $text }
         $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
-        $lbl.Size = New-Object System.Drawing.Size(200, 20)
-        $lbl.Font = New-Object System.Drawing.Font("Segoe UI",9,[System.Drawing.FontStyle]::Bold)
+        $lbl.Size = New-Object System.Drawing.Size(400, 25)
+        $lbl.ForeColor = $accentColor
+        $lbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,10,[System.Drawing.FontStyle]::Bold)
         $settingsPanel.Controls.Add($lbl)
-        $script:settingsY += 25
+        $script:settingsY += 30
     }
     
     function Add-SettingTextBox([string]$configKey, [string]$label) {
         $lbl = New-Object System.Windows.Forms.Label
-        $lbl.Text = $label
+        $lbl.Text = if ($isHacker) { "> $label" } else { $label }
         $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
-        $lbl.Size = New-Object System.Drawing.Size(200, 20)
+        $lbl.Size = New-Object System.Drawing.Size(250, 20)
+        $lbl.ForeColor = $fgColor
+        $lbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
         $settingsPanel.Controls.Add($lbl)
         
         $txt = New-Object System.Windows.Forms.TextBox
-        $txt.Location = New-Object System.Drawing.Point(220, $script:settingsY)
-        $txt.Size = New-Object System.Drawing.Size(300, 20)
+        $txt.Location = New-Object System.Drawing.Point(270, $script:settingsY)
+        $txt.Size = New-Object System.Drawing.Size(350, 20)
+        $txt.BackColor = $panelColor
+        $txt.ForeColor = if ($isHacker) { $accentColor } else { $fgColor }
+        $txt.BorderStyle = "FixedSingle"
+        $txt.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
         $txt.Text = $script:Config[$configKey]
         $txt.Tag = $configKey
         $settingsPanel.Controls.Add($txt)
-        $script:settingsY += 30
+        $script:settingsY += 35
         return $txt
+    }
+    
+    function Add-SettingNumeric([string]$configKey, [string]$label, [int]$min, [int]$max) {
+        $lbl = New-Object System.Windows.Forms.Label
+        $lbl.Text = if ($isHacker) { "> $label" } else { $label }
+        $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
+        $lbl.Size = New-Object System.Drawing.Size(250, 20)
+        $lbl.ForeColor = $fgColor
+        $lbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
+        $settingsPanel.Controls.Add($lbl)
+        
+        $num = New-Object System.Windows.Forms.NumericUpDown
+        $num.Location = New-Object System.Drawing.Point(270, $script:settingsY)
+        $num.Size = New-Object System.Drawing.Size(150, 20)
+        $num.BackColor = $panelColor
+        $num.ForeColor = if ($isHacker) { $accentColor } else { $fgColor }
+        $num.BorderStyle = "FixedSingle"
+        $num.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
+        $num.Minimum = $min
+        $num.Maximum = $max
+        $num.Value = $script:Config[$configKey]
+        $num.Tag = $configKey
+        $settingsPanel.Controls.Add($num)
+        
+        # Live update label
+        $infoLbl = New-Object System.Windows.Forms.Label
+        $infoLbl.Location = New-Object System.Drawing.Point(430, $script:settingsY)
+        $infoLbl.Size = New-Object System.Drawing.Size(200, 20)
+        $infoLbl.ForeColor = $accentColor
+        $infoLbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,8)
+        $infoLbl.Text = "(current: $($script:Config[$configKey]))"
+        $settingsPanel.Controls.Add($infoLbl)
+        
+        $num.Add_ValueChanged({
+            $infoLbl.Text = "(will be: $($num.Value))"
+        }.GetNewClosure())
+        
+        $script:settingsY += 35
+        return $num
     }
     
     function Add-SettingCheckBox([string]$configKey, [string]$label) {
         $chk = New-Object System.Windows.Forms.CheckBox
-        $chk.Text = $label
+        $chk.Text = if ($isHacker) { "[x] $label" } else { $label }
         $chk.Location = New-Object System.Drawing.Point(10, $script:settingsY)
-        $chk.Size = New-Object System.Drawing.Size(400, 20)
+        $chk.Size = New-Object System.Drawing.Size(600, 25)
+        $chk.ForeColor = $fgColor
+        $chk.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
         $chk.Checked = $script:Config[$configKey]
         $chk.Tag = $configKey
         $settingsPanel.Controls.Add($chk)
-        $script:settingsY += 30
+        $script:settingsY += 35
         return $chk
     }
     
-    # Basic Settings
-    Add-SettingLabel "⚙️ BASIC SETTINGS"
+    function Add-SettingComboBox([string]$configKey, [string]$label, [array]$items) {
+        $lbl = New-Object System.Windows.Forms.Label
+        $lbl.Text = if ($isHacker) { "> $label" } else { $label }
+        $lbl.Location = New-Object System.Drawing.Point(10, $script:settingsY)
+        $lbl.Size = New-Object System.Drawing.Size(250, 20)
+        $lbl.ForeColor = $fgColor
+        $lbl.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
+        $settingsPanel.Controls.Add($lbl)
+        
+        $cmb = New-Object System.Windows.Forms.ComboBox
+        $cmb.Location = New-Object System.Drawing.Point(270, $script:settingsY)
+        $cmb.Size = New-Object System.Drawing.Size(200, 20)
+        $cmb.BackColor = $panelColor
+        $cmb.ForeColor = if ($isHacker) { $accentColor } else { $fgColor }
+        $cmb.FlatStyle = "Flat"
+        $cmb.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,9)
+        $cmb.DropDownStyle = "DropDownList"
+        $items | ForEach-Object { [void]$cmb.Items.Add($_) }
+        $cmb.SelectedItem = $script:Config[$configKey]
+        $cmb.Tag = $configKey
+        $settingsPanel.Controls.Add($cmb)
+        $script:settingsY += 35
+        return $cmb
+    }
+    
+    # Basic Settings with enhanced controls
+    Add-SettingLabel "CORE CONFIGURATION"
     $txtAutoBranch = Add-SettingTextBox "AUTO_BRANCH" "Auto Branch Name:"
-    $txtDelay = Add-SettingTextBox "DELAY_SECONDS" "Delay Between Checks (seconds):"
-    $txtCooldown = Add-SettingTextBox "COOLDOWN_SECONDS" "Cooldown Before Commit (seconds):"
-    $chkStrictMode = Add-SettingCheckBox "STRICT_SAFE_MODE" "Enable Strict Safe Mode"
+    $numDelay = Add-SettingNumeric "DELAY_SECONDS" "Delay Between Checks (seconds):" 5 300
+    $numCooldown = Add-SettingNumeric "COOLDOWN_SECONDS" "Cooldown Before Commit (seconds):" 1 60
+    $chkStrictMode = Add-SettingCheckBox "STRICT_SAFE_MODE" "Enable Strict Safe Mode (Auto-branch protection)"
     
     $script:settingsY += 10
-    Add-SettingLabel "🤖 LLM SETTINGS"
-    $chkLLM = Add-SettingCheckBox "LLM_ENABLED" "Enable AI Commit Messages"
-    $txtLLMProvider = Add-SettingTextBox "LLM_PROVIDER" "Provider (gemini/openai/ollama):"
-    $txtLLMModel = Add-SettingTextBox "LLM_MODEL" "Model Name:"
+    Add-SettingLabel "TERMINAL CUSTOMIZATION"
+    $cmbTheme = Add-SettingComboBox "THEME" "UI Theme:" @("hacker", "dark", "light")
+    $cmbFont = Add-SettingComboBox "TERMINAL_FONT" "Terminal Font:" @("Consolas", "Courier New", "Lucida Console", "Cascadia Code")
+    $numFontSize = Add-SettingNumeric "TERMINAL_FONT_SIZE" "Font Size:" 8 16
+    $chkMatrix = Add-SettingCheckBox "SHOW_MATRIX_EFFECT" "Enable Matrix Visual Effects"
+    $chkTyping = Add-SettingCheckBox "TYPING_EFFECT" "Enable Typing Animation Effects"
+    $chkScanLines = Add-SettingCheckBox "SCAN_LINES" "Enable Scan Line Visual Effects"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "AUTO-COMMIT BEHAVIOR"
+    $chkSquash = Add-SettingCheckBox "SQUASH_ENABLED" "Enable Auto-Squash (Merge commits periodically)"
+    $numSquashAfter = Add-SettingNumeric "SQUASH_AFTER_COMMITS" "Squash After N Commits:" 3 50
+    $chkForceSquash = Add-SettingCheckBox "SQUASH_FORCE_PUSH" "Force Push After Squash (DANGEROUS)"
+    $chkAutoPush = Add-SettingCheckBox "AUTO_PUSH_ENABLED" "Enable Auto-Push to Remote"
+    $chkSafePull = Add-SettingCheckBox "SAFE_PULL_BEFORE_PUSH" "Pull Before Push (Safer)"
+    
+    $script:settingsY += 10
+    Add-SettingLabel "ARTIFICIAL INTELLIGENCE"
+    $chkLLM = Add-SettingCheckBox "LLM_ENABLED" "Enable AI-Generated Commit Messages"
+    $cmbLLMProvider = Add-SettingComboBox "LLM_PROVIDER" "LLM Provider:" @("gemini", "openai", "claude", "ollama")
+    $txtLLMModel = Add-SettingTextBox "LLM_MODEL" "Model Name (e.g., gemini-2.0-flash):"
+    $numLLMMaxChars = Add-SettingNumeric "LLM_MAX_DIFF_CHARS" "Max Diff Characters to Send:" 1000 10000
     
     $script:settingsY += 10
     Add-SettingLabel "📦 BACKUP SETTINGS"
@@ -1770,33 +1886,59 @@ if ($script:Config.ENABLE_GUI) {
     $txtQuietStart = Add-SettingTextBox "QUIET_HOURS_START" "Quiet Hours Start (HH:MM):"
     $txtQuietEnd = Add-SettingTextBox "QUIET_HOURS_END" "Quiet Hours End (HH:MM):"
     
-    # Save Settings button
+    # Settings action buttons
     $btnSaveSettings = New-Object System.Windows.Forms.Button
-    $btnSaveSettings.Text = "💾 Save All Settings"
-    $btnSaveSettings.Size = New-Object System.Drawing.Size(150,36)
-    $btnSaveSettings.Location = New-Object System.Drawing.Point(10,470)
-    $btnSaveSettings.BackColor = [System.Drawing.Color]::FromArgb(40,100,120)
-    $btnSaveSettings.ForeColor = [System.Drawing.Color]::White
+    $btnSaveSettings.Text = if ($isHacker) { "[✓] APPLY CONFIG" } else { "💾 Save All Settings" }
+    $btnSaveSettings.Size = New-Object System.Drawing.Size(180,40)
+    $btnSaveSettings.Location = New-Object System.Drawing.Point(10,560)
+    $btnSaveSettings.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(0,80,0) } else { [System.Drawing.Color]::FromArgb(40,100,120) }
+    $btnSaveSettings.ForeColor = if ($isHacker) { $accentColor } else { [System.Drawing.Color]::White }
     $btnSaveSettings.FlatStyle = "Flat"
+    $btnSaveSettings.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,10,[System.Drawing.FontStyle]::Bold)
     $tabSettings.Controls.Add($btnSaveSettings)
     
+    $btnResetSettings = New-Object System.Windows.Forms.Button
+    $btnResetSettings.Text = if ($isHacker) { "[↺] RESET DEFAULTS" } else { "↺ Reset to Defaults" }
+    $btnResetSettings.Size = New-Object System.Drawing.Size(180,40)
+    $btnResetSettings.Location = New-Object System.Drawing.Point(200,560)
+    $btnResetSettings.BackColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(80,40,0) } else { [System.Drawing.Color]::FromArgb(120,60,40) }
+    $btnResetSettings.ForeColor = if ($isHacker) { [System.Drawing.Color]::FromArgb(255,150,0) } else { [System.Drawing.Color]::White }
+    $btnResetSettings.FlatStyle = "Flat"
+    $btnResetSettings.Font = New-Object System.Drawing.Font($script:Config.TERMINAL_FONT,10,[System.Drawing.FontStyle]::Bold)
+    $tabSettings.Controls.Add($btnResetSettings)
+    
+    $btnResetSettings.Add_Click({
+        $result = [System.Windows.Forms.MessageBox]::Show("Reset all settings to default values? This will require a restart.", "Reset Settings", "YesNo", "Warning")
+        if ($result -eq "Yes") {
+            if (Test-Path $CONFIG_FILE) { Remove-Item $CONFIG_FILE -Force }
+            [System.Windows.Forms.MessageBox]::Show("Settings reset to defaults. Please restart the application.", "Reset Complete", "OK", "Information")
+        }
+    })
+    
     $btnSaveSettings.Add_Click({
-        # Collect all settings
+        # Collect all settings from various control types
         foreach ($ctrl in $settingsPanel.Controls) {
             if ($ctrl.Tag -and $script:Config.ContainsKey($ctrl.Tag)) {
                 if ($ctrl -is [System.Windows.Forms.TextBox]) {
                     $script:Config[$ctrl.Tag] = $ctrl.Text
                 } elseif ($ctrl -is [System.Windows.Forms.CheckBox]) {
                     $script:Config[$ctrl.Tag] = $ctrl.Checked
+                } elseif ($ctrl -is [System.Windows.Forms.NumericUpDown]) {
+                    $script:Config[$ctrl.Tag] = [int]$ctrl.Value
+                } elseif ($ctrl -is [System.Windows.Forms.ComboBox]) {
+                    $script:Config[$ctrl.Tag] = $ctrl.SelectedItem.ToString()
                 }
             }
         }
         
         if (Save-Config) {
-            [System.Windows.Forms.MessageBox]::Show("Settings saved successfully!", "Settings", "OK", "Information")
-            UI-Log "Settings saved to $CONFIG_FILE"
+            $msg = if ($isHacker) { "[OK] CONFIGURATION SAVED SUCCESSFULLY" } else { "Settings saved successfully!" }
+            [System.Windows.Forms.MessageBox]::Show($msg + "`n`nSome changes require restart to take effect.", "Settings", "OK", "Information")
+            UI-Log "Settings saved to $CONFIG_FILE - Restart recommended for full effect"
+            Show-Toast "Settings Saved" "Configuration updated successfully" "success"
         } else {
-            [System.Windows.Forms.MessageBox]::Show("Failed to save settings!", "Error", "OK", "Error")
+            $msg = if ($isHacker) { "[ERROR] CONFIGURATION SAVE FAILED" } else { "Failed to save settings!" }
+            [System.Windows.Forms.MessageBox]::Show($msg, "Error", "OK", "Error")
         }
     })
     
@@ -1852,18 +1994,42 @@ if ($script:Config.ENABLE_GUI) {
     Add-KeyInput "WEBHOOK_TOKEN" "Webhook Token:"
     Add-KeyInput "REMOTE_API_TOKEN" "Remote API Token:"
     
-    # Timer for UI updates
+    # Timer for UI updates with memory management
     $timer = New-Object System.Windows.Forms.Timer
     $timer.Interval = 2000  # 2 seconds
     $timer.Add_Tick({
-        # Update metrics
+        # Update metrics with memory usage
         $uptime = ((Get-Date) - $script:sessionStartTime).TotalMinutes
         $lastCommitText = if ($script:lastCommitTime) { 
             $ago = ((Get-Date) - $script:lastCommitTime).TotalMinutes
             "$([math]::Round($ago,1))m ago" 
-        } else { "Never" }
+        } else { if ($isHacker) { "NONE" } else { "Never" } }
         
-        $lblMetrics.Text = "Commits: $($script:commitCount)`r`nErrors: $($script:errorCount)`r`nUptime: $([math]::Round($uptime,1))m`r`nLast Commit: $lastCommitText"
+        $memUsage = Get-MemoryUsage
+        $repoStatus = if (Test-Path ".git") { if ($isHacker) { "ONLINE" } else { "Active" } } else { if ($isHacker) { "OFFLINE" } else { "N/A" } }
+        
+        if ($isHacker) {
+            $lblMetrics.Text = "[>] COMMITS..... $($script:commitCount)`r`n" +
+                              "[>] ERRORS...... $($script:errorCount)`r`n" +
+                              "[>] UPTIME...... $([math]::Round($uptime,1))m`r`n" +
+                              "[>] LAST_COMMIT. $lastCommitText`r`n" +
+                              "[>] MEMORY...... $memUsage MB`r`n" +
+                              "[>] REPO........ $repoStatus"
+        } else {
+            $lblMetrics.Text = "Commits: $($script:commitCount)`r`n" +
+                              "Errors: $($script:errorCount)`r`n" +
+                              "Uptime: $([math]::Round($uptime,1))m`r`n" +
+                              "Last Commit: $lastCommitText`r`n" +
+                              "Memory: $memUsage MB`r`n" +
+                              "Repo: $repoStatus"
+        }
+        
+        # Periodic memory optimization (every 10 minutes)
+        $script:memoryCheckInterval++
+        if ($script:memoryCheckInterval -ge 300) {  # 300 * 2s = 10 minutes
+            Optimize-Memory
+            $script:memoryCheckInterval = 0
+        }
         
         # Update log from file
         if (Test-Path $script:Config.LOGFILE) {
@@ -1878,16 +2044,31 @@ if ($script:Config.ENABLE_GUI) {
             }
         }
         
-        # Update status
+        # Update status with hacker styling
         if ($script:running) {
-            $lbl.Text = "Status: Running - $($script:lastStatus)"
-            $lbl.ForeColor = [System.Drawing.Color]::LightGreen
+            if ($isHacker) {
+                $lbl.Text = "[STATUS] >>> ACTIVE >>> $($script:lastStatus)"
+                $lbl.ForeColor = $accentColor
+            } else {
+                $lbl.Text = "Status: Running - $($script:lastStatus)"
+                $lbl.ForeColor = [System.Drawing.Color]::LightGreen
+            }
         } elseif (Test-Path ".tct_stop") {
-            $lbl.Text = "Status: Paused"
-            $lbl.ForeColor = [System.Drawing.Color]::Yellow
+            if ($isHacker) {
+                $lbl.Text = "[STATUS] >>> PAUSED >>> STANDBY"
+                $lbl.ForeColor = [System.Drawing.Color]::FromArgb(255,200,0)
+            } else {
+                $lbl.Text = "Status: Paused"
+                $lbl.ForeColor = [System.Drawing.Color]::Yellow
+            }
         } else {
-            $lbl.Text = "Status: Stopped"
-            $lbl.ForeColor = [System.Drawing.Color]::Gray
+            if ($isHacker) {
+                $lbl.Text = "[STATUS] >>> OFFLINE >>> TERMINATED"
+                $lbl.ForeColor = [System.Drawing.Color]::FromArgb(100,100,100)
+            } else {
+                $lbl.Text = "Status: Stopped"
+                $lbl.ForeColor = [System.Drawing.Color]::Gray
+            }
         }
     })
 
@@ -1948,11 +2129,23 @@ if ($script:Config.ENABLE_GUI) {
         })
     }
 
-    function UI-Log($s) { 
-        $txtLog.AppendText("$(Get-Date -Format 'HH:mm:ss') | $s`r`n")
+    function UI-Log($s, $level = "INFO") { 
+        $timestamp = Get-Date -Format 'HH:mm:ss.fff'
+        if ($isHacker) {
+            $prefix = switch ($level) {
+                "ERROR" { "[!]" }
+                "WARN"  { "[*]" }
+                "INFO"  { "[+]" }
+                "DEBUG" { "[-]" }
+                default { "[>]" }
+            }
+            $txtLog.AppendText("$timestamp $prefix $s`r`n")
+        } else {
+            $txtLog.AppendText("$timestamp | [$level] $s`r`n")
+        }
         $txtLog.SelectionStart = $txtLog.Text.Length
         $txtLog.ScrollToCaret()
-        Write-Log $s "INFO"
+        Write-Log $s $level
     }
 
     # Start button click - use runspace for proper threading
@@ -2068,16 +2261,39 @@ if ($script:Config.ENABLE_GUI) {
         Stop-RemoteAPI
     })
 
-    # Initial log
-    UI-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE ==="
-    UI-Log "Repository: $(Get-Location)"
-    UI-Log "Auto-branch: $($script:Config.AUTO_BRANCH) | Delay: $($script:Config.DELAY_SECONDS)s"
-    UI-Log "LLM: $($script:Config.LLM_PROVIDER) ($($script:Config.LLM_MODEL))"
-    UI-Log "Features: Smart Detection, Conflict Resolution, Multi-LLM, Webhooks, Rollback, Export"
-    UI-Log "Settings Panel: Configure everything in the ⚙️ Settings tab"
-    UI-Log "API Keys: Securely store keys in the 🔑 API Keys tab"
-    UI-Log ""
-    UI-Log "🚀 Click 'Start' to begin auto-committing!"
+    # Initial log with boot sequence
+    if ($isHacker) {
+        UI-Log "" "INFO"
+        UI-Log "══════════════════════════════════════════════════" "INFO"
+        UI-Log "SYSTEM BOOT SEQUENCE INITIATED" "INFO"
+        UI-Log "$($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE" "INFO"
+        UI-Log "══════════════════════════════════════════════════" "INFO"
+        UI-Log "Repository Path....... $(Get-Location)" "INFO"
+        UI-Log "Auto-Branch........... $($script:Config.AUTO_BRANCH)" "INFO"
+        UI-Log "Scan Interval......... $($script:Config.DELAY_SECONDS) seconds" "INFO"
+        UI-Log "Commit Cooldown....... $($script:Config.COOLDOWN_SECONDS) seconds" "INFO"
+        UI-Log "AI Provider........... $($script:Config.LLM_PROVIDER)" "INFO"
+        UI-Log "AI Model.............. $($script:Config.LLM_MODEL)" "INFO"
+        UI-Log "Theme Mode............ $($script:Config.THEME.ToUpper())" "INFO"
+        UI-Log "Memory Usage.......... $(Get-MemoryUsage) MB" "INFO"
+        UI-Log "" "INFO"
+        UI-Log "MODULES LOADED: Smart Detection | Conflict Resolution | Multi-LLM" "INFO"
+        UI-Log "MODULES LOADED: Webhooks | Rollback | Export | Metrics | Security" "INFO"
+        UI-Log "" "INFO"
+        UI-Log "[✓] ALL SYSTEMS OPERATIONAL" "INFO"
+        UI-Log "[>] Click [►] INITIATE to begin auto-commit sequence" "INFO"
+        UI-Log "══════════════════════════════════════════════════" "INFO"
+    } else {
+        UI-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE ===" "INFO"
+        UI-Log "Repository: $(Get-Location)" "INFO"
+        UI-Log "Auto-branch: $($script:Config.AUTO_BRANCH) | Delay: $($script:Config.DELAY_SECONDS)s" "INFO"
+        UI-Log "LLM: $($script:Config.LLM_PROVIDER) ($($script:Config.LLM_MODEL))" "INFO"
+        UI-Log "Features: Smart Detection, Conflict Resolution, Multi-LLM, Webhooks, Rollback, Export" "INFO"
+        UI-Log "Settings Panel: Configure everything in the ⚙️ Settings tab" "INFO"
+        UI-Log "API Keys: Securely store keys in the 🔑 API Keys tab" "INFO"
+        UI-Log "" "INFO"
+        UI-Log "🚀 Click 'Start' to begin auto-committing!" "INFO"
+    }
 
     [void] $form.ShowDialog()
 } else {
@@ -2087,7 +2303,17 @@ if ($script:Config.ENABLE_GUI) {
 }
 
 # Final startup message
-Write-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE loaded ===" "INFO"
-Write-Log "Features: Smart Detection | Conflict Resolution | Multi-LLM | Webhooks | Rollback" "INFO"
-Write-Log "Dashboard | Settings Panel | Secure Keys | Export | Quiet Hours | Metrics" "INFO"
-Write-Log "Run with GUI for full experience. Store API keys securely in Settings." "INFO"
+if ($script:Config.THEME -eq "hacker") {
+    Write-Log "[██] $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) HACKER TERMINAL LOADED [██]" "INFO"
+    Write-Log "[>] CORE: Smart Detection | Conflict Resolution | Multi-LLM | Webhooks" "INFO"
+    Write-Log "[>] INTERFACE: Hacker Terminal | Live Settings | Secure Vault | Metrics" "INFO"
+    Write-Log "[>] PERFORMANCE: Memory Optimization | Auto GC | Efficient Polling" "INFO"
+    Write-Log "[>] DEFAULT DELAY: $($script:Config.DELAY_SECONDS) seconds | COOLDOWN: $($script:Config.COOLDOWN_SECONDS) seconds" "INFO"
+    Write-Log "[>] Status: READY | Awaiting user command..." "INFO"
+} else {
+    Write-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE loaded ===" "INFO"
+    Write-Log "Features: Smart Detection | Conflict Resolution | Multi-LLM | Webhooks | Rollback" "INFO"
+    Write-Log "Dashboard | Settings Panel | Secure Keys | Export | Quiet Hours | Metrics" "INFO"
+    Write-Log "Default Delay: $($script:Config.DELAY_SECONDS) seconds | Cooldown: $($script:Config.COOLDOWN_SECONDS) seconds" "INFO"
+    Write-Log "Run with GUI for full experience. Store API keys securely in Settings." "INFO"
+}
