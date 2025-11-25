@@ -99,6 +99,32 @@ $script:Config = @{
     # Squash
     SQUASH_ENABLED        = $true
     SQUASH_AFTER_COMMITS  = 12
+    
+    # Error Recovery
+    ERROR_RETRY_ENABLED   = $true
+    ERROR_RETRY_MAX       = 3
+    ERROR_RETRY_BACKOFF   = 2.0
+    
+    # PR Automation
+    PR_AUTO_ENABLED       = $true
+    PR_AUTO_THRESHOLD     = 15
+    PR_AUTO_TITLE         = "Auto-merge: {branch} → main"
+    PR_AUTO_BODY          = "Automated PR created by TCT-Git-Auto-Commiter\n\nCommits: {count}"
+    
+    # Commit Templates
+    TEMPLATE_ENABLED      = $true
+    TEMPLATE_CURRENT      = "default"
+    COMMIT_TEMPLATES      = @{
+        default = "feat: {summary}"
+        detailed = "[{timestamp}] {type}: {summary}\n\nFiles: {files}\nBranch: {branch}"
+        simple = "{summary}"
+        emoji = "✨ {summary}"
+    }
+    
+    # Web Dashboard
+    WEB_ENABLED           = $false
+    WEB_PORT              = 8080
+    WEB_HOST              = "localhost"
     SQUASH_FORCE_PUSH     = $false
     
     # Safety
