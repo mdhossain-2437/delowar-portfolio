@@ -784,7 +784,7 @@ function Call-Ollama([string]$prompt) {
 
 # Simple .gitignore friendliness
 function Is-Ignored([string]$path) {
-    foreach ($p in $IGNORE_PATTERNS) { 
+    foreach ($p in $script:Config.IGNORE_PATTERNS) { 
         if ($path -like "*$p*") { return $true } 
     }
     if (Test-Path ".gitignore") {
@@ -825,10 +825,10 @@ function Call-Gemini($apiKey, $model, $prompt) {
                 return ($text -replace "`r",""  -replace "^\s+","" -replace "\s+$","")
             }
         }
-        Write-Log "Gemini response structure unexpected: $($resp | ConvertTo-Json -Depth 2 -Compress)"
+        Write-Log "Gemini response structure unexpected: $($resp | ConvertTo-Json -Depth 2 -Compress)" "WARN"
         return $null
     } catch {
-        Write-Log "Gemini call failed: $($_.Exception.Message)"
+        Write-Log "Gemini call failed: $($_.Exception.Message)" "ERROR"
         return $null
     }
 }
