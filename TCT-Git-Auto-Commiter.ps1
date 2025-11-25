@@ -1137,20 +1137,19 @@ function Weekly-Backup {
     }
 }
 
-# Remote API (local, tokenized) - Fixed with proper listener management
+# Remote API (local, tokenized)
 $script:apiListener = $null
 
 function Start-RemoteAPI {
-    if (-not $REMOTE_API_ENABLED) { Write-Log "Remote API disabled"; return }
+    if (-not $script:Config.REMOTE_API_ENABLED) { Write-Log "Remote API disabled" "INFO"; return }
     
     try {
         $script:apiListener = New-Object System.Net.HttpListener
-        $prefix = "http://127.0.0.1:$REMOTE_API_PORT/"
+        $prefix = "http://127.0.0.1:$($script:Config.REMOTE_API_PORT)/"
         $script:apiListener.Prefixes.Add($prefix)
         $script:apiListener.Start()
-        Write-Log "Remote API listening on $prefix"
+        Write-Log "Remote API listening on $prefix" "INFO"
         
-        # Use async callback pattern instead of Job
         $callback = {
             param($result)
             try {
@@ -1160,7 +1159,7 @@ function Start-RemoteAPI {
                 $res = $ctx.Response
                 
                 $auth = $req.Headers["Authorization"]
-                if (-not $auth -or $auth -ne "Bearer $REMOTE_API_TOKEN") {
+                if (-not $auth -or $auth -ne "Bearer $($script:Config.REMOTE_API_TOKEN)") {
                     $res.StatusCode = 401
                     $buf = [System.Text.Encoding]::UTF8.GetBytes('{"error":"Unauthorized"}')
                     $res.OutputStream.Write($buf, 0, $buf.Length)
@@ -1169,10 +1168,13 @@ function Start-RemoteAPI {
                     $path = $req.Url.AbsolutePath.TrimEnd("/")
                     $body = switch ($path) {
                         "/status" { 
-                            $commits = if (Test-Path "$env:TEMP\tct_commits.txt") { 
-                                (Get-Content "$env:TEMP\tct_commits.txt" -ErrorAction SilentlyContinue | Measure-Object -Line).Lines 
-                            } else { 0 }
-                            @{status="running"; commits=$commits; errors=$script:errorCount} | ConvertTo-Json 
+                            @{
+                                status = if ($script:running) { "running" } else { "stopped" }
+                                commits = $script:commitCount
+                                errors = $script:errorCount
+                                uptime = ((Get-Date) - $script:sessionStartTime).TotalMinutes
+                                branch = $script:Config.AUTO_BRANCH
+                            } | ConvertTo-Json 
                         }
                         "/stop" { 
                             New-Item -Path . -Name ".tct_stop" -ItemType File -Force | Out-Null
@@ -1183,10 +1185,22 @@ function Start-RemoteAPI {
                             @{status="started"} | ConvertTo-Json 
                         }
                         "/health" {
-                            @{healthy=$true; uptime=(Get-Date).ToString(); branch=$AUTO_BRANCH} | ConvertTo-Json
+                            @{healthy=$true; version=$script:Config.APP_VERSION} | ConvertTo-Json
+                        }
+                        "/metrics" {
+                            $script:metrics | ConvertTo-Json -Depth 5
+                        }
+                        "/config" {
+                            $script:Config | ConvertTo-Json -Depth 3
+                        }
+                        "/rollback" {
+                            $count = 1
+                            if ($req.QueryString["count"]) { $count = [int]$req.QueryString["count"] }
+                            $result = Rollback-Commits $count
+                            @{success=$result; rolledBack=$count} | ConvertTo-Json
                         }
                         default { 
-                            @{error="unknown endpoint"; available=@("/status","/stop","/start","/health")} | ConvertTo-Json 
+                            @{error="unknown endpoint"; available=@("/status","/stop","/start","/health","/metrics","/config","/rollback")} | ConvertTo-Json 
                         }
                     }
                     $buf = [System.Text.Encoding]::UTF8.GetBytes($body)
@@ -1195,19 +1209,18 @@ function Start-RemoteAPI {
                     $res.Close()
                 }
                 
-                # Continue listening
                 if ($listener.IsListening) {
                     $listener.BeginGetContext($callback, $listener) | Out-Null
                 }
             } catch {
-                Write-Log "API request error: $_"
+                Write-Log "API request error: $_" "ERROR"
             }
         }
         
         $script:apiListener.BeginGetContext($callback, $script:apiListener) | Out-Null
         
     } catch { 
-        Write-Log "Failed to start Remote API: $_"
+        Write-Log "Failed to start Remote API: $_" "ERROR"
     }
 }
 
@@ -1216,17 +1229,16 @@ function Stop-RemoteAPI {
         try {
             $script:apiListener.Stop()
             $script:apiListener.Close()
-            Write-Log "Remote API stopped."
+            Write-Log "Remote API stopped." "INFO"
         } catch { }
     }
 }
 
-# Stop engine function (was missing!)
+# Stop engine function
 function Stop-Engine {
     $script:running = $false
     New-Item -Path . -Name ".tct_stop" -ItemType File -Force | Out-Null
     
-    # Stop the engine job if running
     if ($script:engineJob) {
         try {
             Stop-Job -Job $script:engineJob -ErrorAction SilentlyContinue
@@ -1235,11 +1247,13 @@ function Stop-Engine {
         $script:engineJob = $null
     }
     
+    Save-FileHashes
+    Save-Metrics
     Stop-RemoteAPI
-    Write-Log "Engine stopped."
+    Write-Log "Engine stopped." "INFO"
 }
 
-# Create scheduled task so app starts at logon (requires admin)
+# Create scheduled task
 function Install-ScheduledTask {
     try {
         $exe = $PSCommandPath
@@ -1250,22 +1264,23 @@ function Install-ScheduledTask {
         $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
         $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
         
-        Register-ScheduledTask -TaskName $SCHEDULE_TASK_NAME -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force
-        Write-Log "Scheduled task '$SCHEDULE_TASK_NAME' installed successfully."
+        Register-ScheduledTask -TaskName $script:Config.SCHEDULE_TASK_NAME -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force
+        Write-Log "Scheduled task '$($script:Config.SCHEDULE_TASK_NAME)' installed successfully." "INFO"
+        Show-Toast "Task Installed" "Auto-start on login enabled" "success"
         return $true
     } catch {
-        Write-Log "Scheduled task install failed: $_"
+        Write-Log "Scheduled task install failed: $_" "ERROR"
         return $false
     }
 }
 
 function Uninstall-ScheduledTask {
     try {
-        Unregister-ScheduledTask -TaskName $SCHEDULE_TASK_NAME -Confirm:$false -ErrorAction SilentlyContinue
-        Write-Log "Scheduled task '$SCHEDULE_TASK_NAME' removed."
+        Unregister-ScheduledTask -TaskName $script:Config.SCHEDULE_TASK_NAME -Confirm:$false -ErrorAction SilentlyContinue
+        Write-Log "Scheduled task '$($script:Config.SCHEDULE_TASK_NAME)' removed." "INFO"
         return $true
     } catch {
-        Write-Log "Scheduled task removal failed: $_"
+        Write-Log "Scheduled task removal failed: $_" "ERROR"
         return $false
     }
 }
