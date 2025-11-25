@@ -2,8 +2,10 @@ import { lazy, Suspense, useState, type ReactNode } from "react";
 import { useInView } from "react-intersection-observer";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import ProjectsNew from "@/components/ProjectsNew";
+import SkillsNew from "@/components/SkillsNew";
+import ContactNew from "@/components/ContactNew";
 import About from "@/components/About";
-import Skills from "@/components/Skills";
 import CustomCursor from "@/components/CustomCursor";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Helmet } from "react-helmet-async";
@@ -11,13 +13,8 @@ const TechStackVisualization = lazy(
   () => import("@/components/TechStackVisualization")
 );
 const Experience = lazy(() => import("@/components/Experience"));
-const Projects = lazy(() => import("@/components/Projects"));
 const RealWorldImpact = lazy(() => import("@/components/RealWorldImpact"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
-const CTASection = lazy(() => import("@/components/CTASection"));
-const InteractiveContact = lazy(
-  () => import("@/components/InteractiveContact")
-);
 const Footer = lazy(() => import("@/components/Footer"));
 const AchievementsPanel = lazy(() => import("@/components/AchievementsPanel"));
 
@@ -65,7 +62,7 @@ export default function Home() {
           <About />
         </SectionLoader>
         <SectionLoader id="skills" minHeight="16rem">
-          <Skills />
+          <SkillsNew />
         </SectionLoader>
         <SectionLoader id="stack">
           <TechStackVisualization />
@@ -74,7 +71,7 @@ export default function Home() {
           <Experience />
         </SectionLoader>
         <SectionLoader id="projects">
-          <Projects />
+          <ProjectsNew />
         </SectionLoader>
         <SectionLoader id="impact">
           <RealWorldImpact />
@@ -85,11 +82,8 @@ export default function Home() {
         <SectionLoader id="achievements">
           <AchievementsPanel />
         </SectionLoader>
-        <SectionLoader>
-          <CTASection />
-        </SectionLoader>
         <SectionLoader id="contact">
-          <InteractiveContact />
+          <ContactNew />
         </SectionLoader>
         <SectionLoader minHeight="12rem">
           <Footer />

@@ -1,20 +1,33 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter, MessageSquare } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  Github,
+  Linkedin,
+  Twitter,
+  MessageSquare,
+} from "lucide-react";
 
 export default function ContactNew() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
-    message: ""
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,28 +62,40 @@ export default function ContactNew() {
       label: "Email",
       value: "mdhossain2437@gmail.com",
       href: "mailto:mdhossain2437@gmail.com",
-      color: "from-purple-500 to-pink-500"
+      color: "from-purple-500 to-pink-500",
     },
     {
       icon: Phone,
       label: "Phone",
       value: "+880 1315-123134",
       href: "tel:+8801315123134",
-      color: "from-cyan-500 to-blue-500"
+      color: "from-cyan-500 to-blue-500",
     },
     {
       icon: MapPin,
       label: "Location",
       value: "Dhaka, Bangladesh",
       href: null,
-      color: "from-green-500 to-emerald-500"
+      color: "from-green-500 to-emerald-500",
     },
   ];
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com/mdhossain-2437", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com/in/delowar-hossain", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com/delowar_dev", label: "Twitter" },
+    {
+      icon: Github,
+      href: "https://github.com/mdhossain-2437",
+      label: "GitHub",
+    },
+    {
+      icon: Linkedin,
+      href: "https://linkedin.com/in/delowar-hossain",
+      label: "LinkedIn",
+    },
+    {
+      icon: Twitter,
+      href: "https://twitter.com/delowar_dev",
+      label: "Twitter",
+    },
   ];
 
   return (
@@ -95,7 +120,9 @@ export default function ContactNew() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20"
           >
             <MessageSquare className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-medium text-purple-300">Get In Touch</span>
+            <span className="text-sm font-medium text-purple-300">
+              Get In Touch
+            </span>
           </motion.div>
 
           <h2 className="text-4xl md:text-6xl font-bold">
@@ -104,7 +131,8 @@ export default function ContactNew() {
             </span>
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Have a project in mind? Let's discuss how I can help bring your ideas to life.
+            Have a project in mind? Let's discuss how I can help bring your
+            ideas to life.
           </p>
         </motion.div>
 
@@ -135,21 +163,29 @@ export default function ContactNew() {
                         href={info.href}
                         className="flex items-center gap-4 p-6 rounded-2xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300"
                       >
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center shadow-lg`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center shadow-lg`}
+                        >
                           <Icon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-slate-500 uppercase tracking-wide">{info.label}</p>
+                          <p className="text-sm text-slate-500 uppercase tracking-wide">
+                            {info.label}
+                          </p>
                           <p className="text-white font-medium">{info.value}</p>
                         </div>
                       </a>
                     ) : (
                       <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center shadow-lg`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center shadow-lg`}
+                        >
                           <Icon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-slate-500 uppercase tracking-wide">{info.label}</p>
+                          <p className="text-sm text-slate-500 uppercase tracking-wide">
+                            {info.label}
+                          </p>
                           <p className="text-white font-medium">{info.value}</p>
                         </div>
                       </div>
@@ -167,7 +203,9 @@ export default function ContactNew() {
               transition={{ delay: 0.3 }}
               className="p-6 rounded-2xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm"
             >
-              <h3 className="text-lg font-semibold text-white mb-4">Follow Me</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Follow Me
+              </h3>
               <div className="flex gap-3">
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
@@ -199,7 +237,9 @@ export default function ContactNew() {
             >
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <h3 className="text-lg font-semibold text-green-400">Available for Freelance</h3>
+                <h3 className="text-lg font-semibold text-green-400">
+                  Available for Freelance
+                </h3>
               </div>
               <p className="text-sm text-slate-400">
                 Currently accepting new projects and collaborations.
@@ -215,10 +255,16 @@ export default function ContactNew() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-3"
           >
-            <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="p-8 rounded-3xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm space-y-6"
+            >
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-300">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-slate-300"
+                  >
                     Your Name
                   </label>
                   <input
@@ -234,7 +280,10 @@ export default function ContactNew() {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-slate-300"
+                  >
                     Email Address
                   </label>
                   <input
@@ -251,7 +300,10 @@ export default function ContactNew() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="subject" className="block text-sm font-medium text-slate-300">
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-slate-300"
+                >
                   Subject
                 </label>
                 <input
@@ -267,7 +319,10 @@ export default function ContactNew() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="message" className="block text-sm font-medium text-slate-300">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-slate-300"
+                >
                   Message
                 </label>
                 <textarea
@@ -297,7 +352,11 @@ export default function ContactNew() {
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                     />
                     Sending...
