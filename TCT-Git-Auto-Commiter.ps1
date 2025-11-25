@@ -1964,7 +1964,7 @@ if ($script:Config.ENABLE_GUI) {
     $form.Add_FormClosing({
         param($sender, $e)
         if ($script:running) {
-            $result = [System.Windows.Forms.MessageBox]::Show("Engine is running. Stop and exit?", $APP_NAME, "YesNo", "Question")
+            $result = [System.Windows.Forms.MessageBox]::Show("Engine is running. Stop and exit?", $script:Config.APP_NAME, "YesNo", "Question")
             if ($result -eq "No") {
                 $e.Cancel = $true
                 $form.WindowState = "Minimized"
@@ -1974,22 +1974,29 @@ if ($script:Config.ENABLE_GUI) {
         }
         $timer.Stop()
         if ($script:trayIcon) { $script:trayIcon.Visible = $false }
+        Stop-RemoteAPI
     })
 
     # Initial log
-    UI-Log "TCT-Git-Auto-Commiter v2.0 initialized."
+    UI-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE ==="
     UI-Log "Repository: $(Get-Location)"
-    UI-Log "Auto-branch: $AUTO_BRANCH | Delay: ${DELAY_SECONDS}s | LLM: $LLM_ENABLED"
-    UI-Log "Click 'Start' to begin auto-committing."
+    UI-Log "Auto-branch: $($script:Config.AUTO_BRANCH) | Delay: $($script:Config.DELAY_SECONDS)s"
+    UI-Log "LLM: $($script:Config.LLM_PROVIDER) ($($script:Config.LLM_MODEL))"
+    UI-Log "Features: Smart Detection, Conflict Resolution, Multi-LLM, Webhooks, Rollback, Export"
+    UI-Log "Settings Panel: Configure everything in the ⚙️ Settings tab"
+    UI-Log "API Keys: Securely store keys in the 🔑 API Keys tab"
+    UI-Log ""
+    UI-Log "🚀 Click 'Start' to begin auto-committing!"
 
     [void] $form.ShowDialog()
 } else {
     # Console mode
-    Write-Log "$APP_NAME starting in console mode..."
+    Write-Log "$($script:Config.APP_NAME) starting in console mode..." "INFO"
     Engine-Loop
 }
 
 # Final startup message
-Write-Log "$APP_NAME v2.0 loaded successfully."
-Write-Log "Features: GUI, Tray, LLM commit messages, Auto-push, Weekly backup, Squash"
-Write-Log "Edit INLINE_KEYS in script for Gemini API. Run as Admin for scheduled task."
+Write-Log "=== $($script:Config.APP_NAME) v$($script:Config.APP_VERSION) ULTIMATE loaded ===" "INFO"
+Write-Log "Features: Smart Detection | Conflict Resolution | Multi-LLM | Webhooks | Rollback" "INFO"
+Write-Log "Dashboard | Settings Panel | Secure Keys | Export | Quiet Hours | Metrics" "INFO"
+Write-Log "Run with GUI for full experience. Store API keys securely in Settings." "INFO"
