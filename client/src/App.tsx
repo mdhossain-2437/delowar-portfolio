@@ -49,10 +49,6 @@ const EyeTrackingToggle = lazy(() => import("@/components/EyeTrackingToggle"));
 const ServiceWorkerStatus = lazy(
   () => import("@/components/ServiceWorkerStatus"),
 );
-const LighthouseScoreWidget = lazy(
-  () => import("@/components/LighthouseScoreWidget"),
-);
-const FPSRamMonitor = lazy(() => import("@/components/FPSRamMonitor"));
 const AccessibilityDebugger = lazy(
   () => import("@/components/AccessibilityDebugger"),
 );
@@ -153,7 +149,6 @@ function App() {
                     <AppRoutes />
                     {showServiceHelpers && (
                       <Suspense fallback={null}>
-                        <LighthouseScoreWidget />
                         <ServiceWorkerStatus />
                       </Suspense>
                     )}
@@ -162,7 +157,6 @@ function App() {
                         <BugReportWidget />
                         <EyeTrackingToggle />
                         <AccessibilityDebugger />
-                        <FPSRamMonitor />
                       </Suspense>
                     )}
                   </div>
