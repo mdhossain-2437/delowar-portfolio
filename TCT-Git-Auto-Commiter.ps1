@@ -1044,7 +1044,7 @@ function PushIfOnline {
 
 # Auto-squash (safe)
 function Auto-Squash-IfNeeded {
-    if (-not $SQUASH_ENABLED) { return }
+    if (-not $script:Config.SQUASH_ENABLED) { return }
     
     try {
         $hist = git log --pretty=format:"%H %s" -n 200 2>$null
@@ -1052,66 +1052,63 @@ function Auto-Squash-IfNeeded {
         
         $autoCommits = ($hist | Select-String -Pattern "AutoCommit" -AllMatches).Matches.Count
         
-        if ($autoCommits -ge $SQUASH_AFTER_COMMITS) {
-            Write-Log "Auto-squash: $autoCommits commits detected. Creating backup..."
+        if ($autoCommits -ge $script:Config.SQUASH_AFTER_COMMITS) {
+            Write-Log "Auto-squash: $autoCommits commits detected. Creating backup..." "INFO"
             
-            # Create backup branch
-            $backupName = "$AUTO_BRANCH-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+            $backupName = "$($script:Config.AUTO_BRANCH)-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
             git branch $backupName 2>$null
             
-            # Perform squash
             git reset --soft HEAD~$autoCommits 2>$null
             git commit -m "AutoCommit: squashed $autoCommits auto commits [$(Get-Date -Format 'yyyy-MM-dd')]" 2>$null
             
             if ($LASTEXITCODE -eq 0) {
-                Write-Log "Squashed $autoCommits commits successfully."
+                Write-Log "Squashed $autoCommits commits successfully." "INFO"
+                Show-Toast "Squash Complete" "Squashed $autoCommits commits" "success"
                 
-                if ($SQUASH_FORCE_PUSH) { 
-                    git push -f origin $AUTO_BRANCH 2>$null
-                    Write-Log "Force-pushed squashed commit." 
+                if ($script:Config.SQUASH_FORCE_PUSH) { 
+                    git push -f origin $script:Config.AUTO_BRANCH 2>$null
+                    Write-Log "Force-pushed squashed commit." "INFO"
                 } else { 
                     try { 
-                        git push origin $AUTO_BRANCH 2>$null
-                        Write-Log "Pushed squashed commit." 
+                        git push origin $script:Config.AUTO_BRANCH 2>$null
+                        Write-Log "Pushed squashed commit." "INFO"
                     } catch { 
-                        Write-Log "Push after squash failed (may need force push)." 
+                        Write-Log "Push after squash failed (may need force push)." "WARN"
                     } 
                 }
             } else {
-                Write-Log "Squash failed, restoring from backup..."
+                Write-Log "Squash failed, restoring from backup..." "ERROR"
                 git reset --hard $backupName 2>$null
             }
         }
     } catch {
-        Write-Log "Auto-squash error: $_"
+        Write-Log "Auto-squash error: $_" "ERROR"
     }
 }
 
 # Weekly backup function
 function Weekly-Backup {
-    if (-not $BACKUP_WEEKLY_ENABLED) { return }
+    if (-not $script:Config.BACKUP_ENABLED) { return }
     
     try {
-        if (-not (Test-Path $BACKUP_FOLDER)) { 
-            New-Item -ItemType Directory -Path $BACKUP_FOLDER -Force | Out-Null 
+        if (-not (Test-Path $script:Config.BACKUP_FOLDER)) { 
+            New-Item -ItemType Directory -Path $script:Config.BACKUP_FOLDER -Force | Out-Null 
         }
         
-        $last = Get-ChildItem -Path $BACKUP_FOLDER -Filter "repo_backup_*.zip" -ErrorAction SilentlyContinue | 
+        $last = Get-ChildItem -Path $script:Config.BACKUP_FOLDER -Filter "repo_backup_*.zip" -ErrorAction SilentlyContinue | 
                 Sort-Object LastWriteTime -Descending | 
                 Select-Object -First 1
         
-        $shouldBackup = (-not $last) -or ((Get-Date) - $last.LastWriteTime).TotalDays -ge 6
+        $shouldBackup = (-not $last) -or ((Get-Date) - $last.LastWriteTime).TotalDays -ge $script:Config.BACKUP_INTERVAL_DAYS
         
         if ($shouldBackup) {
             $zipName = "repo_backup_{0}.zip" -f (Get-Date -Format "yyyyMMdd_HHmmss")
-            $zipPath = Join-Path (Resolve-Path $BACKUP_FOLDER).Path $zipName
+            $zipPath = Join-Path (Resolve-Path $script:Config.BACKUP_FOLDER).Path $zipName
             $sourcePath = (Get-Location).Path
             
-            # Create temp folder for backup (exclude large folders)
             $tempBackup = Join-Path $env:TEMP "tct_backup_temp_$(Get-Random)"
             New-Item -ItemType Directory -Path $tempBackup -Force | Out-Null
             
-            # Copy files excluding node_modules, .git, etc.
             $excludeDirs = @("node_modules", ".git", "dist", "build", ".next", "tct_backups")
             Get-ChildItem -Path $sourcePath -Force | Where-Object {
                 $item = $_
@@ -1120,25 +1117,23 @@ function Weekly-Backup {
                 Copy-Item -Path $_.FullName -Destination $tempBackup -Recurse -Force -ErrorAction SilentlyContinue
             }
             
-            # Create zip
             Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
             [IO.Compression.ZipFile]::CreateFromDirectory($tempBackup, $zipPath)
             
-            # Cleanup temp
             Remove-Item -Path $tempBackup -Recurse -Force -ErrorAction SilentlyContinue
             
-            Write-Log "Weekly backup created: $zipPath"
+            Write-Log "Weekly backup created: $zipPath" "INFO"
+            Show-Toast "Backup Complete" "Repository backup created" "success"
             
-            # Rotate old backups
-            $zips = Get-ChildItem -Path $BACKUP_FOLDER -Filter "*.zip" -ErrorAction SilentlyContinue | 
+            $zips = Get-ChildItem -Path $script:Config.BACKUP_FOLDER -Filter "*.zip" -ErrorAction SilentlyContinue | 
                     Sort-Object LastWriteTime -Descending
-            if ($zips.Count -gt $BACKUP_ROTATE_KEEP) { 
-                $zips[$BACKUP_ROTATE_KEEP..($zips.Count-1)] | Remove-Item -Force -ErrorAction SilentlyContinue
-                Write-Log "Rotated old backups, keeping $BACKUP_ROTATE_KEEP most recent."
+            if ($zips.Count -gt $script:Config.BACKUP_ROTATE_KEEP) { 
+                $zips[$script:Config.BACKUP_ROTATE_KEEP..($zips.Count-1)] | Remove-Item -Force -ErrorAction SilentlyContinue
+                Write-Log "Rotated old backups, keeping $($script:Config.BACKUP_ROTATE_KEEP) most recent." "INFO"
             }
         }
     } catch { 
-        Write-Log "Backup error: $_" 
+        Write-Log "Backup error: $_" "ERROR"
     }
 }
 
