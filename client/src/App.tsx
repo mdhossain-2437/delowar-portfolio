@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -129,6 +129,13 @@ function AppRoutes() {
 function App() {
   useConsoleEasterEggs();
   const enhancersReady = useIdleRender();
+  const isProd = useMemo(() => import.meta.env.PROD, []);
+  const debugFlag = useMemo(
+    () => import.meta.env.VITE_ENABLE_DEBUG_OVERLAYS === "true",
+    [],
+  );
+  const showServiceHelpers = enhancersReady;
+  const showDebugOverlays = enhancersReady && (!isProd || debugFlag);
 
   return (
     <HelmetProvider>
@@ -144,14 +151,18 @@ function App() {
                     <OfflineBanner />
                     <Toaster />
                     <AppRoutes />
-                    {enhancersReady && (
+                    {showServiceHelpers && (
+                      <Suspense fallback={null}>
+                        <LighthouseScoreWidget />
+                        <ServiceWorkerStatus />
+                      </Suspense>
+                    )}
+                    {showDebugOverlays && (
                       <Suspense fallback={null}>
                         <BugReportWidget />
                         <EyeTrackingToggle />
-                        <LighthouseScoreWidget />
-                        <FPSRamMonitor />
                         <AccessibilityDebugger />
-                        <ServiceWorkerStatus />
+                        <FPSRamMonitor />
                       </Suspense>
                     )}
                   </div>
