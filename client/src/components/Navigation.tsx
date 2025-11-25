@@ -324,176 +324,190 @@ export default function Navigation() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={`fixed top-0 w-full z-[1000] transition-all duration-300 ${
-          isScrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-lg"
-            : "bg-transparent"
+        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-[1000] transition-all duration-500 ${
+          isScrolled ? "w-[95%] max-w-5xl" : "w-[95%] max-w-6xl"
         }`}
         data-testid="navigation"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
-            <motion.button
-              onClick={() => scrollToSection("home")}
-              className="text-2xl font-bold group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                Delowar
-              </span>
-            </motion.button>
-
-            <div className="hidden md:flex items-center space-x-2">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`relative px-3 py-2 text-sm font-medium rounded-full transition-colors ${
-                  activeSection === item.id
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/20"
-                  }`}
-                  data-testid={`nav-${item.id}`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="hidden md:flex items-center space-x-2">
-              <button
-                onClick={toggleVoiceNav}
-                className={`relative h-10 w-10 flex items-center justify-center rounded-full border transition-colors ${
-                  isListening
-                    ? "border-primary text-primary bg-primary/10"
-                    : "border-border/60 text-muted-foreground hover:text-primary hover:border-primary/60"
-                }`}
-                aria-label="Voice navigation"
-                type="button"
-                disabled={!voiceSupported}
+        <div
+          className={`relative rounded-2xl transition-all duration-500 ${
+            isScrolled
+              ? "bg-slate-900/90 backdrop-blur-2xl border border-slate-700/50 shadow-2xl shadow-purple-500/10"
+              : "bg-slate-900/50 backdrop-blur-md border border-slate-800/50"
+          }`}
+        >
+          {/* Premium glow effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/5 via-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          <div className="relative px-6 py-4">
+            <div className="flex justify-between items-center">
+              {/* Logo */}
+              <motion.button
+                onClick={() => scrollToSection("home")}
+                className="relative group flex items-center gap-3"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {isListening && (
-                  <span className="absolute -inset-2 rounded-full bg-primary/10 blur animate-pulse" />
-                )}
-                {isListening && (
-                  <span className="absolute inset-0 flex items-center justify-center gap-1">
-                    {[0, 1, 2, 3].map((bar) => (
-                      <motion.span
-                        key={bar}
-                        className="w-1 rounded-full bg-primary/70"
-                        animate={{ height: ["35%", "90%", "45%"], opacity: [0.6, 1, 0.6] }}
-                        transition={{
-                          duration: 1.3,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                          delay: bar * 0.1,
-                        }}
-                      />
-                    ))}
+                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                  <span className="text-white font-bold text-lg">D</span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-cyan-500/0 group-hover:from-purple-500/20 group-hover:to-cyan-500/20 transition-all duration-300" />
+                </div>
+                <span className="hidden sm:block text-xl font-bold">
+                  <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                    Delowar
                   </span>
-                )}
-                <Mic className="h-4 w-4" />
-                {isListening && (
-                  <span className="absolute inset-[-6px] rounded-full border border-primary/30 animate-ping" />
-                )}
-              </button>
-              <InstallPWAButton />
-              <LocaleToggle />
+                </span>
+              </motion.button>
+
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center gap-2 bg-slate-800/30 rounded-xl px-2 py-2 border border-slate-700/30">
+                {navItems.slice(0, 6).map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  return (
+                    <motion.button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        isActive
+                          ? "text-white"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      data-testid={`nav-${item.id}`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="navActiveSection"
+                          className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-2">
+                        <Icon className="w-4 h-4" />
+                        <span className="hidden xl:inline">{item.label}</span>
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                {/* Voice Button */}
+                <motion.button
+                  onClick={toggleVoiceNav}
+                  className={`relative h-10 w-10 flex items-center justify-center rounded-xl border transition-all duration-300 ${
+                    isListening
+                      ? "border-purple-500 text-purple-400 bg-purple-500/10 shadow-lg shadow-purple-500/25"
+                      : "border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/5"
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Voice navigation"
+                  type="button"
+                  disabled={!voiceSupported}
+                >
+                  {isListening && (
+                    <>
+                      <span className="absolute -inset-1 rounded-xl bg-purple-500/20 blur animate-pulse" />
+                      <span className="absolute inset-0 flex items-center justify-center gap-0.5">
+                        {[0, 1, 2].map((bar) => (
+                          <motion.span
+                            key={bar}
+                            className="w-0.5 rounded-full bg-purple-400"
+                            animate={{ height: ["30%", "80%", "40%"], opacity: [0.6, 1, 0.6] }}
+                            transition={{
+                              duration: 1.2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                              delay: bar * 0.1,
+                            }}
+                          />
+                        ))}
+                      </span>
+                    </>
+                  )}
+                  <Mic className={`h-4 w-4 ${isListening ? "opacity-0" : "opacity-100"} transition-opacity`} />
+                </motion.button>
+
+                {/* Additional Tools */}
+                <div className="hidden md:flex items-center gap-2">
+                  <InstallPWAButton />
+                  <LocaleToggle />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </motion.nav>
 
+      {/* Mobile Bottom Navigation */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
-        className="fixed bottom-4 left-0 right-0 px-4 md:hidden z-[1000]"
+        transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+        className="fixed bottom-4 left-4 right-4 lg:hidden z-[1000]"
       >
-        <div className="max-w-md mx-auto rounded-3xl border border-border bg-background/80 backdrop-blur-xl shadow-2xl shadow-primary/10">
-          <div className="flex items-center justify-between">
-            {[
-              ...navItems.map((item) => ({
-                ...item,
-                action: () => scrollToSection(item.id),
-                isRoute: false,
-              })),
-              {
-                id: "blog-page",
-                label: t("nav.blog"),
-                icon: Newspaper,
-                action: () => navigate("/blog"),
-                isRoute: true,
-              },
-            ].map((item) => {
+        <div className="relative rounded-2xl border border-slate-700/50 bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-purple-500/10 overflow-hidden">
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-cyan-500/5" />
+          
+          <div className="relative grid grid-cols-5 gap-1 p-2">
+            {navItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
-              const isActive = !item.isRoute && activeSection === item.id;
+              const isActive = activeSection === item.id;
               return (
-                <button
+                <motion.button
                   key={item.id}
-                  onClick={item.action}
-                  className="relative flex-1 px-3 py-3 flex flex-col items-center gap-1 text-xs font-medium focus-visible:outline-none"
+                  onClick={() => scrollToSection(item.id)}
+                  className="relative flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all duration-300"
+                  whileTap={{ scale: 0.95 }}
                   data-testid={`mobile-bottom-nav-${item.id}`}
                 >
                   {isActive && (
                     <motion.span
                       layoutId="mobileActiveSection"
-                      className="absolute inset-0 rounded-2xl bg-primary/10 border border-primary/20"
+                      className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-600/20 to-cyan-600/20 border border-purple-500/30"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
                   <span
-                    className={`relative z-10 flex flex-col items-center gap-1 ${
-                      isActive ? "text-primary" : "text-muted-foreground"
+                    className={`relative z-10 flex flex-col items-center gap-1 transition-colors duration-300 ${
+                      isActive ? "text-white" : "text-slate-400"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+                    <span className="text-[10px] font-medium">{item.label}</span>
                   </span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
         </div>
-        <div className="mt-2 flex justify-end gap-2 max-w-md mx-auto">
-          <button
+
+        {/* Mobile Action Buttons */}
+        <div className="mt-3 flex justify-between items-center">
+          <motion.button
             onClick={toggleVoiceNav}
-            className={`relative h-10 w-10 flex items-center justify-center rounded-full border transition-colors ${
+            className={`relative h-11 px-4 flex items-center gap-2 rounded-xl border transition-all duration-300 ${
               isListening
-                ? "border-primary text-primary bg-primary/10"
-                : "border-border/60 text-muted-foreground hover:text-primary hover:border-primary/60"
+                ? "border-purple-500 text-purple-400 bg-purple-500/10 shadow-lg shadow-purple-500/25"
+                : "border-slate-700 text-slate-400 bg-slate-900/50 backdrop-blur-sm"
             }`}
+            whileTap={{ scale: 0.95 }}
             aria-label="Voice navigation"
             type="button"
             disabled={!voiceSupported}
           >
             {isListening && (
-              <span className="absolute -inset-2 rounded-full bg-primary/10 blur animate-pulse" />
-            )}
-            {isListening && (
-              <span className="absolute inset-0 flex items-center justify-center gap-1">
-                {[0, 1, 2, 3].map((bar) => (
-                  <motion.span
-                    key={bar}
-                    className="w-1 rounded-full bg-primary/70"
-                    animate={{ height: ["35%", "90%", "45%"], opacity: [0.6, 1, 0.6] }}
-                    transition={{
-                      duration: 1.3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: bar * 0.1,
-                    }}
-                  />
-                ))}
-              </span>
+              <span className="absolute -inset-1 rounded-xl bg-purple-500/20 blur animate-pulse" />
             )}
             <Mic className="h-4 w-4" />
-            {isListening && (
-              <span className="absolute inset-[-6px] rounded-full border border-primary/30 animate-ping" />
-            )}
-          </button>
+            <span className="text-xs font-medium">Voice</span>
+          </motion.button>
           <LocaleToggle />
         </div>
       </motion.div>
