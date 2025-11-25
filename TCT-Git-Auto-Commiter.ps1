@@ -42,7 +42,7 @@ $INLINE_KEYS = @{
 # --------------------------- CONFIG (modify if you want) ---------------------------
 $APP_NAME                = "TCT-Git-Auto-Commiter"
 $AUTO_BRANCH             = "dage/auto"
-$DELAY_SECONDS           = 10
+$DELAY_SECONDS           = 60
 $COOLDOWN_SECONDS        = 2
 $SQUASH_AFTER_COMMITS    = 12
 $SQUASH_ENABLED          = $true
