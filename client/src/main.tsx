@@ -24,7 +24,9 @@ createRoot(document.getElementById("root")!).render(
   </ThemeProvider>,
 );
 
-startPerformanceMonitoring();
+if (import.meta.env.PROD) {
+  startPerformanceMonitoring({ idleTimeout: 1200 });
+}
 
 if ("serviceWorker" in navigator) {
   if (import.meta.env.PROD) {
