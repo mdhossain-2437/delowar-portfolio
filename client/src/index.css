@@ -173,6 +173,39 @@ body.brutalism-mode video {
   opacity: 0 !important;
 }
 
+.binary-title {
+  display: inline-block;
+  letter-spacing: -0.01em;
+  text-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+}
+
+.typewriter-text {
+  min-height: 1.5em;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.typewriter-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background: var(--primary);
+  animation: caret-blink 1s steps(1, end) infinite;
+  margin-left: 4px;
+  vertical-align: -0.12em;
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
   body[data-era="2024"] {
     filter: saturate(1.1);
   }

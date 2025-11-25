@@ -1,23 +1,12 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { useInView } from "react-intersection-observer";
 import Navigation from "@/components/Navigation";
-import SideNavRail from "@/components/SideNavRail";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import PersonalJourney from "@/components/PersonalJourney";
 import Skills from "@/components/Skills";
 import CustomCursor from "@/components/CustomCursor";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Helmet } from "react-helmet-async";
-const MissionControl = lazy(() => import("@/components/MissionControl"));
-const WorkspaceShowcase = lazy(() => import("@/components/WorkspaceShowcase"));
-const ScrollStory = lazy(() => import("@/components/ScrollStory"));
 const TechStackVisualization = lazy(
   () => import("@/components/TechStackVisualization")
 );
@@ -25,110 +14,25 @@ const Experience = lazy(() => import("@/components/Experience"));
 const Projects = lazy(() => import("@/components/Projects"));
 const RealWorldImpact = lazy(() => import("@/components/RealWorldImpact"));
 const BlogPreview = lazy(() => import("@/components/BlogPreview"));
-const WorkProcess = lazy(() => import("@/components/WorkProcess"));
-const CertificationsLearning = lazy(
-  () => import("@/components/CertificationsLearning")
-);
-const Testimonials = lazy(() => import("@/components/Testimonials"));
-const Services = lazy(() => import("@/components/Services"));
 const CTASection = lazy(() => import("@/components/CTASection"));
 const InteractiveContact = lazy(
   () => import("@/components/InteractiveContact")
 );
 const Footer = lazy(() => import("@/components/Footer"));
-const AmbientStatusWidget = lazy(
-  () => import("@/components/AmbientStatusWidget")
-);
-const WasmImageLab = lazy(() => import("@/components/WasmImageLab"));
-const P2PIntroVideo = lazy(() => import("@/components/P2PIntroVideo"));
-const DigitalGarden = lazy(() => import("@/components/DigitalGarden"));
-const SystemDesignBoard = lazy(() => import("@/components/SystemDesignBoard"));
-const ARPortal = lazy(() => import("@/components/ARPortal"));
-const PricingCalculator = lazy(() => import("@/components/PricingCalculator"));
-const WebAuthnDemo = lazy(() => import("@/components/WebAuthnDemo"));
-const TimeTravelSlider = lazy(() => import("@/components/TimeTravelSlider"));
-const AvailabilityGlobe = lazy(() => import("@/components/AvailabilityGlobe"));
-const CodeSnippets = lazy(() => import("@/components/CodeSnippets"));
-const SupportMe = lazy(() => import("@/components/SupportMe"));
-const ComparisonSlider = lazy(() => import("@/components/ComparisonSlider"));
-const StatsDashboard = lazy(() => import("@/components/StatsDashboard"));
-const NewsletterSignup = lazy(() => import("@/components/NewsletterSignup"));
-const Bookshelf = lazy(() => import("@/components/Bookshelf"));
-const ServerlessMetricsPanel = lazy(
-  () => import("@/components/ServerlessMetricsPanel")
-);
-const CICDStatusWidget = lazy(() => import("@/components/CICDStatusWidget"));
-const AudioReactiveCanvas = lazy(
-  () => import("@/components/AudioReactiveCanvas")
-);
-const BrowserFingerprintDemo = lazy(
-  () => import("@/components/BrowserFingerprintDemo")
-);
-const ThemeBuilder = lazy(() => import("@/components/ThemeBuilder"));
-const CodeReviewHeatmap = lazy(() => import("@/components/CodeReviewHeatmap"));
-const GitBranchVisualizer = lazy(
-  () => import("@/components/GitBranchVisualizer")
-);
-const TechDebtTracker = lazy(() => import("@/components/TechDebtTracker"));
-const DailyTimeCapsule = lazy(() => import("@/components/DailyTimeCapsule"));
 const AchievementsPanel = lazy(() => import("@/components/AchievementsPanel"));
-const DynamicStoryProgression = lazy(
-  () => import("@/components/DynamicStoryProgression")
-);
-const DeveloperBattleGame = lazy(
-  () => import("@/components/DeveloperBattleGame")
-);
-const IsometricSiteMap = lazy(() => import("@/components/IsometricSiteMap"));
-const PhysicsDragGallery = lazy(
-  () => import("@/components/PhysicsDragGallery")
-);
-const PrecacheStrategyDemo = lazy(
-  () => import("@/components/PrecacheStrategyDemo")
-);
-const DeviceMotionScene = lazy(() => import("@/components/DeviceMotionScene"));
-const DigitalBucketList = lazy(() => import("@/components/DigitalBucketList"));
-const KnowledgeGraph = lazy(() => import("@/components/KnowledgeGraph"));
-const WelcomeBackBanner = lazy(() => import("@/components/WelcomeBackBanner"));
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
-  const [phase1Ready, setPhase1Ready] = useState(false);
-  const [phase2Ready, setPhase2Ready] = useState(false);
-  const enableLabs = import.meta.env.VITE_ENABLE_LABS === "true";
 
   const handleLoadComplete = () => {
     setIsLoading(false);
   };
-
-  useEffect(() => {
-    const t1 = window.setTimeout(() => setPhase1Ready(true), 100);
-    const t2 = window.setTimeout(() => setPhase2Ready(true), 900);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, []);
-
-  const sideNavSections = [
-    { id: "home", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "skills", label: "Skills" },
-    { id: "projects", label: "Projects" },
-    { id: "stack", label: "Stack" },
-    { id: "blog", label: "Blog" },
-    { id: "timeline", label: "Timeline" },
-    { id: "achievements", label: "Achievements" },
-    { id: "playground", label: "Playground" },
-    { id: "tasks", label: "Tasks" },
-    { id: "contact", label: "Contact" },
-  ];
 
   return (
     <>
       {isLoading && <LoadingScreen onLoadComplete={handleLoadComplete} />}
 
       <div className="overflow-x-hidden">
-        <SideNavRail sections={sideNavSections} />
         <Helmet>
           <title>Delowar Hossain | Product Engineer & AI Explorer</title>
           <meta
@@ -157,182 +61,36 @@ export default function Home() {
         <CustomCursor />
         <Navigation />
         <Hero />
-        <SectionLoader minHeight="9rem">
-          <WelcomeBackBanner />
-        </SectionLoader>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
-          <SectionLoader minHeight="8rem" id="status">
-            <AmbientStatusWidget />
-          </SectionLoader>
-        </div>
-        <SectionLoader id="tasks">
-          <MissionControl />
-        </SectionLoader>
-        <SectionLoader id="playground">
-          <WorkspaceShowcase />
-        </SectionLoader>
         <SectionLoader id="about" minHeight="14rem">
           <About />
         </SectionLoader>
-        <PersonalJourney />
-        <SectionLoader>
-          <DynamicStoryProgression />
-        </SectionLoader>
-        {enableLabs && (
-          <SectionLoader>
-            <ARPortal />
-          </SectionLoader>
-        )}
-        <SectionLoader>
-          <ScrollStory />
-        </SectionLoader>
-        {enableLabs && (
-          <SectionLoader minHeight="20rem">
-            <P2PIntroVideo />
-          </SectionLoader>
-        )}
-        {enableLabs && (
-          <SectionLoader>
-            <DeviceMotionScene />
-          </SectionLoader>
-        )}
         <SectionLoader id="skills" minHeight="16rem">
           <Skills />
         </SectionLoader>
-        {enableLabs && phase1Ready && (
-          <>
-            <SectionLoader minHeight="18rem">
-              <AudioReactiveCanvas />
-            </SectionLoader>
-            <SectionLoader>
-              <DeveloperBattleGame />
-            </SectionLoader>
-            <SectionLoader>
-              <ServerlessMetricsPanel />
-            </SectionLoader>
-            <SectionLoader>
-              <CICDStatusWidget />
-            </SectionLoader>
-            <SectionLoader>
-              <PrecacheStrategyDemo />
-            </SectionLoader>
-          </>
-        )}
         <SectionLoader id="stack">
           <TechStackVisualization />
         </SectionLoader>
-        <SectionLoader>
-          <PhysicsDragGallery />
-        </SectionLoader>
-        <SectionLoader>
-          <BrowserFingerprintDemo />
-        </SectionLoader>
-        <SectionLoader>
+        <SectionLoader id="experience">
           <Experience />
         </SectionLoader>
-        {enableLabs && (
-          <SectionLoader>
-            <AvailabilityGlobe />
-          </SectionLoader>
-        )}
         <SectionLoader id="projects">
           <Projects />
         </SectionLoader>
-        <SectionLoader>
-          <ComparisonSlider />
+        <SectionLoader id="impact">
+          <RealWorldImpact />
         </SectionLoader>
         <SectionLoader id="blog">
           <BlogPreview />
-        </SectionLoader>
-        <SectionLoader>
-          <SystemDesignBoard />
-        </SectionLoader>
-        <SectionLoader>
-          <RealWorldImpact />
-        </SectionLoader>
-        <SectionLoader>
-          <IsometricSiteMap />
-        </SectionLoader>
-        <SectionLoader>
-          <TechDebtTracker />
-        </SectionLoader>
-        <SectionLoader>
-          <StatsDashboard />
-        </SectionLoader>
-        <SectionLoader id="timeline">
-          <WorkProcess />
-        </SectionLoader>
-        <SectionLoader>
-          <CertificationsLearning />
-        </SectionLoader>
-        <SectionLoader>
-          <GitBranchVisualizer />
-        </SectionLoader>
-        <SectionLoader>
-          <ThemeBuilder />
-        </SectionLoader>
-        {enableLabs && (
-          <SectionLoader>
-            <PricingCalculator />
-          </SectionLoader>
-        )}
-        {enableLabs && (
-          <SectionLoader>
-            <WasmImageLab />
-          </SectionLoader>
-        )}
-        <SectionLoader>
-          <DigitalGarden />
-        </SectionLoader>
-        <SectionLoader>
-          <CodeReviewHeatmap />
-        </SectionLoader>
-        <SectionLoader>
-          <DigitalBucketList />
-        </SectionLoader>
-        <SectionLoader>
-          <Bookshelf />
-        </SectionLoader>
-        <SectionLoader>
-          <CodeSnippets />
-        </SectionLoader>
-        <SectionLoader>
-          <Services />
-        </SectionLoader>
-        <SectionLoader>
-          <SupportMe />
-        </SectionLoader>
-        <SectionLoader>
-          <KnowledgeGraph />
         </SectionLoader>
         <SectionLoader id="achievements">
           <AchievementsPanel />
         </SectionLoader>
         <SectionLoader>
-          <DailyTimeCapsule />
-        </SectionLoader>
-        <SectionLoader>
-          <NewsletterSignup />
-        </SectionLoader>
-        <SectionLoader>
-          <Testimonials />
-        </SectionLoader>
-        <SectionLoader>
           <CTASection />
         </SectionLoader>
-        {enableLabs && (
-          <SectionLoader>
-            <WebAuthnDemo />
-          </SectionLoader>
-        )}
         <SectionLoader id="contact">
           <InteractiveContact />
         </SectionLoader>
-        {enableLabs && (
-          <SectionLoader>
-            <TimeTravelSlider />
-          </SectionLoader>
-        )}
         <SectionLoader minHeight="12rem">
           <Footer />
         </SectionLoader>
@@ -344,7 +102,7 @@ export default function Home() {
 function SectionLoader({
   children,
   minHeight = "24rem",
-  rootMargin = "200px",
+  rootMargin = "320px",
   id,
 }: {
   children: ReactNode;

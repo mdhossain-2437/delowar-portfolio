@@ -5,6 +5,7 @@ import { useHaptic } from "@/hooks/useHaptic";
 import { useUISounds } from "@/hooks/useUISounds";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { BinaryTitle } from "@/components/ui/BinaryTitle";
 
 export default function CTASection() {
   const haptic = useHaptic();
@@ -36,9 +37,12 @@ export default function CTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+                className="text-4xl md:text-5xl font-bold mb-6"
               >
-                {t("cta.title")}
+                <BinaryTitle
+                  text={t("cta.title")}
+                  className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+                />
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
