@@ -1,4 +1,11 @@
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useInView } from "react-intersection-observer";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -320,20 +327,39 @@ export default function Home() {
 function SectionLoader({
   children,
   minHeight = "24rem",
+  rootMargin = "320px",
 }: {
   children: ReactNode;
   minHeight?: string;
+  rootMargin?: string;
 }) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    rootMargin,
+  });
+
+  if (!inView) {
+    return (
+      <div
+        ref={ref}
+        className="w-full rounded-3xl border border-white/10 bg-white/5 animate-pulse"
+        style={{ minHeight }}
+      />
+    );
+  }
+
   return (
-    <Suspense
-      fallback={
-        <div
-          className="w-full rounded-3xl border border-white/10 bg-white/5 animate-pulse"
-          style={{ minHeight }}
-        />
-      }
-    >
-      {children}
-    </Suspense>
+    <div ref={ref}>
+      <Suspense
+        fallback={
+          <div
+            className="w-full rounded-3xl border border-white/10 bg-white/5 animate-pulse"
+            style={{ minHeight }}
+          />
+        }
+      >
+        {children}
+      </Suspense>
+    </div>
   );
 }
