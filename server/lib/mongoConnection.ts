@@ -8,7 +8,7 @@ neonConfig.webSocketConstructor = ws;
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error(
-    "DATABASE_URL is not set. Set this environment variable in Vercel project settings.",
+    "DATABASE_URL is not set. Set this environment variable in Vercel project settings."
   );
 }
 
@@ -24,11 +24,11 @@ export function getDbConnection() {
   }
 
   // Create new connection pool
-  const pool = new Pool({ 
+  const pool = new Pool({
     connectionString,
     max: 1, // Limit connections in serverless
   });
-  
+
   const db = drizzle(pool);
 
   // Cache for reuse

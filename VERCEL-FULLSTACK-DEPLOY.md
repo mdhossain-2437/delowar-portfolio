@@ -29,16 +29,19 @@ delowar-portfolio/
 ## 🔧 What Was Configured
 
 ### 1. **Serverless Function Created** ✅
+
 - `api/index.ts` - Express app wrapped as Vercel serverless function
 - All `/api/*` routes handled by this function
 - Optimized for serverless with connection pooling
 
 ### 2. **Database Connection Optimized** ✅
+
 - `server/lib/mongoConnection.ts` - Connection pooling
 - Reuses connections across invocations
 - Max 1 connection per function (serverless best practice)
 
 ### 3. **vercel.json Configured** ✅
+
 ```json
 {
   "builds": [
@@ -47,10 +50,12 @@ delowar-portfolio/
   ]
 }
 ```
+
 - Frontend → Static CDN
 - Backend → Serverless Functions
 
 ### 4. **Build Scripts Updated** ✅
+
 ```json
 {
   "vercel-build": "vite build && tsc api/index.ts"
@@ -62,16 +67,19 @@ delowar-portfolio/
 ## 🚀 Deployment Steps
 
 ### Step 1: Install Dependencies (যদি নতুন clone করো)
+
 ```powershell
 npm install
 ```
 
 ### Step 2: Verify Build Locally
+
 ```powershell
 npm run build
 ```
 
 ### Step 3: Deploy to Vercel
+
 ```powershell
 vercel --prod
 ```
@@ -83,6 +91,7 @@ vercel --prod
 Vercel dashboard-এ গিয়ে এই environment variables গুলো add করো:
 
 ### **Required (Minimum):**
+
 ```env
 DATABASE_URL=postgresql://user:password@host/database?sslmode=require
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
@@ -91,6 +100,7 @@ CONTACT_INBOX_EMAIL=contact@delowarhossain.dev
 ```
 
 ### **Optional (Features):**
+
 ```env
 # Session & Auth
 SESSION_SECRET=your-super-secret-key
@@ -110,6 +120,7 @@ SITE_LAUNCHED_AT=2021-01-01
 ```
 
 ### **How to Add in Vercel:**
+
 1. যাও: https://vercel.com/[your-project]/settings/environment-variables
 2. প্রতিটা variable add করো
 3. Scope: Production, Preview, Development সব select করো
@@ -120,10 +131,12 @@ SITE_LAUNCHED_AT=2021-01-01
 ## 📊 Database Setup (Neon Serverless Postgres)
 
 ### 1. Neon Account তৈরি করো
+
 - যাও: https://neon.tech
 - GitHub দিয়ে sign up করো
 
 ### 2. Database তৈরি করো
+
 ```
 1. Create New Project
 2. Region: Choose closest (Singapore/Mumbai for BD)
@@ -131,11 +144,13 @@ SITE_LAUNCHED_AT=2021-01-01
 ```
 
 ### 3. Connection String Format:
+
 ```
 postgresql://username:password@ep-xxx-xxx.region.aws.neon.tech/dbname?sslmode=require
 ```
 
 ### 4. Schema Push করো
+
 ```powershell
 # .env file-এ DATABASE_URL add করো
 npm run db:push
@@ -152,6 +167,7 @@ vercel --prod
 ```
 
 অথবা **GitHub auto-deploy** enable করো:
+
 1. Vercel Dashboard → Settings → Git
 2. Enable: "Auto-deploy from main branch"
 3. Push to GitHub → Auto deploy হবে
@@ -161,11 +177,13 @@ vercel --prod
 ## 🧪 Test Endpoints After Deployment
 
 ### Frontend:
+
 - Homepage: `https://delowarhossain.dev`
 - Projects: `https://delowarhossain.dev/projects`
 - Blog: `https://delowarhossain.dev/blog`
 
 ### Backend API:
+
 - Health: `https://delowarhossain.dev/api/health/security`
 - Profile: `https://delowarhossain.dev/api/public/profile`
 - Projects: `https://delowarhossain.dev/api/public/projects`
@@ -176,6 +194,7 @@ vercel --prod
 ## 🎯 Custom Domain Setup
 
 ### 1. Add Domain in Vercel:
+
 ```
 1. Project Settings → Domains
 2. Add: delowarhossain.dev
@@ -185,6 +204,7 @@ vercel --prod
 ### 2. DNS Configuration:
 
 #### For **delowarhossain.dev** (Primary):
+
 ```
 Type: A
 Name: @
@@ -196,6 +216,7 @@ Value: cname.vercel-dns.com
 ```
 
 #### For **delowarhossain.me** (Redirect):
+
 ```
 Type: A
 Name: @
@@ -207,6 +228,7 @@ Value: cname.vercel-dns.com
 ```
 
 ### 3. Verify:
+
 ```powershell
 nslookup delowarhossain.dev
 ```
@@ -216,19 +238,25 @@ nslookup delowarhossain.dev
 ## 📝 Common Issues & Fixes
 
 ### ❌ "Database connection failed"
-**Solution:** 
+
+**Solution:**
+
 - Verify `DATABASE_URL` in Vercel environment variables
 - Check Neon project is active (not sleeping)
 - Test connection string locally first
 
 ### ❌ "500 Internal Server Error" on API routes
+
 **Solution:**
+
 - Check Vercel Function Logs (Dashboard → Functions)
 - Verify all environment variables are set
 - Check if serverless function timeout (increase to 10s in vercel.json)
 
 ### ❌ "Module not found" errors
+
 **Solution:**
+
 ```powershell
 # Clear cache and rebuild
 rm -rf node_modules dist
@@ -238,7 +266,9 @@ vercel --prod
 ```
 
 ### ❌ Email not sending
+
 **Solution:**
+
 - Verify `RESEND_API_KEY` is valid
 - Check domain verification in Resend dashboard
 - Test API: `https://delowarhossain.dev/api/contact`
@@ -272,12 +302,14 @@ vercel --prod
 ## 🔥 Performance Tips
 
 ### Serverless Function Optimization:
+
 - ✅ Connection pooling enabled (1 connection max)
 - ✅ 1024MB memory allocated
 - ✅ 10s timeout configured
 - ✅ Cold start optimized (~200ms)
 
 ### Frontend Optimization:
+
 - ✅ Static assets cached (1 year)
 - ✅ Gzip compression enabled
 - ✅ CDN distribution worldwide
@@ -286,11 +318,13 @@ vercel --prod
 ---
 
 **Ready to Deploy? Run:**
+
 ```powershell
 vercel --prod
 ```
 
 **প্রথমবার deploy করার সময় Vercel কিছু প্রশ্ন করবে:**
+
 - Set up and deploy? **Y**
 - Which scope? **Your account**
 - Link to existing project? **N** (new project)
