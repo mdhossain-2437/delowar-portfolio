@@ -94,32 +94,58 @@ export default function Navigation() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
+    
     if (!SpeechRecognition) {
       setVoiceSupported(false);
       return;
     }
+    
     setVoiceSupported(true);
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      handleVoiceCommand(transcript);
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
-    recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        handleVoiceCommand(transcript);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        setIsListening(false);
+        if (event.error !== 'not-allowed') {
+          setVoiceSupported(true);
+        }
+      };
+      
+      recognition.onstart = () => setIsListening(true);
 
-    recognitionRef.current = recognition;
+      recognitionRef.current = recognition;
+    } catch (error) {
+      setVoiceSupported(false);
+    }
 
     return () => {
-      recognition.stop?.();
-      recognitionRef.current = null;
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+        recognitionRef.current = null;
+      }
     };
   }, []);
 
