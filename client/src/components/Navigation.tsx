@@ -404,13 +404,29 @@ export default function Navigation() {
 
   const toggleVoiceNav = () => {
     if (!voiceSupported || !recognitionRef.current) {
+      setVoiceFeedback({
+        heard: "Voice navigation unavailable",
+        action: "Please use Chrome, Edge, or Safari",
+        status: "missed",
+      });
       return;
     }
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      recognitionRef.current.start();
+    
+    try {
+      if (isListening) {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } else {
+        recognitionRef.current.start();
+        setIsListening(true);
+      }
+    } catch (error) {
+      setVoiceSupported(false);
+      setVoiceFeedback({
+        heard: "Voice recognition error",
+        action: "Please check microphone permissions",
+        status: "missed",
+      });
     }
   };
 

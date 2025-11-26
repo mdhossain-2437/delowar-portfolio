@@ -58,8 +58,8 @@ if ("serviceWorker" in navigator) {
       .then((registrations) => {
         registrations.forEach((registration) => registration.unregister());
       })
-      .catch((error) => {
-        console.error("Failed to unregister dev service workers", error);
+      .catch(() => {
+        // Failed to unregister dev service workers
       });
   }
 }

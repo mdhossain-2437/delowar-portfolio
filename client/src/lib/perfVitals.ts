@@ -42,7 +42,8 @@ function record(metric: Metric) {
   }
   window.__PERF_METRICS__.push(entry);
 
-  if (!passed) {
+  if (!passed && import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
     console.warn(
       `[Performance budget] ${name} exceeded: ${metric.value.toFixed(
         2,
