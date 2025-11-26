@@ -37,7 +37,9 @@ export function useConsoleEasterEggs() {
 ╚═╝     ╚══════╝╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝ `;
 
     if (import.meta.env.DEV && shouldEnableInDev) {
+      // eslint-disable-next-line no-console
       console.log(`%c${asciiArt}`, "color:#a855f7;font-weight:bold;");
+      // eslint-disable-next-line no-console
       console.log(
         "%cPsst! Try the Konami code for a secret neon theme.",
         "color:#38bdf8;font-size:12px;",
@@ -60,6 +62,7 @@ export function useConsoleEasterEggs() {
       if (pressed.length === KONAMI_SEQUENCE.length) {
         document.body.classList.toggle("konami-theme");
         if (import.meta.env.DEV && shouldEnableInDev) {
+          // eslint-disable-next-line no-console
           console.info("%cKonami mode toggled!", "color:#34d399;");
         }
         pressed.length = 0;
