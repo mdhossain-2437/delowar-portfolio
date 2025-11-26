@@ -176,7 +176,7 @@ function App() {
     () => import.meta.env.VITE_ENABLE_DEBUG_OVERLAYS === "true",
     []
   );
-  const showServiceHelpers = enhancersReady;
+  const showServiceHelpers = false;
   const showDebugOverlays = false;
 
   return (
