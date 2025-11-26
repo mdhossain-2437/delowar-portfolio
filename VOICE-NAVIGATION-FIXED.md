@@ -11,12 +11,14 @@
 ### 1. Voice Navigation Issues ✅
 
 **Problem:**
+
 - Voice navigation button কাজ করছিল না deployment এ
 - Browser compatibility issues
 - Error handling missing
 - Microphone permission issues
 
 **Solutions:**
+
 ```typescript
 // Navigation.tsx - Enhanced error handling
 - Added typeof window checks for SSR safety
@@ -33,6 +35,7 @@
 ```
 
 **Voice Commands Working:**
+
 - "home" / "top" / "hero" → Scroll to home
 - "about" / "bio" / "who" → Scroll to about
 - "skills" / "skill" → Scroll to skills
@@ -45,6 +48,7 @@
 ### 2. TypeScript Warnings Fixed ✅
 
 **baseUrl Deprecation:**
+
 ```json
 // tsconfig.json
 {
@@ -60,6 +64,7 @@
 **Files Modified:**
 
 **client/src/main.tsx:**
+
 ```typescript
 // Before
 console.error("Failed to unregister dev service workers", error);
@@ -69,6 +74,7 @@ console.error("Failed to unregister dev service workers", error);
 ```
 
 **client/src/lib/perfVitals.ts:**
+
 ```typescript
 // Before
 console.warn(`[Performance budget] ${name} exceeded...`);
@@ -81,6 +87,7 @@ if (import.meta.env.DEV) {
 ```
 
 **client/src/hooks/useConsoleEasterEggs.ts:**
+
 ```typescript
 // Added eslint-disable-next-line no-console before console.log/info
 // Only shows in development mode
@@ -89,6 +96,7 @@ if (import.meta.env.DEV) {
 ### 4. Voice Navigation Enhancements ✅
 
 **Better Error Messages:**
+
 ```typescript
 // When browser doesn't support voice
 {
@@ -106,6 +114,7 @@ if (import.meta.env.DEV) {
 ```
 
 **Improved Scroll Behavior:**
+
 - Proper offset calculation (80px for navbar)
 - Smooth scrolling with `behavior: "smooth"`
 - Section detection for active state
@@ -115,18 +124,21 @@ if (import.meta.env.DEV) {
 ## 🎯 How to Use Voice Navigation
 
 ### Enable Voice Navigation:
+
 1. Click the microphone icon (🎤) in navigation bar
 2. Allow microphone permission when prompted
 3. Speak a command clearly
 4. Visual feedback shows what was heard
 
 ### Supported Browsers:
+
 - ✅ Chrome/Chromium (Best support)
 - ✅ Microsoft Edge
 - ✅ Safari (macOS/iOS)
 - ❌ Firefox (No support yet)
 
 ### Example Commands:
+
 ```
 "Go to projects" → Scrolls to projects section
 "Show me skills" → Scrolls to skills section
@@ -149,6 +161,7 @@ if (import.meta.env.DEV) {
 ```
 
 **Key Files:**
+
 - `index-D2C58tzw.js` - 599 KB (main bundle)
 - `ResumePage-BCtQG9uM.js` - 405 KB (resume feature)
 - `AdminDashboard-7H8ZtrNx.js` - 169 KB (admin panel)
@@ -159,15 +172,17 @@ if (import.meta.env.DEV) {
 ## 🧪 Testing Voice Navigation
 
 ### Test in Browser Console:
+
 ```javascript
 // Check if voice is supported
-window.SpeechRecognition || window.webkitSpeechRecognition
+window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // Check microphone permission
-navigator.permissions.query({ name: 'microphone' })
+navigator.permissions.query({ name: "microphone" });
 ```
 
 ### Test Commands:
+
 1. Open site: https://delowarhossain.dev
 2. Click microphone button
 3. Say: "show me projects"
@@ -179,12 +194,14 @@ navigator.permissions.query({ name: 'microphone' })
 ## 🔍 No More Console Errors
 
 ### Production Console:
+
 - ✅ No console.log statements
 - ✅ No console.warn statements
 - ✅ No console.error statements
 - ✅ Only intentional console logs (Easter eggs in dev)
 
 ### Development Console:
+
 - ✅ Performance warnings only in dev mode
 - ✅ Easter egg console art (optional)
 - ✅ Konami code detection (optional)
@@ -194,6 +211,7 @@ navigator.permissions.query({ name: 'microphone' })
 ## 🚀 Deployment Status
 
 **Frontend:**
+
 - ✅ Deployed successfully
 - ✅ SSL certificates generating
 - ✅ Custom domains configured:
@@ -203,6 +221,7 @@ navigator.permissions.query({ name: 'microphone' })
 - ✅ Auto-deploy from GitHub enabled
 
 **Performance:**
+
 - ✅ First Contentful Paint: ~1.2s
 - ✅ Largest Contentful Paint: ~2.1s
 - ✅ Time to Interactive: ~2.8s
@@ -214,18 +233,21 @@ navigator.permissions.query({ name: 'microphone' })
 ## 📝 Code Quality Improvements
 
 ### Error Handling:
+
 - ✅ Try-catch blocks for all voice recognition calls
 - ✅ Proper cleanup in useEffect return functions
 - ✅ Type-safe event handlers
 - ✅ SSR-safe initialization checks
 
 ### Browser Compatibility:
+
 - ✅ Feature detection for Speech Recognition API
 - ✅ Fallback UI when voice not supported
 - ✅ Clear error messages for users
 - ✅ No breaking errors in unsupported browsers
 
 ### Performance:
+
 - ✅ Console logs only in development
 - ✅ Lazy loading for heavy components
 - ✅ Code splitting optimization
@@ -251,17 +273,20 @@ navigator.permissions.query({ name: 'microphone' })
 ## 🔄 Re-Deploy Commands
 
 **Full rebuild and deploy:**
+
 ```powershell
 npm run build
 vercel --prod --yes
 ```
 
 **Quick deploy (auto-build):**
+
 ```powershell
 vercel --prod --yes
 ```
 
 **Local testing:**
+
 ```powershell
 npm run dev
 # Open http://localhost:5000
@@ -286,6 +311,7 @@ User speaks → Browser captures → Speech Recognition API
 ```
 
 **Voice Intent Types:**
+
 1. **Section** - Scroll to page sections
 2. **Route** - Navigate to different pages
 3. **System** - Toggle theme/sound
