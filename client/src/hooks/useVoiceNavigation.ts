@@ -34,9 +34,10 @@ export function useVoiceNavigation() {
     }
 
     const RecognitionCtor =
-      (window.SpeechRecognition as typeof window.SpeechRecognition | undefined) ||
-      window.webkitSpeechRecognition;
-    
+      (window.SpeechRecognition as
+        | typeof window.SpeechRecognition
+        | undefined) || window.webkitSpeechRecognition;
+
     if (!RecognitionCtor) {
       setIsAvailable(false);
       return;
@@ -70,11 +71,11 @@ export function useVoiceNavigation() {
       recognition.onend = () => setIsListening(false);
       recognition.onerror = (event) => {
         setIsListening(false);
-        if (event.error === 'not-allowed') {
+        if (event.error === "not-allowed") {
           setIsAvailable(false);
         }
       };
-      
+
       recognitionRef.current = recognition;
       setIsAvailable(true);
     } catch (error) {

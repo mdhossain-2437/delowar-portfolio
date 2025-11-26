@@ -94,19 +94,19 @@ export default function Navigation() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       setVoiceSupported(false);
       return;
     }
-    
+
     setVoiceSupported(true);
-    
+
     try {
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
@@ -118,18 +118,18 @@ export default function Navigation() {
         const transcript = event.results[0][0].transcript.toLowerCase();
         handleVoiceCommand(transcript);
       };
-      
+
       recognition.onend = () => {
         setIsListening(false);
       };
-      
+
       recognition.onerror = (event: any) => {
         setIsListening(false);
-        if (event.error !== 'not-allowed') {
+        if (event.error !== "not-allowed") {
           setVoiceSupported(true);
         }
       };
-      
+
       recognition.onstart = () => setIsListening(true);
 
       recognitionRef.current = recognition;
@@ -411,7 +411,7 @@ export default function Navigation() {
       });
       return;
     }
-    
+
     try {
       if (isListening) {
         recognitionRef.current.stop();

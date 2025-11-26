@@ -46,8 +46,8 @@ function record(metric: Metric) {
     // eslint-disable-next-line no-console
     console.warn(
       `[Performance budget] ${name} exceeded: ${metric.value.toFixed(
-        2,
-      )} (budget ${budgets[name]})`,
+        2
+      )} (budget ${budgets[name]})`
     );
   }
 }
@@ -66,13 +66,16 @@ export function startPerformanceMonitoring(options?: { idleTimeout?: number }) {
 
   const idleTimeout = options?.idleTimeout ?? 800;
 
-  const id = schedule(() => {
-    onCLS(record);
-    onLCP(record);
-    onINP(record);
-    onTTFB(record);
-    onFCP(record);
-  }, { timeout: idleTimeout });
+  const id = schedule(
+    () => {
+      onCLS(record);
+      onLCP(record);
+      onINP(record);
+      onTTFB(record);
+      onFCP(record);
+    },
+    { timeout: idleTimeout }
+  );
 
   return () => cancel(id as number);
 }

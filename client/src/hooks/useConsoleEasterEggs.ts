@@ -42,14 +42,16 @@ export function useConsoleEasterEggs() {
       // eslint-disable-next-line no-console
       console.log(
         "%cPsst! Try the Konami code for a secret neon theme.",
-        "color:#38bdf8;font-size:12px;",
+        "color:#38bdf8;font-size:12px;"
       );
     }
 
     const pressed: string[] = [];
     const handler = (event: KeyboardEvent) => {
       pressed.push(event.code);
-      const isMatch = KONAMI_SEQUENCE.every((code, index) => code === pressed[index]);
+      const isMatch = KONAMI_SEQUENCE.every(
+        (code, index) => code === pressed[index]
+      );
 
       if (!isMatch) {
         pressed.length = 0;
