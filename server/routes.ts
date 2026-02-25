@@ -123,9 +123,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== SESSION & PASSPORT SETUP ====================
   mountSwagger(app);
   
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret && process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET environment variable must be set in production.");
+  }
+
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || "portfolio-secret-key-change-in-production",
+      secret: sessionSecret || "portfolio-dev-secret-not-for-production",
       resave: false,
       saveUninitialized: false,
       cookie: {

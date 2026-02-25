@@ -24,7 +24,8 @@ Create these variables in your deployment provider (names must match exactly):
 | Variable | Description |
 | --- | --- |
 | `DATABASE_URL` | Neon serverless Postgres connection string |
-| `SESSION_SECRET` | Random string for encrypting sessions |
+| `SESSION_SECRET` | Strong random string for encrypting sessions (required in production) |
+| `ADMIN_PASSWORD` | Password for the seeded admin account (required to create admin user) |
 | `CONTACT_INBOX_EMAIL` | Destination for contact form notifications |
 | `MAIL_FROM` | Friendly "from" name (e.g. `Delowar <portfolio@notifications.delowar.dev>`) |
 | `RESEND_API_KEY` | Optional, enables transactional email replies |
@@ -48,6 +49,6 @@ After the service boots:
 
 - Hit `/api/projects` to ensure the API can read from Neon.
 - Visit `/` to confirm the static client is being served.
-- Log in with the seeded admin (`admin` / `admin123`) and change the password immediately.
+- Log in with the admin credentials you set via `ADMIN_PASSWORD` during setup.
 
 That’s it—the app is now running against Neon’s serverless Postgres with zero additional infrastructure.
