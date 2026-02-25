@@ -7,6 +7,12 @@ export default function CustomCursor() {
   const [isPointerDevice, setIsPointerDevice] = useState(true);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      setIsPointerDevice(false);
+      return;
+    }
+
     const hasPointer = window.matchMedia("(pointer: fine)").matches;
     setIsPointerDevice(hasPointer);
 

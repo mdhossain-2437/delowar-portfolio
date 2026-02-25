@@ -12,7 +12,9 @@ if (typeof window !== "undefined") {
   (window as any).React = React;
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
   <ThemeProvider>
     <AchievementProvider>
       <SoundProvider>
@@ -21,10 +23,12 @@ createRoot(document.getElementById("root")!).render(
         </LocaleProvider>
       </SoundProvider>
     </AchievementProvider>
-  </ThemeProvider>,
+  </ThemeProvider>
 );
 
-startPerformanceMonitoring();
+if (import.meta.env.PROD) {
+  startPerformanceMonitoring({ idleTimeout: 1200 });
+}
 
 if ("serviceWorker" in navigator) {
   if (import.meta.env.PROD) {
@@ -54,8 +58,8 @@ if ("serviceWorker" in navigator) {
       .then((registrations) => {
         registrations.forEach((registration) => registration.unregister());
       })
-      .catch((error) => {
-        console.error("Failed to unregister dev service workers", error);
+      .catch(() => {
+        // Failed to unregister dev service workers
       });
   }
 }

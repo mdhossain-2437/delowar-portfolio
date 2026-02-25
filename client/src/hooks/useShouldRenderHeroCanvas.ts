@@ -29,6 +29,13 @@ const getInitialState = () => {
     return false;
   }
 
+  const heroCanvasEnabled =
+    import.meta.env.VITE_ENABLE_HERO_CANVAS === "true" ||
+    import.meta.env.DEV;
+  if (!heroCanvasEnabled) {
+    return false;
+  }
+
   const prefersReducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -56,6 +63,14 @@ export function useShouldRenderHeroCanvas() {
 
   useEffect(() => {
     if (typeof window === "undefined") {
+      return;
+    }
+
+    const heroCanvasEnabled =
+      import.meta.env.VITE_ENABLE_HERO_CANVAS === "true" ||
+      import.meta.env.DEV;
+    if (!heroCanvasEnabled) {
+      setShouldRender(false);
       return;
     }
 

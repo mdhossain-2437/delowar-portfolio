@@ -15,9 +15,24 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { icon: <Github className="w-5 h-5" />, href: "https://github.com/mdhossain-2437", label: "GitHub", color: "hover:text-purple-400" },
-    { icon: <Linkedin className="w-5 h-5" />, href: "https://linkedin.com/in/mdhossain2437", label: "LinkedIn", color: "hover:text-cyan-400" },
-    { icon: <Twitter className="w-5 h-5" />, href: "https://twitter.com/mdhossain2437", label: "Twitter", color: "hover:text-blue-400" },
+    {
+      icon: <Github className="w-5 h-5" />,
+      href: "https://github.com/mdhossain-2437",
+      label: "GitHub",
+      color: "hover:text-purple-400",
+    },
+    {
+      icon: <Linkedin className="w-5 h-5" />,
+      href: "https://linkedin.com/in/mdhossain2437",
+      label: "LinkedIn",
+      color: "hover:text-cyan-400",
+    },
+    {
+      icon: <Twitter className="w-5 h-5" />,
+      href: "https://twitter.com/mdhossain2437",
+      label: "Twitter",
+      color: "hover:text-blue-400",
+    },
   ];
 
   return (
@@ -36,11 +51,15 @@ export default function Footer() {
               </span>
             </h3>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Full Stack Developer passionate about building beautiful, performant web applications that make a real difference.
+              Full Stack Developer passionate about building beautiful,
+              performant web applications that make a real difference.
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
               <Mail className="w-4 h-4" />
-              <a href="mailto:mdhossain2437@gmail.com" className="hover:text-accent transition-colors">
+              <a
+                href="mailto:mdhossain2437@gmail.com"
+                className="hover:text-accent transition-colors"
+              >
                 mdhossain2437@gmail.com
               </a>
             </div>
@@ -56,7 +75,9 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h4 className="text-lg font-semibold mb-4 text-foreground">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4 text-foreground">
+              Quick Links
+            </h4>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.label}>
@@ -77,7 +98,9 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h4 className="text-lg font-semibold mb-4 text-foreground">Stay Connected</h4>
+            <h4 className="text-lg font-semibold mb-4 text-foreground">
+              Stay Connected
+            </h4>
             <p className="text-muted-foreground mb-4 text-sm">
               Follow me on social media for updates and insights
             </p>
@@ -109,7 +132,8 @@ export default function Footer() {
           className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-center"
         >
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
-            Made with <Heart className="w-4 h-4 text-accent fill-accent" /> by Delowar Hossain &copy; 2025
+            Made with <Heart className="w-4 h-4 text-accent fill-accent" /> by
+            Delowar Hossain &copy; 2025
           </p>
           <SecurityHeadersBadge />
         </motion.div>

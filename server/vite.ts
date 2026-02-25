@@ -8,7 +8,11 @@ import { nanoid } from "nanoid";
 
 const viteLogger = createLogger();
 
+const isProd = process.env.NODE_ENV === "production";
+
 export function log(message: string, source = "express") {
+  if (isProd) return;
+
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",

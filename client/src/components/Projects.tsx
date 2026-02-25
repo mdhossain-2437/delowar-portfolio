@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Github } from "lucide-react";
+import { BinaryTitle } from "@/components/ui/BinaryTitle";
 import webDevWarriorImg from "@assets/generated_images/WebDevWarrior_learning_platform_mockup_71691340.png";
 import messengerImg from "@assets/generated_images/Kothopokothon_Messenger_chat_interface_1d2bf312.png";
 import recipeBookImg from "@assets/generated_images/Recipe_Book_App_interface_81a207ad.png";
@@ -171,7 +172,7 @@ export default function Projects() {
     [],
   );
   const catalogProjects = useMemo(
-    () => allProjects.filter((project) => !project.featured),
+    () => allProjects.filter((project) => !project.featured).slice(0, 3),
     [],
   );
   const filteredProjects =
@@ -180,7 +181,11 @@ export default function Projects() {
       : catalogProjects.filter((project) => project.category === activeFilter);
 
   return (
-    <section id="projects" className="py-24 bg-gradient-to-b from-card to-background">
+    <section
+      id="projects"
+      className="py-24 bg-gradient-to-b from-background via-[#0b0f1e] to-background relative overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(99,102,241,0.08),transparent_50%),radial-gradient(circle_at_85%_0%,rgba(56,189,248,0.08),transparent_55%)] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -192,12 +197,15 @@ export default function Projects() {
           <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground mb-4">
             Featured Projects
           </p>
-          <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4">
-            Showcasing launches that solved real problems
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <BinaryTitle
+              text="Showcasing launches that solved real problems"
+              className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+            />
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            Every build here is a fusion of product thinking, system design, and animation craft.
-            These launches power classrooms, communities, and indie businesses.
+            Curated case studies only: the launches that moved needles for classrooms, communities,
+            and indie founders. Each one pairs product storytelling with shipping discipline.
           </p>
         </motion.div>
 
@@ -336,16 +344,17 @@ export default function Projects() {
             {filteredProjects.map((project, index) => (
               <motion.div
                 key={project.id}
-                className={`project-card glass-card rounded-lg overflow-hidden ${
+                className={`project-card relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur shadow-[0_20px_60px_rgba(0,0,0,0.35)] ${
                   project.status === "wip" ? "border-dashed border-2 border-primary/50" : ""
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
+                whileHover={{ y: -8 }}
                 data-testid={`project-card-${project.title.toLowerCase().replace(/[^a-z]/g, "")}`}
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                 <div className="h-64 relative overflow-hidden bg-background/50">
                   <img
                     src={project.image}
@@ -356,7 +365,7 @@ export default function Projects() {
                   />
                 </div>
 
-                <div className="p-6 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-4 relative">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold">{project.title}</h3>
                     {project.status === "wip" ? (
@@ -392,7 +401,7 @@ export default function Projects() {
                     {project.links.demo ? (
                       <a
                         href={project.links.demo}
-                        className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded text-center hover:opacity-90 transition-opacity"
+                        className="flex-1 bg-gradient-to-r from-primary to-accent text-primary-foreground py-2 px-4 rounded text-center hover:opacity-90 transition-opacity"
                         data-testid={`project-demo-${project.title.toLowerCase().replace(/[^a-z]/g, "")}`}
                       >
                         {project.status === "wip" ? "Coming Soon" : "Live Demo"}

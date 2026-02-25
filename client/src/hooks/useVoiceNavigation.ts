@@ -28,41 +28,68 @@ export function useVoiceNavigation() {
   const [transcript, setTranscript] = useState("");
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      setIsAvailable(false);
+      return;
+    }
+
     const RecognitionCtor =
-      typeof window !== "undefined" &&
-      ((window.SpeechRecognition as typeof window.SpeechRecognition | undefined) ||
-        window.webkitSpeechRecognition);
+      (window.SpeechRecognition as
+        | typeof window.SpeechRecognition
+        | undefined) || window.webkitSpeechRecognition;
+
     if (!RecognitionCtor) {
       setIsAvailable(false);
       return;
     }
 
-    const recognition = new RecognitionCtor();
-    recognition.continuous = false;
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
+    try {
+      const recognition = new RecognitionCtor();
+      recognition.continuous = false;
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event) => {
-      const spoken = event.results[0][0].transcript.trim();
-      setTranscript(spoken);
-      const target = findSection(spoken);
-      if (target) {
-        if (target.startsWith("/")) {
-          window.location.assign(target);
-        } else {
-          const el = document.getElementById(target);
-          el?.scrollIntoView({ behavior: "smooth" });
+      recognition.onresult = (event) => {
+        const spoken = event.results[0][0].transcript.trim();
+        setTranscript(spoken);
+        const target = findSection(spoken);
+        if (target) {
+          if (target.startsWith("/")) {
+            window.location.assign(target);
+          } else {
+            const el = document.getElementById(target);
+            if (el) {
+              const offset = 80;
+              const elementPosition = el.offsetTop - offset;
+              window.scrollTo({ top: elementPosition, behavior: "smooth" });
+            }
+          }
         }
-      }
-    };
+      };
 
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
-    recognitionRef.current = recognition;
-    setIsAvailable(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        if (event.error === "not-allowed") {
+          setIsAvailable(false);
+        }
+      };
+
+      recognitionRef.current = recognition;
+      setIsAvailable(true);
+    } catch (error) {
+      setIsAvailable(false);
+    }
 
     return () => {
-      recognition.stop();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+      }
     };
   }, []);
 

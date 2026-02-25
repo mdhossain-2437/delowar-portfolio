@@ -18,10 +18,9 @@ const shouldEnableInDev =
     ? import.meta.env.VITE_ENABLE_DEV_KONAMI === "true"
     : false;
 
-const shouldEnable =
-  import.meta.env.PROD ||
-  import.meta.env.VITE_ENABLE_KONAMI === "true" ||
-  shouldEnableInDev;
+const shouldEnable = import.meta.env.DEV
+  ? shouldEnableInDev
+  : import.meta.env.VITE_ENABLE_KONAMI === "true";
 
 export function useConsoleEasterEggs() {
   useEffect(() => {
@@ -37,18 +36,22 @@ export function useConsoleEasterEggs() {
 ██║     ███████╗███████╗╚██████╔╝╚███╔███╔╝██║  ██║██████╔╝
 ╚═╝     ╚══════╝╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝ `;
 
-    if (import.meta.env.PROD || shouldEnableInDev) {
+    if (import.meta.env.DEV && shouldEnableInDev) {
+      // eslint-disable-next-line no-console
       console.log(`%c${asciiArt}`, "color:#a855f7;font-weight:bold;");
+      // eslint-disable-next-line no-console
       console.log(
         "%cPsst! Try the Konami code for a secret neon theme.",
-        "color:#38bdf8;font-size:12px;",
+        "color:#38bdf8;font-size:12px;"
       );
     }
 
     const pressed: string[] = [];
     const handler = (event: KeyboardEvent) => {
       pressed.push(event.code);
-      const isMatch = KONAMI_SEQUENCE.every((code, index) => code === pressed[index]);
+      const isMatch = KONAMI_SEQUENCE.every(
+        (code, index) => code === pressed[index]
+      );
 
       if (!isMatch) {
         pressed.length = 0;
@@ -60,7 +63,10 @@ export function useConsoleEasterEggs() {
 
       if (pressed.length === KONAMI_SEQUENCE.length) {
         document.body.classList.toggle("konami-theme");
-        console.info("%cKonami mode toggled!", "color:#34d399;");
+        if (import.meta.env.DEV && shouldEnableInDev) {
+          // eslint-disable-next-line no-console
+          console.info("%cKonami mode toggled!", "color:#34d399;");
+        }
         pressed.length = 0;
       }
     };

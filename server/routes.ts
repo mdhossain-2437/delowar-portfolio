@@ -16,8 +16,6 @@ import { createChallenge, verifyChallenge } from "./services/webauthnMemory";
 import { getSecurityProfile } from "./security";
 import { getWorkflowRuns } from "./services/devOps";
 import { getServerlessMetrics } from "./services/serverlessMetrics";
-import { resolveEdgeProfile } from "./services/personalization";
-import { estimateFromBrief } from "./services/aiEstimator";
 import { getCodeReviewHeatmap, getBranchGraph } from "./services/engineeringInsights";
 
 // ==================== AUTH MIDDLEWARE ====================
@@ -1318,27 +1316,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/metrics/serverless", async (_req, res) => {
     const metrics = await getServerlessMetrics();
     res.json(metrics);
-  });
-
-  app.get("/api/personalization/profile", (req, res) => {
-    res.json({
-      profile: resolveEdgeProfile(req),
-      servedAt: new Date().toISOString(),
-    });
-  });
-
-  app.post("/api/ai/estimate", (req, res) => {
-    const brief = String(req.body?.brief ?? "");
-    if (!brief || brief.length < 20) {
-      return res.status(400).json({
-        message: "Please describe the project in at least 20 characters.",
-      });
-    }
-    res.json({
-      brief,
-      estimate: estimateFromBrief(brief),
-      generatedAt: new Date().toISOString(),
-    });
   });
 
   app.get("/api/engineering/code-reviews", (_req, res) => {

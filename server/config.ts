@@ -1,6 +1,6 @@
 export const appConfig = {
   contactInboxEmail:
-    process.env.CONTACT_INBOX_EMAIL || "mdhossain2437@gmail.com",
+    process.env.CONTACT_INBOX_EMAIL || "contact@delowarhossain.dev",
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailSender:
     process.env.MAIL_FROM ||
@@ -13,7 +13,8 @@ export const appConfig = {
     bio:
       process.env.PORTFOLIO_BIO ||
       "Shipping expressive web/AI products, automations, and developer tools for ambitious teams.",
-    availability: process.env.PORTFOLIO_AVAILABILITY || "Open for freelance & consulting",
+    availability:
+      process.env.PORTFOLIO_AVAILABILITY || "Open for freelance & consulting",
     avatar:
       process.env.PORTFOLIO_AVATAR ||
       "https://avatars.githubusercontent.com/u/97281919?v=4",
@@ -35,8 +36,8 @@ export const appConfig = {
       : "",
     adminEmails: process.env.FIREBASE_ADMIN_EMAILS
       ? process.env.FIREBASE_ADMIN_EMAILS.split(",").map((email) =>
-          email.trim().toLowerCase(),
+          email.trim().toLowerCase()
         )
-      : ["mdhossain2437@gmail.com"],
+      : ["contact@delowarhossain.dev"],
   },
 };
