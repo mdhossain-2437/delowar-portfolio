@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import InstallPWAButton from "@/components/InstallPWAButton";
 import LocaleToggle from "@/components/LocaleToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSoundboard } from "@/contexts/SoundContext";
@@ -585,6 +586,7 @@ export default function Navigation() {
 
                   {/* Additional Tools */}
                   <div className="hidden md:flex items-center gap-2">
+                    <ThemeToggle />
                     <LocaleToggle />
                   </div>
                 </div>
@@ -665,6 +667,7 @@ export default function Navigation() {
             <span className="text-xs font-medium">Voice</span>
           </motion.button>
 
+          <ThemeToggle />
           <LocaleToggle />
         </div>
       </motion.div>

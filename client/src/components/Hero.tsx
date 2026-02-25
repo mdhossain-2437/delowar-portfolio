@@ -1,8 +1,7 @@
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useState, useRef, lazy, Suspense } from "react";
 import {
   ArrowRight,
-  Sparkles,
   Code2,
   Zap,
   Github,
@@ -11,10 +10,12 @@ import {
   Star,
   TrendingUp,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/hooks/useTranslation";
-import gsap from "gsap";
-import { useGsapStagger, useGsapMagnetic } from "@/hooks/useGsapAnimations";
+import { useTheme } from "@/contexts/ThemeContext";
+
+// Lazy load 3D Room Experience for better performance
+const Room3DExperience = lazy(
+  () => import("@/components/3d/room/Room3DExperience")
+);
 
 const stats = [
   { label: "Projects", value: "50+", icon: Code2 },
@@ -22,27 +23,9 @@ const stats = [
   { label: "Client Satisfaction", value: "100%", icon: Star },
 ];
 
-const techStack = [
-  "React",
-  "TypeScript",
-  "Node.js",
-  "Next.js",
-  "Tailwind CSS",
-  "MongoDB",
-  "PostgreSQL",
-  "Docker",
-  "AWS",
-];
-
 export default function Hero() {
-  const t = useTranslation();
+  const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
-  const statsContainerRef = useGsapStagger({
-    stagger: 0.15,
-    animation: "fadeUp",
-    start: "top 85%",
-  });
-  const ctaButtonRef = useGsapMagnetic(0.4);
 
   const phrases = useMemo(
     () => [
@@ -57,12 +40,6 @@ export default function Hero() {
   const [typed, setTyped] = useState("");
   const [loop, setLoop] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Magnetic cursor effect
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const smoothMouseX = useSpring(mouseX, { stiffness: 150, damping: 20 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 150, damping: 20 });
 
   useEffect(() => {
     const current = phrases[loop % phrases.length] ?? "";
@@ -87,18 +64,6 @@ export default function Hero() {
     return () => window.clearTimeout(timer);
   }, [phrases, typed, isDeleting, loop]);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseX.set(e.clientX - rect.left - rect.width / 2);
-      mouseY.set(e.clientY - rect.top - rect.height / 2);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
-
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (!element) return;
@@ -111,54 +76,51 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-1/4 -left-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pink-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-        />
+      {/* 3D Room Background - Full Screen */}
+      <div className="absolute inset-0 z-0">
+        <Suspense
+          fallback={
+            <div
+              className={`w-full h-full flex items-center justify-center ${
+                theme === "dark"
+                  ? "bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950"
+                  : "bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100"
+              }`}
+            >
+              <div
+                className={`text-center space-y-4 ${
+                  theme === "dark" ? "text-slate-400" : "text-slate-600"
+                }`}
+              >
+                <div
+                  className={`w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto ${
+                    theme === "dark" ? "border-purple-500" : "border-purple-600"
+                  }`}
+                />
+                <p className="animate-pulse text-lg">
+                  Loading 3D Experience...
+                </p>
+              </div>
+            </div>
+          }
+        >
+          <Room3DExperience className="w-full h-full" />
+        </Suspense>
       </div>
 
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+      {/* Gradient overlay for text readability */}
+      <div
+        className={`absolute inset-0 z-[1] pointer-events-none ${
+          theme === "dark"
+            ? "bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent"
+            : "bg-gradient-to-r from-white/80 via-white/40 to-transparent"
+        }`}
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* Content container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Column - Main Content */}
           <motion.div
@@ -172,10 +134,22 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 backdrop-blur-sm"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r backdrop-blur-sm ${
+                theme === "dark"
+                  ? "from-purple-500/10 to-cyan-500/10 border border-purple-500/20"
+                  : "from-purple-500/20 to-cyan-500/20 border border-purple-500/30"
+              }`}
             >
-              <Zap className="w-4 h-4 text-purple-400" />
-              <span className="text-sm font-medium text-purple-300">
+              <Zap
+                className={`w-4 h-4 ${
+                  theme === "dark" ? "text-purple-400" : "text-purple-600"
+                }`}
+              />
+              <span
+                className={`text-sm font-medium ${
+                  theme === "dark" ? "text-purple-300" : "text-purple-700"
+                }`}
+              >
                 Available for freelance
               </span>
             </motion.div>
@@ -188,7 +162,13 @@ export default function Hero() {
                 transition={{ delay: 0.3 }}
                 className="text-5xl md:text-7xl font-bold leading-tight"
               >
-                <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                <span
+                  className={`bg-clip-text text-transparent ${
+                    theme === "dark"
+                      ? "bg-gradient-to-r from-white via-purple-200 to-cyan-200"
+                      : "bg-gradient-to-r from-slate-900 via-purple-700 to-cyan-700"
+                  }`}
+                >
                   Delowar Hossain
                 </span>
               </motion.h1>
@@ -199,9 +179,17 @@ export default function Hero() {
                 transition={{ delay: 0.4 }}
                 className="h-16 flex items-center"
               >
-                <h2 className="text-2xl md:text-3xl font-semibold text-slate-300">
+                <h2
+                  className={`text-2xl md:text-3xl font-semibold ${
+                    theme === "dark" ? "text-slate-300" : "text-slate-600"
+                  }`}
+                >
                   {typed}
-                  <span className="inline-block w-0.5 h-8 bg-purple-500 ml-1 animate-pulse" />
+                  <span
+                    className={`inline-block w-0.5 h-8 ml-1 animate-pulse ${
+                      theme === "dark" ? "bg-purple-500" : "bg-purple-600"
+                    }`}
+                  />
                 </h2>
               </motion.div>
 
@@ -209,7 +197,9 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-lg text-slate-400 max-w-xl leading-relaxed"
+                className={`text-lg max-w-xl leading-relaxed ${
+                  theme === "dark" ? "text-slate-400" : "text-slate-600"
+                }`}
               >
                 Passionate about creating exceptional web experiences with
                 modern technologies. Specializing in React, TypeScript, and
@@ -228,7 +218,11 @@ export default function Hero() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scrollToSection("projects")}
-                className="group px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold inline-flex items-center gap-2 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all"
+                className={`group px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold inline-flex items-center gap-2 shadow-lg transition-all ${
+                  theme === "dark"
+                    ? "shadow-purple-500/25 hover:shadow-purple-500/40"
+                    : "shadow-purple-500/30 hover:shadow-purple-500/50"
+                }`}
               >
                 View My Work
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -238,7 +232,11 @@ export default function Hero() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scrollToSection("contact")}
-                className="px-8 py-4 rounded-full border-2 border-slate-700 text-slate-300 font-semibold hover:border-purple-500 hover:text-purple-300 transition-all backdrop-blur-sm"
+                className={`px-8 py-4 rounded-full border-2 font-semibold transition-all backdrop-blur-sm ${
+                  theme === "dark"
+                    ? "border-slate-700 text-slate-300 hover:border-purple-500 hover:text-purple-300"
+                    : "border-slate-300 text-slate-700 hover:border-purple-500 hover:text-purple-600"
+                }`}
               >
                 Get In Touch
               </motion.button>
@@ -261,7 +259,11 @@ export default function Hero() {
                   whileHover={{ scale: 1.1, y: -2 }}
                   href={href}
                   aria-label={label}
-                  className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-purple-400 hover:border-purple-500 transition-all backdrop-blur-sm"
+                  className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all backdrop-blur-sm ${
+                    theme === "dark"
+                      ? "bg-slate-800/50 border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-500"
+                      : "bg-white/50 border-slate-300 text-slate-600 hover:text-purple-600 hover:border-purple-500"
+                  }`}
                 >
                   <Icon className="w-5 h-5" />
                 </motion.a>
@@ -273,7 +275,9 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800"
+              className={`grid grid-cols-3 gap-6 pt-8 border-t ${
+                theme === "dark" ? "border-slate-800" : "border-slate-200"
+              }`}
             >
               {stats.map((stat, index) => (
                 <motion.div
@@ -284,113 +288,33 @@ export default function Hero() {
                   className="text-center"
                 >
                   <div className="flex justify-center mb-2">
-                    <stat.icon className="w-6 h-6 text-purple-400" />
+                    <stat.icon
+                      className={`w-6 h-6 ${
+                        theme === "dark" ? "text-purple-400" : "text-purple-600"
+                      }`}
+                    />
                   </div>
-                  <p className="text-3xl font-bold text-white mb-1">
+                  <p
+                    className={`text-3xl font-bold mb-1 ${
+                      theme === "dark" ? "text-white" : "text-slate-900"
+                    }`}
+                  >
                     {stat.value}
                   </p>
-                  <p className="text-sm text-slate-400">{stat.label}</p>
+                  <p
+                    className={`text-sm ${
+                      theme === "dark" ? "text-slate-400" : "text-slate-600"
+                    }`}
+                  >
+                    {stat.label}
+                  </p>
                 </motion.div>
               ))}
             </motion.div>
           </motion.div>
 
-          {/* Right Column - Interactive Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
-          >
-            <motion.div
-              style={{
-                rotateX: useTransform(smoothMouseY, [-300, 300], [5, -5]),
-                rotateY: useTransform(smoothMouseX, [-300, 300], [-5, 5]),
-              }}
-              className="relative p-8 rounded-3xl bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-slate-700/50 backdrop-blur-xl shadow-2xl"
-            >
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/10 to-cyan-500/10 blur-2xl" />
-
-              <div className="relative space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-400" />
-                    <span className="text-sm font-medium text-purple-300">
-                      Featured Project
-                    </span>
-                  </div>
-                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                    Live
-                  </Badge>
-                </div>
-
-                {/* Project preview */}
-                <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-white">
-                    Modern Portfolio Platform
-                  </h3>
-                  <p className="text-slate-400 leading-relaxed">
-                    A cutting-edge portfolio built with React, TypeScript, and
-                    modern design principles. Features include real-time
-                    updates, animations, and responsive design.
-                  </p>
-                </div>
-
-                {/* Tech stack tags */}
-                <div className="flex flex-wrap gap-2">
-                  {techStack.slice(0, 6).map((tech) => (
-                    <Badge
-                      key={tech}
-                      variant="secondary"
-                      className="bg-slate-800/50 text-slate-300 border-slate-700 hover:border-purple-500 hover:text-purple-300 transition-colors"
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-
-                {/* Metrics */}
-                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-700/50">
-                  {[
-                    { label: "Performance", value: "98" },
-                    { label: "Accessibility", value: "100" },
-                    { label: "Best Practices", value: "100" },
-                  ].map((metric) => (
-                    <div key={metric.label} className="text-center">
-                      <p className="text-2xl font-bold text-purple-400">
-                        {metric.value}
-                      </p>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide">
-                        {metric.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Action buttons */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => scrollToSection("projects")}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold hover:opacity-90 transition-opacity"
-                  >
-                    View Projects
-                  </button>
-                  <button
-                    onClick={() => scrollToSection("contact")}
-                    className="flex-1 py-3 rounded-xl border-2 border-slate-700 text-slate-300 font-semibold hover:border-purple-500 hover:text-purple-300 transition-all"
-                  >
-                    Hire Me
-                  </button>
-                </div>
-              </div>
-
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-purple-500/20 rounded-full blur-2xl" />
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl" />
-            </motion.div>
-          </motion.div>
+          {/* Right side - Empty for 3D background to show */}
+          <div className="hidden lg:block" />
         </div>
 
         {/* Scroll indicator */}
@@ -403,9 +327,15 @@ export default function Hero() {
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-6 h-10 rounded-full border-2 border-slate-700 flex items-start justify-center p-2"
+            className={`w-6 h-10 rounded-full border-2 flex items-start justify-center p-2 ${
+              theme === "dark" ? "border-slate-700" : "border-slate-300"
+            }`}
           >
-            <motion.div className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+            <motion.div
+              className={`w-1.5 h-1.5 rounded-full ${
+                theme === "dark" ? "bg-purple-500" : "bg-purple-600"
+              }`}
+            />
           </motion.div>
         </motion.div>
       </div>
