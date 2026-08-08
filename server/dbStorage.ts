@@ -635,21 +635,26 @@ export class DbStorage {
     try {
       console.log("🌱 Starting database seed...");
 
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-      const [adminUser] = await db
-        .insert(users)
-        .values({
-          username: "admin",
-          password: hashedPassword,
-          email: "admin@portfolio.com",
-          name: "Delowar Hossain",
-          role: "admin",
-        })
-        .onConflictDoNothing()
-        .returning();
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword) {
+        console.warn("⚠️  ADMIN_PASSWORD env var not set – skipping admin seed to avoid insecure defaults.");
+      } else {
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        const [adminUser] = await db
+          .insert(users)
+          .values({
+            username: "admin",
+            password: hashedPassword,
+            email: "admin@portfolio.com",
+            name: "Delowar Hossain",
+            role: "admin",
+          })
+          .onConflictDoNothing()
+          .returning();
 
-      if (adminUser) {
-        console.log("✅ Admin user created");
+        if (adminUser) {
+          console.log("✅ Admin user created");
+        }
       }
 
       await db
